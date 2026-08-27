@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>수원 호매실 주민 목소리 정리</title>
+<style>
+  :root{
+    --ink:#191f28; --sub:#6b7684; --faint:#8b95a1; --line:#e5e8eb;
+    --bg:#f7f8fa; --card:#ffffff;
+    --blue:#1b64da; --blue-bg:#eef4fd;
+    --green:#0a7d43; --green-bg:#e8f7ee;
+    --red:#c22b2b; --red-bg:#fdeeee;
+    --amber:#b45309; --amber-bg:#fdf3e3;
+    --gray-bg:#f2f4f6;
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",Pretendard,"Noto Sans KR","Malgun Gothic",sans-serif;
+    color:var(--ink); background:var(--bg); line-height:1.65;
+    -webkit-text-size-adjust:100%; word-break:keep-all;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+  sup a{font-size:11px;color:var(--faint)}
+
+  /* ── Cover ─────────────────────────────── */
+  .cover{background:var(--card);border-bottom:1px solid var(--line);padding:56px 0 36px}
+  .cover-kicker{font-size:14px;font-weight:700;color:var(--blue);letter-spacing:.06em}
+  .cover h1{font-size:40px;line-height:1.2;margin:10px 0 6px;font-weight:800}
+  .cover h1 .loc{font-size:20px;color:var(--sub);font-weight:500;margin-left:8px}
+  .cover-meta{color:var(--sub);font-size:14px}
+  .cover-meta b{color:var(--ink)}
+
+  /* 한 줄 결론 */
+  .conclusion{margin:26px 0 0;padding:22px 24px;background:var(--blue-bg);border:1px solid #d5e4fb;border-radius:var(--radius)}
+  .conclusion .label{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px}
+  .conclusion p{font-size:19px;font-weight:700;line-height:1.55}
+
+  /* ── 목차 ──────────────────────────────── */
+  .toc{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);
+       border-bottom:1px solid var(--line)}
+  .toc-row{display:flex;gap:6px;overflow-x:auto;padding:10px 20px;scrollbar-width:none}
+  .toc-row::-webkit-scrollbar{display:none}
+  .toc a{flex:0 0 auto;font-size:13px;color:var(--sub);padding:6px 12px;border-radius:999px;background:var(--gray-bg)}
+  .toc a:hover{color:var(--ink);text-decoration:none;background:var(--line)}
+
+  /* ── 공통 섹션/카드 ────────────────────── */
+  .section{padding:40px 0 8px;scroll-margin-top:64px}
+  .section h2{font-size:24px;font-weight:800;margin-bottom:4px}
+  .sec-lede{color:var(--sub);font-size:15px;margin-bottom:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;margin-bottom:16px}
+  .card h3{font-size:17px;font-weight:700;margin-bottom:10px}
+  .card p{font-size:15px;margin-bottom:10px}
+  .card p:last-child{margin-bottom:0}
+  .card ul,.card ol{padding-left:20px;font-size:15px}
+  .card li{margin-bottom:6px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .note{font-size:13px;color:var(--faint)}
+  .asof{font-size:12px;color:var(--faint)}
+
+  /* ── KPI 카드 ──────────────────────────── */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+  .kpi .l{font-size:12px;color:var(--sub);margin-bottom:4px}
+  .kpi .v{font-size:24px;font-weight:800;line-height:1.25}
+  .kpi .v small{font-size:14px;font-weight:600;color:var(--sub)}
+  .kpi .s{font-size:12px;color:var(--faint);margin-top:4px}
+  .kpi .up{color:var(--red)} .kpi .down{color:var(--blue)}
+
+  /* ── 배지 ──────────────────────────────── */
+  .st{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;vertical-align:1px;white-space:nowrap}
+  .st.확정{background:var(--green-bg);color:var(--green)}
+  .st.신뢰{background:var(--blue-bg);color:var(--blue)}
+  .st.참고{background:var(--gray-bg);color:var(--sub)}
+  .st.추정{background:var(--amber-bg);color:var(--amber)}
+  .st.확인{background:var(--red-bg);color:var(--red)}
+  .gr{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;
+      font-size:12px;font-weight:800;vertical-align:-3px;margin-right:6px}
+  .gr.a{background:#123c73;color:#fff}
+  .gr.b{background:#1b64da;color:#fff}
+  .gr.c{background:#5f6b7a;color:#fff}
+  .gr.d{background:#a08acb;color:#fff}
+  .gr.e{background:#d7dce2;color:#57606a}
+
+  /* ── 표 ────────────────────────────────── */
+  .table-wrap{overflow-x:auto;margin:6px 0 4px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+  th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{background:var(--gray-bg);font-size:13px;color:var(--sub);font-weight:700}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.hl td{background:var(--blue-bg);font-weight:700}
+
+  /* ── 차트 ──────────────────────────────── */
+  .chart-wrap{overflow-x:auto;padding:8px 0}
+  .chart-wrap svg{display:block;min-width:560px;width:100%;height:auto}
+  .chart-cap{font-size:12px;color:var(--faint);margin-top:6px}
+  .hbar{margin:8px 0}
+  .hbar .row{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:10px;margin-bottom:8px;font-size:14px}
+  .hbar .bar{height:14px;border-radius:7px;background:var(--blue);opacity:.85}
+  .hbar .row.me .bar{background:var(--green)}
+  .hbar .row.me .nm{font-weight:800}
+  .hbar .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--sub);font-size:13px}
+
+  /* ── 타임라인 (정비사업 단계) ──────────── */
+  .tl{list-style:none;padding-left:0;margin:8px 0}
+  .tl li{position:relative;padding:0 0 16px 26px;font-size:14px}
+  .tl li::before{content:"";position:absolute;left:6px;top:7px;width:9px;height:9px;border-radius:50%;
+                 background:var(--line);border:2px solid var(--faint)}
+  .tl li::after{content:"";position:absolute;left:10px;top:20px;bottom:-2px;width:1.5px;background:var(--line)}
+  .tl li:last-child::after{display:none}
+  .tl li.done::before{background:var(--green);border-color:var(--green)}
+  .tl li.now::before{background:#fff;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+  .tl li.now .tl-t{color:var(--blue);font-weight:800}
+  .tl .tl-t{font-weight:700}
+  .tl .tl-d{color:var(--faint);font-size:12px;margin-left:6px}
+
+  /* ── 리스크 카드 ───────────────────────── */
+  .risk{border-left:4px solid var(--line);padding:14px 18px;background:var(--card);border-radius:0 12px 12px 0;
+        border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:12px}
+  .risk .t{font-weight:700;font-size:15px;margin-bottom:4px}
+  .risk p{font-size:14px;color:var(--sub);margin:0}
+  .risk.high{border-left-color:var(--red)} .risk.high .sev{color:var(--red)}
+  .risk.mid{border-left-color:var(--amber)} .risk.mid .sev{color:var(--amber)}
+  .risk.low{border-left-color:var(--faint)} .risk.low .sev{color:var(--faint)}
+  .risk .sev{font-size:12px;font-weight:800;margin-right:6px}
+
+  /* ── Bull / Bear ───────────────────────── */
+  .bb{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .bb .card{margin-bottom:0}
+  .bull{border-top:4px solid var(--green)}
+  .bear{border-top:4px solid var(--red)}
+  .bull h3{color:var(--green)} .bear h3{color:var(--red)}
+  .bb ol{padding-left:18px}
+  .bb li{margin-bottom:10px;font-size:15px}
+  .bb .basis{display:block;font-size:12.5px;color:var(--faint);margin-top:2px}
+  .conf{font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--gray-bg);color:var(--sub);margin-left:6px;vertical-align:1px}
+
+  /* ── 용어 박스 ─────────────────────────── */
+  .term{display:flex;gap:10px;background:var(--gray-bg);border-radius:10px;padding:12px 14px;margin:10px 0;font-size:13.5px;color:var(--sub)}
+  .term .chip{flex:0 0 auto;font-size:11px;font-weight:800;color:var(--blue);background:var(--blue-bg);
+              border-radius:6px;padding:2px 7px;height:fit-content;margin-top:2px}
+  .term b{color:var(--ink)}
+
+  /* ── 체크리스트 ────────────────────────── */
+  .check{list-style:none;padding-left:0}
+  .check li{margin-bottom:8px;font-size:15px}
+  .check label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+  .check input{margin-top:5px;width:15px;height:15px;accent-color:var(--blue)}
+  .check .hot{color:var(--red);font-weight:700}
+
+  /* ── 최종 판단 ─────────────────────────── */
+  .verdict-box{background:var(--card);border:2px solid var(--ink);border-radius:var(--radius);padding:26px 28px}
+  .verdict-chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
+  .vchip{font-size:14px;font-weight:700;padding:7px 16px;border-radius:999px;background:var(--gray-bg);color:var(--faint)}
+  .vchip.on{background:var(--ink);color:#fff}
+  .verdict-box .reasons{padding-left:20px}
+  .verdict-box .reasons li{margin-bottom:8px;font-size:15px}
+
+  /* ── 출처 ──────────────────────────────── */
+  .src-list{list-style:none;padding-left:0;counter-reset:src}
+  .src-list li{counter-increment:src;font-size:13.5px;color:var(--sub);padding:9px 0;border-bottom:1px solid var(--line);
+               display:flex;gap:10px;align-items:baseline}
+  .src-list li::before{content:"["counter(src)"]";color:var(--faint);font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .src-list li:last-child{border-bottom:none}
+
+  /* ── 푸터 ──────────────────────────────── */
+  .foot{margin:48px 0 0;padding:28px 0 44px;border-top:1px solid var(--line);color:var(--faint);font-size:12.5px}
+
+  /* ── 반응형/인쇄 ───────────────────────── */
+  @media (max-width:680px){
+    .cover h1{font-size:30px}
+    .cover h1 .loc{display:block;margin:4px 0 0}
+    .grid-2,.bb{grid-template-columns:1fr}
+    .hbar .row{grid-template-columns:96px 1fr 76px}
+    .kpi .v{font-size:20px}
+  }
+  @media print{
+    .toc{display:none}
+    body{background:#fff}
+    .card,.kpi,.risk,.verdict-box{break-inside:avoid;border-color:#ccc}
+  }
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="wrap">
+    <p class="cover-kicker">부동산 스터디 공유 자료</p>
+    <h1>호매실 주민들은 뭐라고 하나<span class="loc">경기 수원시 권선구 호매실동, 금곡동</span></h1>
+    <p class="cover-meta">정리일 <b>2026-08-27</b> | 온라인 임장 조사 과정에서 수집된 주민 발언과 지역 커뮤니티 서술을 모은 것입니다</p>
+
+    <div class="conclusion">
+      <div class="label">이 자료를 쓰는 법</div>
+      <p>아래 내용은 <b>사실이 아니라 단서입니다.</b> 실거래가나 학교 공시처럼 검증된 데이터가 아니라
+      주민과 커뮤니티가 한 말이라서, 그대로 인용하면 안 되고 현장에서 확인할 질문 목록으로 쓰셔야 합니다.</p>
+    </div>
+  </div>
+</header>
+
+<nav class="toc"><div class="toc-row">
+  <a href="#howto">읽는 법</a><a href="#voices">주민 목소리 6가지</a><a href="#usage">스터디 활용법</a><a href="#sources">출처</a>
+</div></nav>
+
+<main class="wrap">
+
+  <section id="howto" class="section">
+    <h2>먼저 읽는 법</h2>
+    <div class="card">
+      <h3>왜 이걸 따로 모았나</h3>
+      <p>실거래가, 도보 거리, 학급당 학생수 같은 것은 공공 데이터로 확인됩니다. 그런데 매수 판단에서 정작 중요한
+      <b>“살아보면 어떤가”</b>는 데이터에 안 나와요. 통근할 때 버스에 앉아서 가는지, 전투기 소음이 하루에 몇 번인지,
+      주차가 몇 시부터 막히는지 같은 것들입니다.</p>
+      <p>그래서 조사 과정에서 나온 주민 발언과 지역 커뮤니티 서술을 따로 모았습니다. 데이터가 답하지 못한 자리를
+      메우는 재료입니다.</p>
+    </div>
+    <div class="card">
+      <h3>신뢰도를 반드시 구분하세요 <span class="st 확인">중요</span></h3>
+      <p>아래 6가지는 신뢰도가 서로 다릅니다. 항목마다 등급을 붙여뒀습니다.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>등급</th><th>성격</th><th>쓰는 법</th></tr></thead>
+        <tbody>
+          <tr><td><span class="gr c">C</span>언론 보도</td><td>기자가 취재한 주민 민원. 시의원 발언이 함께 실린 경우가 많습니다</td><td>사실로 인용해도 무방합니다. 다만 후속 보도를 함께 확인하세요</td></tr>
+          <tr><td><span class="gr e">E</span>커뮤니티, 위키</td><td>주민이나 익명 이용자가 쓴 글</td><td><b>사실 근거로 쓰지 마세요.</b> 현장에서 확인할 질문을 뽑는 용도로만 씁니다</td></tr>
+        </tbody>
+      </table></div>
+      <div class="risk high">
+        <div class="t"><span class="sev">실제 사례</span>주민 말이 크게 틀린 경우가 있었습니다</div>
+        <p>같은 조사에서 <b>“극동스타클래스에서 역까지 도보 7분 27초”</b>라는 주민 실측 주장을 확인했는데,
+        지도 실제 보행 경로로는 1.0km에 13~14분이었습니다. 2.4배 차이예요.
+        애초에 호매실역은 2029년 개통 예정이라 아직 존재하지 않기 때문에 실측 자체가 불가능한 주장이었습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="voices" class="section">
+    <h2>주민 목소리 6가지</h2>
+    <p class="sec-lede">각 항목은 “무슨 얘기인가 / 왜 중요한가 / 어떻게 확인하나” 순서로 정리했습니다.</p>
+
+    <div class="card">
+      <h3>1. 버스 노선이 바뀌어서 불편해졌다 <span class="gr c">C</span><span class="st 신뢰">언론 보도</span></h3>
+      <p><b>무슨 얘기인가.</b> 2026년 7월 수원 13번 시내버스의 기점과 종점이 호매실 차고지로 바뀌면서 기존 순환 운행이 끊겼습니다.
+      고령층과 출퇴근 이용객의 환승 부담이 늘고 수원역 방면 혼잡도가 올라갔다는 민원이 제기됐어요.
+      수원시의원이 정류장과 대기시설, 횡단보도 안전대책, 환승 방안을 요구했습니다.</p>
+      <p><b>왜 중요한가.</b> 호매실은 2029년까지 전철이 없어서 <b>버스가 유일한 대중교통</b>입니다.
+      노선 하나 바뀌는 것이 생활에 바로 영향을 준다는 뜻이고, 그만큼 교통이 취약하다는 신호이기도 해요.
+      수원역 방면은 직행 노선이 8개나 되지만, 그 구조가 흔들릴 수 있다는 점을 보여줍니다.</p>
+      <p><b>어떻게 확인하나.</b> 출근 시간대에 직접 버스를 타보세요. 앉아서 가는지 서서 가는지, 몇 정거장 만에 만석이 되는지 보시면 됩니다.
+      단지 앞 정류장에서 수원역까지 실제로 몇 분 걸리는지도 재보세요.</p>
+      <p class="note">출처: 글로벌이코노믹 (2026-07-28) <sup><a href="#src-1">[1]</a></sup></p>
+    </div>
+
+    <div class="card">
+      <h3>2. 능실역을 하나 더 놔달라는 요구가 있다 <span class="gr e">E</span><span class="st 참고">커뮤니티</span></h3>
+      <p><b>무슨 얘기인가.</b> 일부 주민이 수인분당선 오목천역과 신분당선 호매실역 사이에 <b>“능실역”</b>을 추가로 신설해달라고 요구하고 있습니다.
+      현재 계획에는 반영돼 있지 않습니다.</p>
+      <p><b>왜 중요한가.</b> 이 요구가 나온다는 것 자체가 <b>능실마을이 역에서 멀다는 것을 주민들이 체감하고 있다</b>는 뜻입니다.
+      실제로 능실마을에서 호매실역 예정지까지는 걸어서 2.3~2.5km입니다. 하천과 녹지대 때문에 직접 건너는 다리가 없어 북쪽으로 크게 돌아가야 해요.
+      직선으로는 1.2~1.4km인데 실제 보행 거리가 두 배 가까이 됩니다.</p>
+      <p><b>어떻게 확인하나.</b> 능실마을에 매물을 보러 가신다면 역 예정지까지 직접 걸어보세요.
+      그리고 주민들에게 “역 생기면 뭐 타고 가실 거예요”라고 물어보시면 됩니다. 자전거로는 약 14분이고,
+      15-1번 버스가 능실마을과 역 예정지 옆 홈플러스를 직접 잇지만 배차가 30~50분이고 막차가 20시 30분입니다.</p>
+      <p class="note">출처: 커뮤니티 서술 <sup><a href="#src-2">[2]</a></sup>. 계획에 반영되지 않은 요구 단계입니다.</p>
+    </div>
+
+    <div class="card">
+      <h3>3. 능실마을 상권은 병원과 공장 사람들이 먹여 살린다 <span class="gr e">E</span><span class="st 확인">판단 불가</span></h3>
+      <p><b>무슨 얘기인가.</b> 능실마을 상가(외식과 유흥 중심)가 인근 화홍병원 종사자와 공장, 산업단지 근로자의 소비에
+      상당 부분 기댄다는 서술이 있습니다.</p>
+      <p><b>왜 중요한가.</b> 사실이라면 <b>순수 주거 수요만으로는 상권이 돌지 않는다</b>는 뜻입니다.
+      택지지구 상권이 겉보기와 다르게 취약할 수 있다는 신호예요.</p>
+      <div class="risk mid">
+        <div class="t"><span class="sev">주의</span>이 항목은 검증에 실패했습니다</div>
+        <p>교차검증에서 <b>판단 불가</b>로 처리됐습니다. 단일 출처뿐이고, 게다가 같은 출처가 화홍병원 병상수를
+        사실과 다르게 적어둔 정황이 발견돼 그 출처 전반의 신뢰도가 떨어진 상태입니다.
+        스터디에서 공유하실 때 <b>“이런 얘기가 있는데 확인 못 했다”</b>고 명확히 붙여주세요.</p>
+      </div>
+      <p><b>어떻게 확인하나.</b> 평일 낮과 저녁, 주말에 각각 능실마을 상가를 걸어보세요. 공실이 얼마나 되는지,
+      손님 구성이 어떤지 보면 됩니다. 낮에는 붐비는데 주말에 한산하면 배후 수요가 주거가 아니라는 뜻입니다.</p>
+      <p class="note">출처: 위키 서술 <sup><a href="#src-3">[3]</a></sup></p>
+    </div>
+
+    <div class="card">
+      <h3>4. 애들 크면 학군지로 이사 나간다 <span class="gr e">E</span><span class="st 참고">커뮤니티</span></h3>
+      <p><b>무슨 얘기인가.</b> 호매실지구는 초등학생 비중이 압도적으로 높고, 자녀가 중고등학생이 되는 시기에
+      학군지로 빠져나가는 흐름이 있다는 언급이 있습니다.</p>
+      <p><b>왜 중요한가.</b> 이게 사실이면 <b>수요층이 특정 생애주기에 묶여 있다</b>는 뜻이라 자산가치 측면에서 중요합니다.
+      실제로 데이터가 이 얘기를 부분적으로 뒷받침해요. 지구 안 중학교 4곳(호매실중, 상촌중, 능실중, 칠보중)이
+      전부 학급당 29~33명대로 과밀이고, 고등학교는 두 곳뿐입니다.
+      학원가도 금곡당수로 사거리 중심의 근린 상권 규모라 영통(영어 학원만 약 323개 등록)과는 격차가 큽니다.</p>
+      <p><b>어떻게 확인하나.</b> 중개업소에 “여기 중학생 있는 집들 많이 나가나요”라고 물어보세요.
+      학원가를 저녁 시간에 직접 걸어보시고, 학원 차량이 어디로 가는지 보시면 됩니다. 영통 방면 셔틀이 많다면 원정 수요가 있다는 뜻이에요.</p>
+      <p class="note">출처: 커뮤니티 서술 <sup><a href="#src-3">[3]</a></sup><sup><a href="#src-6">[6]</a></sup>. 학교 수치는 공공 데이터로 확인된 것입니다.</p>
+    </div>
+
+    <div class="card">
+      <h3>5. 호매실고는 지어질 때부터 작게 지어졌다 <span class="gr e">E</span><span class="st 참고">커뮤니티</span></h3>
+      <p><b>무슨 얘기인가.</b> 호매실고등학교(2012년 3월 개교)는 인근에 고등학교가 하나 더 신설될 것을 전제로
+      24학급 규모로 지어졌는데, <b>그 신설 예정 학교가 지금까지 생기지 않았습니다.</b>
+      급식실이 좁아 회전이 잘 안 되고 시청각실이 반지하 구조라 환기 문제가 있다는 얘기도 있습니다.</p>
+      <p><b>왜 중요한가.</b> 지구 안 고등학교가 두 곳뿐인 구조적 원인을 설명해줍니다.
+      수원시는 고교 평준화 지역이라 학군 안에서 추첨 배정하는데, 지구 내 학교가 적으면 멀리 배정될 확률이 올라갑니다.
+      다만 원거리 배정 비율 같은 정량 근거는 확인하지 못했습니다.</p>
+      <p><b>어떻게 확인하나.</b> 학교 신설 계획이 다시 추진되고 있는지 수원교육지원청에 문의해보세요.
+      고등학생 자녀를 둔 주민에게 실제 배정이 어떻게 됐는지 물어보는 것이 가장 빠릅니다.</p>
+      <p class="note">출처: 위키 서술 <sup><a href="#src-4">[4]</a></sup></p>
+    </div>
+
+    <div class="card">
+      <h3>6. 화서역 가려면 갈아타야 한다 <span class="gr e">E</span><span class="st 참고">커뮤니티</span></h3>
+      <p><b>무슨 얘기인가.</b> 호매실에서 화서역(1호선)까지 직결 버스가 뚜렷하지 않아서,
+      구운동 방면 버스를 탄 뒤 구운중학교에서 21번 마을버스로 갈아타는 경로가 거론됩니다.</p>
+      <p><b>왜 중요한가.</b> 수원역 방면은 직행 노선이 8개인데 <b>화서역 방면은 약합니다.</b>
+      1호선을 타고 서울 도심으로 통근하는 분에게는 실질적인 제약이에요.
+      참고로 화서역은 신분당선 연장선에서 SB08 정거장으로 환승역이 되기 때문에, 개통 후에는 상황이 달라집니다.</p>
+      <p><b>어떻게 확인하나.</b> 실제로 그 경로로 화서역까지 가보시고 총 소요 시간을 재세요.
+      환승 대기 시간이 얼마나 되는지가 핵심입니다.</p>
+      <p class="note">출처: 커뮤니티 서술 <sup><a href="#src-5">[5]</a></sup>. 정확한 총 소요 시간은 확인하지 못했습니다.</p>
+    </div>
+  </section>
+
+  <section id="usage" class="section">
+    <h2>스터디에서 어떻게 쓸까</h2>
+    <div class="card">
+      <h3>이 6가지를 관통하는 한 줄</h3>
+      <p>여섯 항목 중 네 개가 <b>교통</b>과 <b>학군</b> 얘기입니다. 우연이 아니에요.
+      호매실은 생활 인프라(종합병원, 대형마트, 도서관, 공연장, 칠보산)는 이미 갖춰진 15년차 성숙 택지지구라
+      일상 생활에 대한 불만은 잘 안 나옵니다. 주민들이 말하는 불편은 <b>거의 전부 광역 통근과 자녀 교육</b>에 몰려 있습니다.</p>
+      <p>이게 신분당선 개통이 이 지역에 갖는 의미를 설명해줍니다. 없던 생활을 만드는 게 아니라
+      <b>비어 있는 한 칸을 채우는</b> 사건이에요. 다만 학군 문제는 개통이 해결해주지 않습니다.</p>
+    </div>
+    <div class="card">
+      <h3>발표할 때 이렇게 붙이면 좋습니다</h3>
+      <ul>
+        <li><b>등급을 먼저 말하세요.</b> “언론 보도 1건, 나머지 5건은 커뮤니티라 확인이 필요한 단서입니다”로 시작하면 신뢰도 논란이 안 생깁니다</li>
+        <li><b>3번은 반드시 단서를 붙이세요.</b> 교차검증에서 판단 불가로 처리된 항목입니다</li>
+        <li><b>“도보 7분 27초” 사례를 곁들이면 좋습니다.</b> 주민 말을 어디까지 믿을 것인가라는 방법론 논의로 이어집니다</li>
+        <li><b>확인 방법을 같이 읽으세요.</b> 이 자료의 진짜 값어치는 “뭘 물어볼지”를 정리해준 데 있습니다</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>아직 안 물어본 것들</h3>
+      <p>주민에게 물어야 하는데 이번 조사에서 답을 못 구한 질문입니다. 현장에 가시면 이걸 물어보세요.</p>
+      <ul class="check">
+        <li><label><input type="checkbox"><span>통근을 실제로 어떻게 하시나요. 몇 시에 나가고 버스에 앉아서 가시나요</span></label></li>
+        <li><label><input type="checkbox"><span>전투기 소음이 하루에 몇 번이고, 창문 열고 대화가 되나요</span></label></li>
+        <li><label><input type="checkbox"><span>주차는 저녁 몇 시부터 이중주차가 시작되나요</span></label></li>
+        <li><label><input type="checkbox"><span>중학교 학급당 33명인데 체감이 어떤가요</span></label></li>
+        <li><label><input type="checkbox"><span>중심상가 공실이 어느 정도인가요</span></label></li>
+        <li><label><input type="checkbox"><span>신분당선 2029년 개통을 실제로 믿고 계신가요</span></label></li>
+      </ul>
+      <p class="note">소음에 관해 하나 덧붙이면, 커뮤니티에는 “능실동이 심하고 금곡동은 덜하다”는 통설이 있는데
+      수원시 실측치는 반대입니다. 호매실동 71~79웨클, 금곡동 75~83웨클로 금곡동이 더 높아요.
+      다만 측정소 위치가 법정동을 대표하는지는 확인하지 못했습니다. 물어보실 때 두 동을 같은 날 비교해보시면 좋습니다.</p>
+    </div>
+  </section>
+
+  <section id="sources" class="section">
+    <h2>출처</h2>
+    <p class="sec-lede">등급: <span class="gr c">C</span>주요 언론 <span class="gr e">E</span>커뮤니티, 위키</p>
+    <div class="card">
+      <ol class="src-list">
+        <li id="src-1"><span><span class="gr c">C</span>글로벌이코노믹 | 수원 13번 버스 노선 변경에 호매실 주민 불편, 박혜연 시의원 실질적 보완책 필요 | 2026-07-28 | <a href="https://www.g-enews.com/article/General-News/2026/07/2026072808370392208fbfc802b3_1" target="_blank" rel="noopener">g-enews.com</a></span></li>
+        <li id="src-2"><span><span class="gr e">E</span>나무위키 | 오목천역 (능실역 신설 요구 서술) | 2026-08-27 열람 | <a href="https://namu.wiki/w/%EC%98%A4%EB%AA%A9%EC%B2%9C%EC%97%AD" target="_blank" rel="noopener">namu.wiki</a></span></li>
+        <li id="src-3"><span><span class="gr e">E</span>나무위키 | 수원 호매실지구 (상권 구조, 인구 구성 서술) | 2026-08-27 열람 | <a href="https://namu.wiki/w/%EC%88%98%EC%9B%90%20%ED%98%B8%EB%A7%A4%EC%8B%A4%EC%A7%80%EA%B5%AC" target="_blank" rel="noopener">namu.wiki</a></span></li>
+        <li id="src-4"><span><span class="gr e">E</span>나무위키 | 호매실고등학교 | 2026-08-27 열람 | <a href="https://namu.wiki/w/%ED%98%B8%EB%A7%A4%EC%8B%A4%EA%B3%A0%EB%93%B1%ED%95%99%EA%B5%90" target="_blank" rel="noopener">namu.wiki</a></span></li>
+        <li id="src-5"><span><span class="gr e">E</span>디시인사이드 모노레일 갤러리 | 1호선과 신분당선 화서역 환승동선 논의 | 2026-08-27 열람 | <a href="https://gall.dcinside.com/mgallery/board/view/?id=monorail&amp;no=591353" target="_blank" rel="noopener">gall.dcinside.com</a></span></li>
+        <li id="src-6"><span><span class="gr e">E</span>클리앙 | 요즘에 수원 호매실 지구를 계속 관찰중입니다 | 2026-08-27 열람 | <a href="https://www.clien.net/service/board/park/2939989" target="_blank" rel="noopener">clien.net</a></span></li>
+      </ol>
+      <p class="note" style="margin-top:12px">본문에 함께 언급한 실거래, 도보 거리, 학교 학급당 학생수, 군소음 측정치는 별도 조사에서 공공 데이터로 확인한 값입니다.
+      상세 근거는 같은 폴더의 온라인 임장 리포트를 보세요.</p>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>이 자료는 주민 발언과 지역 커뮤니티 서술을 모은 참고 자료이며, 검증된 사실이 아닙니다.
+    특정 부동산의 매수 또는 매도를 권유하지 않습니다.</p>
+    <p style="margin-top:6px">정리일 2026-08-27 | 온라인 임장 조사 부산물</p>
+  </footer>
+
+</main>
+</body>
+</html>
