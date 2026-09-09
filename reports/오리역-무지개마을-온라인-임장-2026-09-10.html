@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오리역 무지개마을 온라인 임장 리포트</title>
+<style>
+  :root{
+    --ink:#191f28; --sub:#6b7684; --faint:#8b95a1; --line:#e5e8eb;
+    --bg:#f7f8fa; --card:#ffffff;
+    --blue:#1b64da; --blue-bg:#eef4fd;
+    --green:#0a7d43; --green-bg:#e8f7ee;
+    --red:#c22b2b; --red-bg:#fdeeee;
+    --amber:#b45309; --amber-bg:#fdf3e3;
+    --gray-bg:#f2f4f6;
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",Pretendard,"Noto Sans KR","Malgun Gothic",sans-serif;
+    color:var(--ink); background:var(--bg); line-height:1.65;
+    -webkit-text-size-adjust:100%; word-break:keep-all;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+  sup a{font-size:11px;color:var(--faint)}
+
+  /* ── Cover ─────────────────────────────── */
+  .cover{background:var(--card);border-bottom:1px solid var(--line);padding:56px 0 36px}
+  .cover-kicker{font-size:14px;font-weight:700;color:var(--blue);letter-spacing:.06em}
+  .cover h1{font-size:40px;line-height:1.2;margin:10px 0 6px;font-weight:800}
+  .cover h1 .loc{font-size:20px;color:var(--sub);font-weight:500;margin-left:8px}
+  .cover-meta{color:var(--sub);font-size:14px}
+  .cover-meta b{color:var(--ink)}
+
+  /* 한 줄 결론 */
+  .conclusion{margin:26px 0 0;padding:22px 24px;background:var(--blue-bg);border:1px solid #d5e4fb;border-radius:var(--radius)}
+  .conclusion .label{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px}
+  .conclusion p{font-size:19px;font-weight:700;line-height:1.55}
+
+  /* ── 목차 ──────────────────────────────── */
+  .toc{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);
+       border-bottom:1px solid var(--line)}
+  .toc-row{display:flex;gap:6px;overflow-x:auto;padding:10px 20px;scrollbar-width:none}
+  .toc-row::-webkit-scrollbar{display:none}
+  .toc a{flex:0 0 auto;font-size:13px;color:var(--sub);padding:6px 12px;border-radius:999px;background:var(--gray-bg)}
+  .toc a:hover{color:var(--ink);text-decoration:none;background:var(--line)}
+
+  /* ── 공통 섹션/카드 ────────────────────── */
+  .section{padding:40px 0 8px;scroll-margin-top:64px}
+  .section h2{font-size:24px;font-weight:800;margin-bottom:4px}
+  .sec-lede{color:var(--sub);font-size:15px;margin-bottom:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;margin-bottom:16px}
+  .card h3{font-size:17px;font-weight:700;margin-bottom:10px}
+  .card p{font-size:15px;margin-bottom:10px}
+  .card p:last-child{margin-bottom:0}
+  .card ul,.card ol{padding-left:20px;font-size:15px}
+  .card li{margin-bottom:6px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .note{font-size:13px;color:var(--faint)}
+  .asof{font-size:12px;color:var(--faint)}
+
+  /* ── KPI 카드 ──────────────────────────── */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+  .kpi .l{font-size:12px;color:var(--sub);margin-bottom:4px}
+  .kpi .v{font-size:24px;font-weight:800;line-height:1.25}
+  .kpi .v small{font-size:14px;font-weight:600;color:var(--sub)}
+  .kpi .s{font-size:12px;color:var(--faint);margin-top:4px}
+  .kpi .up{color:var(--red)} .kpi .down{color:var(--blue)}
+
+  /* ── 배지 ──────────────────────────────── */
+  .st{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;vertical-align:1px;white-space:nowrap}
+  .st.확정{background:var(--green-bg);color:var(--green)}
+  .st.신뢰{background:var(--blue-bg);color:var(--blue)}
+  .st.참고{background:var(--gray-bg);color:var(--sub)}
+  .st.추정{background:var(--amber-bg);color:var(--amber)}
+  .st.확인{background:var(--red-bg);color:var(--red)}
+  .gr{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;
+      font-size:12px;font-weight:800;vertical-align:-3px;margin-right:6px}
+  .gr.a{background:#123c73;color:#fff}
+  .gr.b{background:#1b64da;color:#fff}
+  .gr.c{background:#5f6b7a;color:#fff}
+  .gr.d{background:#a08acb;color:#fff}
+  .gr.e{background:#d7dce2;color:#57606a}
+
+  /* ── 표 ────────────────────────────────── */
+  .table-wrap{overflow-x:auto;margin:6px 0 4px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+  th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{background:var(--gray-bg);font-size:13px;color:var(--sub);font-weight:700}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.hl td{background:var(--blue-bg);font-weight:700}
+
+  /* ── 차트 ──────────────────────────────── */
+  .chart-wrap{overflow-x:auto;padding:8px 0}
+  .chart-wrap svg{display:block;min-width:560px;width:100%;height:auto}
+  .chart-cap{font-size:12px;color:var(--faint);margin-top:6px}
+  .hbar{margin:8px 0}
+  .hbar .row{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:10px;margin-bottom:8px;font-size:14px}
+  .hbar .bar{display:block;height:14px;border-radius:7px;background:var(--blue);opacity:.85}
+  .hbar .row>span:nth-child(2){display:block}
+  .hbar .row .nm small{color:var(--faint);font-weight:400}
+  .hbar .row.me .bar{background:var(--green)}
+  .hbar .row.me .nm{font-weight:800}
+  .hbar .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--sub);font-size:13px}
+
+  /* ── 타임라인 (정비사업 단계) ──────────── */
+  .tl{list-style:none;padding-left:0;margin:8px 0}
+  .tl li{position:relative;padding:0 0 16px 26px;font-size:14px}
+  .tl li::before{content:"";position:absolute;left:6px;top:7px;width:9px;height:9px;border-radius:50%;
+                 background:var(--line);border:2px solid var(--faint)}
+  .tl li::after{content:"";position:absolute;left:10px;top:20px;bottom:-2px;width:1.5px;background:var(--line)}
+  .tl li:last-child::after{display:none}
+  .tl li.done::before{background:var(--green);border-color:var(--green)}
+  .tl li.now::before{background:#fff;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+  .tl li.now .tl-t{color:var(--blue);font-weight:800}
+  .tl .tl-t{font-weight:700}
+  .tl .tl-d{color:var(--faint);font-size:12px;margin-left:6px}
+
+  /* ── 리스크 카드 ───────────────────────── */
+  .risk{border-left:4px solid var(--line);padding:14px 18px;background:var(--card);border-radius:0 12px 12px 0;
+        border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:12px}
+  .risk .t{font-weight:700;font-size:15px;margin-bottom:4px}
+  .risk p{font-size:14px;color:var(--sub);margin:0}
+  .risk.high{border-left-color:var(--red)} .risk.high .sev{color:var(--red)}
+  .risk.mid{border-left-color:var(--amber)} .risk.mid .sev{color:var(--amber)}
+  .risk.low{border-left-color:var(--faint)} .risk.low .sev{color:var(--faint)}
+  .risk .sev{font-size:12px;font-weight:800;margin-right:6px}
+
+  /* ── Bull / Bear ───────────────────────── */
+  .bb{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .bb .card{margin-bottom:0}
+  .bull{border-top:4px solid var(--green)}
+  .bear{border-top:4px solid var(--red)}
+  .bull h3{color:var(--green)} .bear h3{color:var(--red)}
+  .bb ol{padding-left:18px}
+  .bb li{margin-bottom:10px;font-size:15px}
+  .bb .basis{display:block;font-size:12.5px;color:var(--faint);margin-top:2px}
+  .conf{font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--gray-bg);color:var(--sub);margin-left:6px;vertical-align:1px}
+
+  /* ── 용어 박스 ─────────────────────────── */
+  .term{display:flex;gap:10px;background:var(--gray-bg);border-radius:10px;padding:12px 14px;margin:10px 0;font-size:13.5px;color:var(--sub)}
+  .term .chip{flex:0 0 auto;font-size:11px;font-weight:800;color:var(--blue);background:var(--blue-bg);
+              border-radius:6px;padding:2px 7px;height:fit-content;margin-top:2px}
+  .term b{color:var(--ink)}
+
+  /* ── 체크리스트 ────────────────────────── */
+  .check{list-style:none;padding-left:0}
+  .check li{margin-bottom:8px;font-size:15px}
+  .check label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+  .check input{margin-top:5px;width:15px;height:15px;accent-color:var(--blue)}
+  .check .hot{color:var(--red);font-weight:700}
+
+  /* ── 최종 판단 ─────────────────────────── */
+  .verdict-box{background:var(--card);border:2px solid var(--ink);border-radius:var(--radius);padding:26px 28px}
+  .verdict-chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
+  .vchip{font-size:14px;font-weight:700;padding:7px 16px;border-radius:999px;background:var(--gray-bg);color:var(--faint)}
+  .vchip.on{background:var(--ink);color:#fff}
+  .verdict-box .reasons{padding-left:20px}
+  .verdict-box .reasons li{margin-bottom:8px;font-size:15px}
+
+  /* ── 출처 ──────────────────────────────── */
+  .src-list{list-style:none;padding-left:0;counter-reset:src}
+  .src-list li{counter-increment:src;font-size:13.5px;color:var(--sub);padding:9px 0;border-bottom:1px solid var(--line);
+               display:flex;gap:10px;align-items:baseline}
+  .src-list li::before{content:"["counter(src)"]";color:var(--faint);font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .src-list li:last-child{border-bottom:none}
+
+  /* ── 푸터 ──────────────────────────────── */
+  .foot{margin:48px 0 0;padding:28px 0 44px;border-top:1px solid var(--line);color:var(--faint);font-size:12.5px}
+
+  /* ── 반응형/인쇄 ───────────────────────── */
+  @media (max-width:680px){
+    .cover h1{font-size:30px}
+    .cover h1 .loc{display:block;margin:4px 0 0}
+    .grid-2,.bb{grid-template-columns:1fr}
+    .hbar .row{grid-template-columns:96px 1fr 76px}
+    .kpi .v{font-size:20px}
+  }
+  @media print{
+    .toc{display:none}
+    body{background:#fff}
+    .card,.kpi,.risk,.verdict-box{break-inside:avoid;border-color:#ccc}
+  }
+
+  /* ── 주민 목소리 ───────────────────────── */
+  .voice{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--blue);
+         border-radius:0 12px 12px 0;padding:16px 20px;margin-bottom:12px}
+  .voice .q{font-size:15px;line-height:1.7;color:var(--ink)}
+  .voice .q b{background:#fff3c4;font-weight:700;padding:0 2px;border-radius:2px}
+  .voice .who{margin-top:9px;font-size:12.5px;color:var(--faint)}
+  .voice .who b{color:var(--sub);font-weight:700}
+  .voice.pos{border-left-color:var(--green)}
+  .voice.neg{border-left-color:var(--red)}
+  .voice.mix{border-left-color:var(--amber)}
+  .vtag{display:inline-block;font-size:11px;font-weight:800;padding:1px 8px;border-radius:999px;margin-right:6px;vertical-align:2px}
+  .vtag.pos{background:var(--green-bg);color:var(--green)}
+  .vtag.neg{background:var(--red-bg);color:var(--red)}
+  .vtag.mix{background:var(--amber-bg);color:var(--amber)}
+  .vgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:680px){.vgrid{grid-template-columns:1fr}}
+  .tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0 4px}
+  .tally .t{background:var(--gray-bg);border-radius:10px;padding:12px 14px}
+  .tally .t .n{font-size:20px;font-weight:800}
+  .tally .t .l{font-size:12px;color:var(--sub);margin-top:2px}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="wrap">
+    <div class="cover-kicker">온라인 임장 리포트</div>
+    <h1>오리역 무지개마을<span class="loc">성남시 분당구 구미동</span></h1>
+    <div class="cover-meta">
+      조사 기준일 <b>2026년 9월 10일</b> · 대상 <b>13개 단지 약 6,200세대</b> ·
+      실거래 출처 <b>국토교통부(아파트미 재배포)</b>
+    </div>
+
+    <div class="conclusion">
+      <div class="label">한 줄 결론</div>
+      <p>“분당에서 가장 늦게 오르는 동네”라는 20년짜리 평판이 2025년 하반기에 깨졌습니다.
+         지금 무지개마을 가격은 실거주 만족도가 아니라 <u>오리역 정비사업 세 갈래의 기대감</u>을 사는 값이고,
+         그 기대감 중 확정된 것은 4단지 리모델링 하나뿐이에요.</p>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="l">12단지 24평 실거래</div><div class="v">11억 6,000<small>만원</small></div><div class="s up">2024Q1 5.9억 → 2026.08 (+97%)</div></div>
+      <div class="kpi"><div class="l">분당구 1년 상승률</div><div class="v">29.5<small>%</small></div><div class="s">전국 1위 · 2025.09~2026.08</div></div>
+      <div class="kpi"><div class="l">12단지 1년 상승률</div><div class="v">56.4<small>%</small></div><div class="s">분당 5위 · 2025.06~2026.06</div></div>
+      <div class="kpi"><div class="l">확정된 정비사업</div><div class="v">1 / 4<small>건</small></div><div class="s">4단지 리모델링만 준공 임박</div></div>
+      <div class="kpi"><div class="l">12단지 20평 전세가율</div><div class="v">27<small>%</small></div><div class="s down">신규 전세 2.55억 / 매매 10.5억</div></div>
+    </div>
+  </div>
+</div>
+
+<nav class="toc"><div class="toc-row">
+  <a href="#map">단지 지형</a><a href="#voice">주민 목소리</a><a href="#price">실거래</a><a href="#trend">가격 추이</a>
+  <a href="#redev">정비사업</a><a href="#ori">오리역 개발</a><a href="#jeonse">전세·갭</a><a href="#edu">교육</a>
+  <a href="#life">생활</a><a href="#risk">리스크</a><a href="#bullbear">Bull/Bear</a><a href="#verdict">최종 판단</a><a href="#src">출처</a>
+</div></nav>
+
+<div class="wrap">
+
+  <section id="map" class="section">
+    <h2>먼저, 무지개마을은 하나의 단지가 아닙니다</h2>
+    <p class="sec-lede">이름은 하나인데 실제로는 13개 단지가 오리역 동쪽으로 1.4km에 걸쳐 흩어져 있습니다. 오리역과의 거리가 이 동네의 모든 가격 차이를 만드는 첫 번째 축이에요.</p>
+
+    <div class="card">
+      <h3>오리역(수인분당선)에서 가까운 순서</h3>
+      <p class="note">막대 길이는 단지 중심점과 오리역 사이의 직선거리입니다. 좌표는 아파트미가 공개한 단지 좌표를 그대로 썼고, 거리는 직접 계산했어요. 실제 보행거리는 여기에 10~20%가 더 붙습니다.</p>
+      <div class="hbar">
+        <div class="row me"><span class="nm">2단지 엘지</span><span><span class="bar" style="width:36%"></span></span><span class="val">489m</span></div>
+        <div class="row me"><span class="nm">3단지 건영·신한</span><span><span class="bar" style="width:45%"></span></span><span class="val">600m</span></div>
+        <div class="row me"><span class="nm">4단지 주공 <small>(리모델링)</small></span><span><span class="bar" style="width:47%"></span></span><span class="val">633m</span></div>
+        <div class="row"><span class="nm">1단지 대림</span><span><span class="bar" style="width:61%"></span></span><span class="val">825m</span></div>
+        <div class="row"><span class="nm">11단지 금강센테리움</span><span><span class="bar" style="width:65%"></span></span><span class="val">877m</span></div>
+        <div class="row"><span class="nm">12단지 주공</span><span><span class="bar" style="width:67%"></span></span><span class="val">898m</span></div>
+        <div class="row"><span class="nm">5단지 청구</span><span><span class="bar" style="width:70%"></span></span><span class="val">939m</span></div>
+        <div class="row"><span class="nm">10단지 건영·삼성</span><span><span class="bar" style="width:73%"></span></span><span class="val">982m</span></div>
+        <div class="row"><span class="nm">6단지 건영</span><span><span class="bar" style="width:81%"></span></span><span class="val">1,085m</span></div>
+        <div class="row"><span class="nm">7단지 라이프</span><span><span class="bar" style="width:95%"></span></span><span class="val">1,282m</span></div>
+        <div class="row"><span class="nm">9단지 동아</span><span><span class="bar" style="width:99%"></span></span><span class="val">1,329m</span></div>
+        <div class="row"><span class="nm">8단지 제일</span><span><span class="bar" style="width:100%"></span></span><span class="val">1,345m</span></div>
+      </div>
+      <p class="note">아파트미가 별도로 표기하는 보행 시간은 2단지 12분(571m), 3단지 11분(552m), 4단지 16분(844m), 1단지 18분(917m), 5단지 18분(979m)입니다. 6단지 이후로는 아예 표기가 없어요. 뒤에 나오는 주민 진술과는 편차가 큽니다.</p>
+    </div>
+
+    <div class="card">
+      <h3>13개 단지 기본 제원</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단지</th><th class="num">세대</th><th class="num">동</th><th class="num">준공</th><th class="num">용적률</th><th class="num">세대당 주차</th><th>주력 평형</th><th>배정 초등</th></tr></thead>
+          <tbody>
+            <tr><td>1단지 대림</td><td class="num">778</td><td class="num">11</td><td class="num">1995</td><td class="num">209%</td><td class="num">1.00대</td><td>20·25·32·37·45평</td><td>구미초 341m</td></tr>
+            <tr><td>2단지 엘지</td><td class="num">888</td><td class="num">14</td><td class="num">1995</td><td class="num">210%</td><td class="num">1.04대</td><td>21·27·32·38·48평</td><td>구미초 451m</td></tr>
+            <tr><td>3단지 건영·신한</td><td class="num">964</td><td class="num">12</td><td class="num">1996</td><td class="num">210%</td><td class="num">0.83대</td><td>20·26·27·32·33평</td><td>불곡초 399m</td></tr>
+            <tr class="hl"><td>4단지 주공 <small>(리모델링)</small></td><td class="num">563→647</td><td class="num">5→7</td><td class="num">1995</td><td class="num">170%</td><td class="num">2.41대</td><td>20·23·24평</td><td>불곡초 247m</td></tr>
+            <tr><td>5단지 청구</td><td class="num">932</td><td class="num">13</td><td class="num">1995</td><td class="num">206%</td><td class="num">0.97대</td><td>25·32평</td><td>불곡초 162m</td></tr>
+            <tr><td>6단지 건영</td><td class="num">208</td><td class="num">4</td><td class="num">1995</td><td class="num">141%</td><td class="num">1.00대</td><td>37·48·57평</td><td>불곡초 323m</td></tr>
+            <tr><td>7단지 라이프</td><td class="num">222</td><td class="num">4</td><td class="num">1995</td><td class="num">142%</td><td class="num">2.00대</td><td>37·48·58평</td><td>불곡초 587m</td></tr>
+            <tr><td>8단지 제일</td><td class="num">172</td><td class="num">3</td><td class="num">1995</td><td class="num">134%</td><td class="num">1.76대</td><td>37·49평</td><td>구미초 620m</td></tr>
+            <tr><td>9단지 동아</td><td class="num">132</td><td class="num">3</td><td class="num">1995</td><td class="num">137%</td><td class="num">1.74대</td><td>37·48평</td><td>구미초 649m</td></tr>
+            <tr><td>10단지 건영·삼성</td><td class="num">498</td><td class="num">8</td><td class="num">1996</td><td class="num">151%</td><td class="num">1.60대</td><td>37·48평</td><td>구미초 267m</td></tr>
+            <tr class="hl"><td>11단지 금강센테리움</td><td class="num">216</td><td class="num">3</td><td class="num">1995</td><td class="num">167%</td><td class="num">0.72대</td><td>20·32평</td><td>구미초 165m</td></tr>
+            <tr class="hl"><td>12단지 주공</td><td class="num">905</td><td class="num">9</td><td class="num">1995</td><td class="num">153%</td><td class="num">1.00대</td><td>20·24평</td><td>구미초 219m</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="asof">출처: 아파트미 단지정보(국토부 건축물대장 기반) · 2026-09-10 조회. 3단지는 건영과 신한이 한 단지로 묶여 964세대로 집계되고, 10단지도 건영과 삼성이 498세대로 함께 잡힙니다. 파란 줄은 정비사업이 실제로 움직이고 있는 단지예요.</p>
+      <div class="term"><span class="chip">읽는 법</span><div>
+        <b>용적률이 낮을수록 재건축 사업성이 좋습니다.</b> 대지에 지은 연면적이 적다는 뜻이라 같은 땅에 더 많이 지어 팔 여지가 남아 있어요.
+        분당 노후계획도시 기본계획의 기준용적률이 326%이므로, 153%인 12단지와 167%인 11단지는 여유가 크고 210%인 2·3단지는 상대적으로 빠듯합니다.
+      </div></div>
+    </div>
+  </section>
+  <section id="voice" class="section">
+    <h2>실제로 살아본 사람들이 하는 말</h2>
+    <p class="sec-lede">이 리포트에서 가장 공들인 부분입니다. 중개업소 홍보 문구나 기사 요약이 아니라, 거주 이력이 확인된 후기와 익명 커뮤니티에서 이해관계를 밝힌 글만 골랐어요. 원문 그대로 옮기고 줄임표는 원문이 잘린 지점입니다.</p>
+
+    <div class="card">
+      <h3>먼저, 이 후기들을 어떻게 읽어야 하나</h3>
+      <p>집품에 올라온 무지개마을 일대 실거주 후기 17건, 블라인드 두 개 글의 댓글 23건, 82cook 게시글 하나를 전부 읽었습니다.
+         주의할 점이 하나 있어요. 집품은 단지 페이지마다 <b>인근 단지 후기를 섞어서</b> 보여줍니다.
+         같은 후기가 1단지 페이지와 3단지 페이지에 동시에 뜨더군요. 그래서 아래에서는 <b>후기 본문이 단지를 직접 지목한 경우에만</b> 단지명을 붙였고,
+         나머지는 “무지개마을 일대”로 묶었습니다.</p>
+      <div class="tally">
+        <div class="t"><div class="n">6건+</div><div class="l">주차 불만 (가장 많음)</div></div>
+        <div class="t"><div class="n">7건+</div><div class="l">탄천·불곡산 만족</div></div>
+        <div class="t"><div class="n">5건</div><div class="l">“조용하다”</div></div>
+        <div class="t"><div class="n">3 vs 2</div><div class="l">층간소음 있다 vs 없다</div></div>
+        <div class="t"><div class="n">8분~15분</div><div class="l">오리역 도보 진술 편차</div></div>
+      </div>
+    </div>
+
+    <h3 style="font-size:18px;margin:26px 0 10px">1. 만장일치로 좋다는 것: 탄천, 조용함, 초등학교</h3>
+    <div class="voice pos">
+      <p class="q"><span class="vtag pos">장점</span>“무지개마을은 주거환경, 상권, 학군 뭐 빠지는거 없는 가성비면에선 분당 최고 동네죠. <b>탄천이 마을을 무지개형태로 감싸고 흘러서 무지개 마을</b>이라는... 임장 가보시면 아~ 할겁니다.^^ 전 미금과 고민하다가 미금역 신분당선 접근성 별차이 없어서(<b>3단지 기준 마을버스로 평균 6분내 도착</b>) 무지개 선택했고요. 후회 없습니다~~”</p>
+      <p class="who"><b>블라인드 · LG CNS 재직자</b> · 2020.11.17 · 추천 12 · 본인이 매수해 거주 중이라고 밝힘</p>
+    </div>
+    <div class="voice pos">
+      <p class="q"><span class="vtag pos">장점</span>“층간소음없음 치안좋음 <b>바로 앞에 탄천이라 반려동물 산책하기도 좋고 운동하기도 좋습니다</b> 앞에 상가에는 헬스장도 많고 바로 앞에 마트도있어요 편의점…”</p>
+      <p class="who"><b>집품 · 현재 거주자</b> · 2026년 8월 · 교통 5 / 생활 5 / 건물 5 / 내부 2 / 환경 5</p>
+    </div>
+    <div class="voice pos">
+      <p class="q"><span class="vtag pos">장점</span>“<b>대단지라서 관리비가 다른 분당 아파트에 비해 저렴한 편입니다.</b> 불곡산 밑이라 공기 좋고 산행 가기 좋아요. 치안도 좋습니다. 중심 상권에서 너무…”</p>
+      <p class="who"><b>집품 · 5단지 청구 현재 거주자</b> · 2026년 8월 · 교통 5 / 생활 5 / 건물 4 / 내부 4 / 환경 5</p>
+    </div>
+    <div class="voice pos">
+      <p class="q"><span class="vtag pos">장점</span>“평지에 위치하고있고, 경비원분들도 모두 친절합니디. <b>초등학교가 정문 바로앞애있어, 초품아이고, 단지내 상가에 돌봄센터</b>…”</p>
+      <p class="who"><b>집품 · 실거주 후기</b> · 별점 4.0</p>
+    </div>
+    <div class="voice pos">
+      <p class="q"><span class="vtag pos">장점</span>“단점을 찾아볼수가 없음 쾌적하고 너무좋음 탄천가깝고 초등학교가깝고 생활인프라가깝고 <b>저평가되어있어서 무조건 여기살면좋음 그냥 여기사세요 하는거임</b>”</p>
+      <p class="who"><b>집품 · 1단지 대림 이전 거주자</b> · 2026년 5월 · 별점 4.5</p>
+    </div>
+
+    <h3 style="font-size:18px;margin:26px 0 10px">2. 만장일치로 나쁘다는 것: 주차</h3>
+    <p class="note" style="margin-bottom:10px">단지 제원과 정확히 맞아떨어지는 불만입니다. 3단지는 세대당 0.83대, 11단지는 0.72대, 1·2·5·12단지는 1대 안팎이에요. 4단지만 리모델링으로 2.41대가 됩니다.</p>
+    <div class="voice neg">
+      <p class="q"><span class="vtag neg">단점</span>“구축아파트라 주차가 좀 어렵습니다. <b>세대당 주차대수가 0.8대 정도라 늦은 시간에 들어오면 주차 자리를 찾기 쉽지 않</b>…”</p>
+      <p class="who"><b>집품 · 3단지 신한건영 이전 거주자</b> · 2026년 8월 · 교통 4 / 생활 4 / 건물 3 / 내부 3 / 환경 4</p>
+    </div>
+    <div class="voice neg">
+      <p class="q"><span class="vtag neg">단점</span>“구축은 어디든 비슷할것같은데 <b>주차랑 분리수거가 불편합니다. 밤에 들어오면 무조건 이중주차하고 아침에 빼야해요.</b> 분리수…”</p>
+      <p class="who"><b>집품 · 3단지 거주자</b> · 2026년 7월</p>
+    </div>
+    <div class="voice neg">
+      <p class="q"><span class="vtag neg">단점</span>“<b>주차장이 너무 부족함. 세대당1대이고 추가는 유료인데 무대포 주차함. 단속하는거 못봄</b> 단지내 편의점없음 놀이터도 후졌…”</p>
+      <p class="who"><b>집품 · 1단지 대림 이전 거주자</b> · 2026년 5월 · 별점 4.5</p>
+    </div>
+    <div class="voice neg">
+      <p class="q"><span class="vtag neg">단점</span>“지하철역에서 좀 멀지만 버스가 꽤 있어 나름 괜찮아요 <b>주차장과 엘리베이터가 연결되어 있지 않아서 주차장에서 지상으로</b>…”</p>
+      <p class="who"><b>집품 · 실거주 후기</b> · 별점 5.0</p>
+    </div>
+
+    <h3 style="font-size:18px;margin:26px 0 10px">3. 진술이 가장 크게 엇갈리는 것: 오리역까지 실제로 몇 분인가</h3>
+    <p class="note" style="margin-bottom:10px">여기가 이 동네를 판단할 때 직접 걸어봐야 하는 지점입니다. 같은 무지개마을인데 8분과 15분이 함께 나옵니다.</p>
+    <div class="voice mix">
+      <p class="q"><span class="vtag mix">엇갈림</span>“입지가 생각보다 정말 괜찮았어요. <b>오리역까지 걸어서 8분 정도</b>라 지하철 이용하기 편하고, 서울 가는 광역버스도 주변에 많아서 대중교통으로 이동하…”</p>
+      <p class="who"><b>집품 · 3단지 신한건영 이전 거주자</b> · 2026년 8월</p>
+    </div>
+    <div class="voice mix">
+      <p class="q"><span class="vtag mix">엇갈림</span>“<b>오리역까지 도보길이로는 얼마안걸리나 사거리를 2개 끼고 있어 생각보다 오래걸립니다. 가끔 15분까지도 걸립니다.</b>”</p>
+      <p class="who"><b>집품 · 실거주 후기</b> · 별점 5.0 · 장점란에는 “오리역을 도보로 갈 수 있어 좋습니다”라고 적은 같은 사람</p>
+    </div>
+    <div class="voice mix">
+      <p class="q"><span class="vtag mix">엇갈림</span>“<b>신분당선 지하철역을 차없이 가려면 마을버스를 타야하는데, 자주 오긴하는데 뭔가... 생각보다 안 와요...</b> 걸어가기는…”</p>
+      <p class="who"><b>집품 · 5단지 청구 거주자</b> · 별점 4.0 · 신분당선 미금역을 말하는 것입니다</p>
+    </div>
+    <div class="voice mix">
+      <p class="q"><span class="vtag mix">엇갈림</span>“<b>주공4단지가 버스정류장 바로 앞에 있는 곳</b>”이고 오리역까지 약 10분, “<b>청구와 12단지는 버스까지 5분 이상</b>”</p>
+      <p class="who"><b>82cook · 무지개마을 5년 거주자</b> · 2009.10.05 · 오래된 글이지만 단지별 상대적 위치는 지금도 그대로입니다</p>
+    </div>
+    <div class="voice neg">
+      <p class="q"><span class="vtag neg">단점</span>“<b>좀 안쪽이라 역 접근성은 떨어지는건 사실임</b> 나 어릴땐 그쪽 주변까지 드글드글 시끌시끌하게 친구들 살던 동네인뎁”</p>
+      <p class="who"><b>블라인드 · 이 동네에서 자랐다고 밝힌 이용자</b> · 2024.09.16 · 추천 3</p>
+    </div>
+
+    <h3 style="font-size:18px;margin:26px 0 10px">4. 층간소음과 복도식은 복불복입니다</h3>
+    <div class="vgrid">
+      <div class="voice neg">
+        <p class="q"><span class="vtag neg">단점</span>“이건 복불복이긴하나, <b>층간소음때문에 힘들었습니다. 관리사무소에 이야기하면 나름 대응은 해줬으나, 한계가 있습니다.</b>”</p>
+        <p class="who"><b>집품 · 실거주 후기</b> · 별점 4.0</p>
+      </div>
+      <div class="voice neg">
+        <p class="q"><span class="vtag neg">단점</span>“<b>윗집 주인을 잘못만나, 층간 소음 있습니다.</b> 환기 잘 시키면 곰팡이 없습니다. 에어컨 실외기를 실내에 둬야해서, 여름…”</p>
+        <p class="who"><b>집품 · 1단지 대림 현재 거주자</b> · 2026년 8월 · 별점 4.5</p>
+      </div>
+      <div class="voice neg">
+        <p class="q"><span class="vtag neg">단점</span>“가장 큰 단점은 분당 지역 공통으로 갖고 있는 문제인데, 구축아파트라는 거겠죠. <b>더불어 복도식이라 한 층에 5개 이상</b>…”</p>
+        <p class="who"><b>집품 · 5단지 청구 현재 거주자</b> · 2026년 8월</p>
+      </div>
+      <div class="voice pos">
+        <p class="q"><span class="vtag pos">반대 진술</span>“단지 앞에 어린이 놀이터 있고 작은 상가가 있어 살기 좋았습니다. <b>가장 고층에 살아 층간소음은 딱히 없었습니다.</b> 엘리베이터가 두 대이고 빠르게…”</p>
+        <p class="who"><b>집품 · 4단지 주공 이전 거주자</b> · 2025년 7월 · 교통 2 / 생활 5 / 건물 5 / 내부 5 / 환경 5</p>
+      </div>
+    </div>
+    <div class="voice neg">
+      <p class="q"><span class="vtag neg">단점</span>“<b>오래된지라 베란다 크랙으로 인한 결로 가능.</b> 보완가능하긴 하나 거실 확장을 한다면 어떨지 알 수 없음. 주차는 개…”</p>
+      <p class="who"><b>집품 · 5단지 청구 현재 거주자</b> · 2026년 8월 · 교통 4 / 생활 5 / 건물 4 / 내부 4 / 환경 5</p>
+    </div>
+    <div class="voice neg">
+      <p class="q"><span class="vtag neg">단점</span>“<b>태풍이 심하게 왔을 때 창문이 흔들리는 부분이 조금 무서웠습니다.</b> 방 하나 문이 일반문이 아닌 미닫이 창문 형태의 문…”</p>
+      <p class="who"><b>집품 · 4단지 주공 이전 거주자</b> · 2025년 7월</p>
+    </div>
+    <div class="voice neg">
+      <p class="q"><span class="vtag neg">단점</span>“<b>생각보다 벌레가 꽤나 있어요 개미 바퀴 등</b> 보통 소독을 평일에 하니까 소득을 할수 없는게 아쉽지만 소독은 꽤나 하시는…”</p>
+      <p class="who"><b>집품 · 1단지 대림 후기</b></p>
+    </div>
+    <div class="voice neg">
+      <p class="q"><span class="vtag neg">단점</span>“<b>고압선 바로 옆으로 지나가요. 무지개마을 건영아파트 가면 정말 바로 코 앞에 있어요</b>”</p>
+      <p class="who"><b>82cook · 구미동 거주자</b> · 2009.10.05 · <span class="st 확인">확인 필요</span> 17년 전 진술이라 현장 확인이 필요합니다. 건영은 3·6·10단지에 있습니다</p>
+    </div>
+
+    <h3 style="font-size:18px;margin:26px 0 10px">5. 투자 관점에서는 주민들끼리도 정면으로 갈립니다</h3>
+    <p class="note" style="margin-bottom:10px">2024년 9월 블라인드 글 하나에서 벌어진 논쟁입니다. 지금 시점에서 결과를 알고 다시 읽으면 시사점이 큽니다.</p>
+    <div class="voice pos">
+      <p class="q"><span class="vtag pos">강세론</span>“투자적으로?? 분당에서 가격이 늦게 오르긴 하지만 여기도 분당이라 항상 늦게라도 같이 오름. <b>100M 길 하나 건너면 죽전인데도 거기랑 2~3억 차이나는데</b> 후려치는 사람들 말은 믿거~~ 최근 국토부, 성남시에서 <b>오리역에 4테크노밸리 승인나서 분위기 상승세임</b>ㅋ 분당에서 유일하게 개발가능한 빈 땅이 크게 있거든ㅋ 실거주는 진짜 만족함ㅋ <b>나 분당 정자 대장이랑, 무지개 갖고 있어서</b> 객관적으로 적어봤으니 태클 노노함”</p>
+      <p class="who"><b>블라인드 · 공무원</b> · 2024.09.16 · 추천 19(최다) · 본인 보유 사실을 밝힘</p>
+    </div>
+    <div class="voice neg">
+      <p class="q"><span class="vtag neg">약세론</span>“같이오르고.. 늦게떨어진다고..? <b>무지개마을이 제일 늦게오르고 제일빨리 떨어지던데...</b>”</p>
+      <p class="who"><b>블라인드 · 삼성전자 재직자</b> · 2024.09.16 · 추천 7</p>
+    </div>
+    <div class="voice neg">
+      <p class="q"><span class="vtag neg">약세론</span>“<b>분당의 노도강 아닌가요?</b> 양극화 시대에선 분당 내에서도 오르는 곳만 오름”</p>
+      <p class="who"><b>블라인드 · LG에너지솔루션 재직자</b> · 2024.09.16 · 추천 10</p>
+    </div>
+    <div class="voice mix">
+      <p class="q"><span class="vtag mix">신중론</span>“<b>오리 재개발 보고드가는거면 뭐라도하나 삽뜨는거 보고 드가셈 우리 생이 아닐수도있음</b>”</p>
+      <p class="who"><b>블라인드</b> · 2024.09.16 · 추천 3 · 이 리포트에서 가장 중요한 한 문장이라고 봅니다</p>
+    </div>
+    <div class="voice pos">
+      <p class="q"><span class="vtag pos">강세론</span>“<b>투자로 먹을건 제일 많아보임</b>”</p>
+      <p class="who"><b>블라인드 · 현대모비스 재직자</b> · 2024.09.16 · 추천 8</p>
+    </div>
+    <div class="voice mix">
+      <p class="q"><span class="vtag mix">2020년 진술</span>“무지개마을 실거주 괜춘. 막상 단지 가보면 나무 많고 아늑함. <b>가격은 분당에선 가장 늦게 오르긴 하는데 다른데 오르는만큼은 다 오르더라. 오리역 가까운 엘지, 대림 쪽 추천.</b>”</p>
+      <p class="who"><b>블라인드 · AhnLab 재직자</b> · 2020.11.03 · 추천 9</p>
+    </div>
+
+    <div class="card" style="border-left:4px solid var(--blue)">
+      <h3>주민 목소리에서 뽑아낸 결론</h3>
+      <ol>
+        <li><b>실거주 만족도는 진짜입니다.</b> 2026년 후기들이 별점 4~5점대에 몰려 있고, 칭찬 항목(탄천, 조용함, 초품아, 낮은 관리비)이 여러 사람에게서 똑같이 반복돼요. 광고성 후기라면 이렇게 균일하게 같은 항목이 나오지 않습니다.</li>
+        <li><b>불만도 진짜인데, 대부분 재건축으로만 해결됩니다.</b> 주차, 복도식, 결로, 지하주차장-엘리베이터 미연결은 전부 1995년 설계에서 나오는 문제예요. 리모델링을 마친 4단지 후기에서만 “리모델링하고 나면 개선될 것”이라는 기대가 나옵니다.</li>
+        <li><b>2024년에 “분당의 노도강”이라고 했던 사람과 “투자로 먹을 게 제일 많다”고 했던 사람 중 후자가 맞았습니다.</b> 다만 그 근거였던 제4테크노밸리는 2026년 9월 현재도 삽을 뜨지 않았습니다. 가격만 먼저 올랐어요.</li>
+      </ol>
+    </div>
+  </section>
+  <section id="price" class="section">
+    <h2>실거래가</h2>
+    <p class="sec-lede">아래는 전부 계약이 체결되어 국토교통부에 신고된 실거래이며, 호가나 추정 시세가 아닙니다. 특수관계 가능성이 있는 직거래는 표에서 제외하고 아래에 따로 적었어요.</p>
+
+    <div class="card">
+      <h3>단지별 2026년 실거래 (2026.01.01~09.10)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단지</th><th>평형</th><th class="num">2026 최고</th><th class="num">2026 최저</th><th class="num">건수</th><th class="num">2025 최고</th><th class="num">2024 최고</th><th>최근 거래일</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td>2단지 엘지</td><td>32평(84.8㎡)</td><td class="num">15억 3,500</td><td class="num">14억 2,000</td><td class="num">4</td><td class="num">11억 9,000</td><td class="num">10억 2,000</td><td>2026.08.25</td></tr>
+            <tr><td>2단지 엘지</td><td>48평(134.9㎡)</td><td class="num">16억 8,500</td><td class="num">16억 8,500</td><td class="num">1</td><td class="num">14억 5,000</td><td class="num">13억 3,000</td><td>2026.03.31</td></tr>
+            <tr><td>2단지 엘지</td><td>21평(49.8㎡)</td><td class="num">12억 2,000</td><td class="num">10억 8,500</td><td class="num">6</td><td class="num">8억 2,500</td><td class="num">6억 9,800</td><td>2026.07.07</td></tr>
+            <tr class="hl"><td>3단지 신한</td><td>32A평(84.8㎡)</td><td class="num">15억</td><td class="num">12억 8,000</td><td class="num">6</td><td class="num">13억 3,000</td><td class="num">10억 4,900</td><td>2026.05.12</td></tr>
+            <tr><td>3단지 신한</td><td>20A평(53.5㎡)</td><td class="num">12억 5,000</td><td class="num">9억 7,000</td><td class="num">5</td><td class="num">9억 2,000</td><td class="num">7억</td><td>2026.07.31</td></tr>
+            <tr><td>3단지 건영</td><td>33B평(85.0㎡)</td><td class="num">15억 7,500</td><td class="num">15억</td><td class="num">3</td><td class="num">12억 7,700</td><td class="num">10억 7,500</td><td>2026.06.12</td></tr>
+            <tr><td>3단지 건영</td><td>20B평(53.8㎡)</td><td class="num">11억 4,500</td><td class="num">10억</td><td class="num">13</td><td class="num">9억 5,000</td><td class="num">7억 500</td><td>2026.07.13</td></tr>
+            <tr><td>3단지 건영</td><td>26평(68.2㎡)</td><td class="num">13억 8,000</td><td class="num">12억 5,000</td><td class="num">3</td><td class="num">9억 8,000</td><td class="num">8억 1,500</td><td>2026.08.17</td></tr>
+            <tr class="hl"><td>4단지 주공</td><td>23A평(58.1㎡)</td><td class="num">12억 5,090</td><td class="num">11억 6,300</td><td class="num">2</td><td class="num">11억</td><td class="num">8억 4,617</td><td>2026.06.01</td></tr>
+            <tr><td>4단지 주공</td><td>24B평(60.0㎡)</td><td class="num">12억 2,679</td><td class="num">12억 2,679</td><td class="num">1</td><td class="num">11억 1,575</td><td class="num">8억 5,397</td><td>2026.04.13</td></tr>
+            <tr><td>4단지 주공</td><td>20평(49.7㎡)</td><td class="num">12억 3,483</td><td class="num">12억 3,483</td><td class="num">1</td><td class="num">9억 9,072</td><td class="num">7억 5,792</td><td>2026.07.06</td></tr>
+            <tr class="hl"><td>5단지 청구</td><td>32평(85.0㎡)</td><td class="num">15억 1,000</td><td class="num">12억</td><td class="num">14</td><td class="num">13억 4,000</td><td class="num">10억 4,500</td><td>2026.07.22</td></tr>
+            <tr><td>5단지 청구</td><td>25평(58.5㎡)</td><td class="num">12억 8,000</td><td class="num">11억 3,000</td><td class="num">15</td><td class="num">11억 9,000</td><td class="num">7억 8,000</td><td>2026.08.13</td></tr>
+            <tr class="hl"><td>1단지 대림</td><td>32평(85.0㎡)</td><td class="num">14억 4,700</td><td class="num">13억 6,500</td><td class="num">2</td><td class="num">12억</td><td class="num">9억 5,500</td><td>2026.07.08</td></tr>
+            <tr><td>1단지 대림</td><td>20평(47.5㎡)</td><td class="num">9억 2,000</td><td class="num">8억 2,000</td><td class="num">2</td><td class="num">7억 8,000</td><td class="num">6억 5,000</td><td>2026.07.10</td></tr>
+            <tr class="hl"><td>11단지 금강</td><td>20평(49.8㎡)</td><td class="num">10억 9,000</td><td class="num">9억 5,000</td><td class="num">5</td><td class="num">6억 5,000</td><td class="num">5억 6,900</td><td>2026.08.27</td></tr>
+            <tr class="hl"><td>12단지 주공</td><td>24평(60.0㎡)</td><td class="num">11억 6,000</td><td class="num">10억 5,000</td><td class="num">10</td><td class="num">9억 9,000</td><td class="num">6억 7,500</td><td>2026.08.06</td></tr>
+            <tr><td>12단지 주공</td><td>24A평(58.1㎡)</td><td class="num">12억 5,000</td><td class="num">10억 5,000</td><td class="num">4</td><td class="num">8억 3,000</td><td class="num">6억 7,200</td><td>2026.08.07</td></tr>
+            <tr><td>12단지 주공</td><td>20평(49.4~49.7㎡)</td><td class="num">10억 6,500</td><td class="num">8억 1,000</td><td class="num">17</td><td class="num">8억</td><td class="num">5억 9,800</td><td>2026.08.15</td></tr>
+            <tr><td>10단지 삼성</td><td>37평(101.8㎡)</td><td class="num">15억 6,000</td><td class="num">13억 9,800</td><td class="num">3</td><td class="num">13억 3,000</td><td class="num">10억 9,500</td><td>2026.06.19</td></tr>
+            <tr><td>10단지 건영</td><td>48A평(134.8㎡)</td><td class="num">16억 5,000</td><td class="num">16억 5,000</td><td class="num">1</td><td class="num">14억 9,000</td><td class="num">13억 2,000</td><td>2026.06.29</td></tr>
+            <tr><td>6단지 건영</td><td>37평(101.8㎡)</td><td class="num">14억 5,000</td><td class="num">13억 6,500</td><td class="num">6</td><td class="num">12억 3,000</td><td class="num">10억 9,000</td><td>2026.06.23</td></tr>
+            <tr><td>7단지 라이프</td><td>48평(132.4㎡)</td><td class="num">14억</td><td class="num">13억 3,000</td><td class="num">3</td><td class="num">12억 4,500</td><td class="num">10억 5,000</td><td>2026.06.25</td></tr>
+            <tr><td>9단지 동아</td><td>48평(134.2㎡)</td><td class="num">14억 2,000</td><td class="num">12억</td><td class="num">2</td><td class="num">12억 3,500</td><td class="num">10억 5,000</td><td>2026.04.08</td></tr>
+            <tr><td>8단지 제일</td><td>49평(134.5㎡)</td><td class="num">—</td><td class="num">—</td><td class="num">0</td><td class="num">12억 7,000</td><td class="num">11억 9,000</td><td>2025.12.23</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="asof">단위 만원 · <span class="gr b">B</span> 출처: 국토교통부 실거래가(아파트미 재배포) · 2026-09-10 조회 · 직거래 8건 제외 후 집계</p>
+    </div>
+
+    <div class="card">
+      <h3>제외한 거래와, 설명이 안 되는 거래 두 건</h3>
+      <p>표에서 뺀 <b>직거래 8건</b>은 대부분 시세보다 크게 낮습니다. 7단지 37평 7억 2,000만원(2026.04.13), 10단지 37평 11억 6,000만원(2026.05.14), 8단지 37평 6억 8,000만원(2025.03.18) 같은 식이에요. 가족 간 거래일 가능성이 높아 시세로 읽으면 안 됩니다.</p>
+      <p>그런데 <b>직거래 표시가 없는데도 설명이 안 되는 거래가 두 건</b> 더 있습니다. 판단할 때 배제하시되, 현장에서 사연을 물어볼 만한 건입니다.</p>
+      <ul>
+        <li>12단지 59.98㎡ 11층, <b>2026.04.29 · 7억 3,000만원</b>. 같은 분기 같은 평형이 10억 5,000만~11억 3,500만원에 거래됐습니다.</li>
+        <li>1단지 101.64㎡ 18층, <b>2025.10.13 · 7억 7,000만원</b>. 두 달 뒤 같은 평형 10층이 13억원에 신고가로 팔렸습니다.</li>
+      </ul>
+      <p class="note">아파트미는 계약 해제 건을 별도 배지로 표시하는데, 이 두 건에는 해제 표시가 없었습니다. 즉 현재까지는 유효한 신고 거래입니다.</p>
+    </div>
+  </section>
+
+  <section id="trend" class="section">
+    <h2>가격 추이: 2025년 3분기에 무슨 일이 있었나</h2>
+    <p class="sec-lede">이 동네의 20년 평판이 깨진 지점이 그래프에 그대로 찍힙니다.</p>
+    <div class="card">
+      <div class="chart-wrap">
+<svg viewBox="0 0 760 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="무지개마을 주요 평형 분기별 실거래 중앙값 추이">
+<line x1="52" y1="316.0" x2="610" y2="316.0" stroke="#e5e8eb" stroke-width="1"/>
+<text x="44" y="320.0" text-anchor="end" font-size="11" fill="#8b95a1">5억</text>
+<line x1="52" y1="262.5" x2="610" y2="262.5" stroke="#e5e8eb" stroke-width="1"/>
+<text x="44" y="266.5" text-anchor="end" font-size="11" fill="#8b95a1">7억</text>
+<line x1="52" y1="209.1" x2="610" y2="209.1" stroke="#e5e8eb" stroke-width="1"/>
+<text x="44" y="213.1" text-anchor="end" font-size="11" fill="#8b95a1">9억</text>
+<line x1="52" y1="155.6" x2="610" y2="155.6" stroke="#e5e8eb" stroke-width="1"/>
+<text x="44" y="159.6" text-anchor="end" font-size="11" fill="#8b95a1">11억</text>
+<line x1="52" y1="102.2" x2="610" y2="102.2" stroke="#e5e8eb" stroke-width="1"/>
+<text x="44" y="106.2" text-anchor="end" font-size="11" fill="#8b95a1">13억</text>
+<line x1="52" y1="48.7" x2="610" y2="48.7" stroke="#e5e8eb" stroke-width="1"/>
+<text x="44" y="52.7" text-anchor="end" font-size="11" fill="#8b95a1">15억</text>
+<text x="52.0" y="334" text-anchor="middle" font-size="10.5" fill="#8b95a1">24.Q1</text>
+<text x="107.8" y="334" text-anchor="middle" font-size="10.5" fill="#8b95a1">24.Q2</text>
+<text x="163.6" y="334" text-anchor="middle" font-size="10.5" fill="#8b95a1">24.Q3</text>
+<text x="219.4" y="334" text-anchor="middle" font-size="10.5" fill="#8b95a1">24.Q4</text>
+<text x="275.2" y="334" text-anchor="middle" font-size="10.5" fill="#8b95a1">25.Q1</text>
+<text x="331.0" y="334" text-anchor="middle" font-size="10.5" fill="#8b95a1">25.Q2</text>
+<text x="386.8" y="334" text-anchor="middle" font-size="10.5" fill="#8b95a1">25.Q3</text>
+<text x="442.6" y="334" text-anchor="middle" font-size="10.5" fill="#8b95a1">25.Q4</text>
+<text x="498.4" y="334" text-anchor="middle" font-size="10.5" fill="#8b95a1">26.Q1</text>
+<text x="554.2" y="334" text-anchor="middle" font-size="10.5" fill="#8b95a1">26.Q2</text>
+<text x="610.0" y="334" text-anchor="middle" font-size="10.5" fill="#8b95a1">26.Q3</text>
+<line x1="386.8" y1="22" x2="386.8" y2="316" stroke="#c9d2dd" stroke-width="1" stroke-dasharray="4 4"/>
+<text x="391.8" y="35" font-size="10.5" fill="#8b95a1">기울기가 바뀌는 지점</text>
+<path d="M 107.8,197.1 L 163.6,195.7 L 219.4,182.4 L 275.2,183.2 L 331.0,179.7 L 386.8,144.1 L 442.6,102.2 L 498.4,76.8 L 554.2,78.1 L 610.0,50.1" fill="none" stroke="#c22b2b" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="107.8" cy="197.1" r="3" fill="#fff" stroke="#c22b2b" stroke-width="2"/>
+<circle cx="163.6" cy="195.7" r="3" fill="#fff" stroke="#c22b2b" stroke-width="2"/>
+<circle cx="219.4" cy="182.4" r="3" fill="#fff" stroke="#c22b2b" stroke-width="2"/>
+<circle cx="275.2" cy="183.2" r="3" fill="#fff" stroke="#c22b2b" stroke-width="2"/>
+<circle cx="331.0" cy="179.7" r="3" fill="#fff" stroke="#c22b2b" stroke-width="2"/>
+<circle cx="386.8" cy="144.1" r="3" fill="#fff" stroke="#c22b2b" stroke-width="2"/>
+<circle cx="442.6" cy="102.2" r="3" fill="#fff" stroke="#c22b2b" stroke-width="2"/>
+<circle cx="498.4" cy="76.8" r="3" fill="#fff" stroke="#c22b2b" stroke-width="2"/>
+<circle cx="554.2" cy="78.1" r="3" fill="#fff" stroke="#c22b2b" stroke-width="2"/>
+<circle cx="610.0" cy="50.1" r="3" fill="#fff" stroke="#c22b2b" stroke-width="2"/>
+<text x="619.0" y="54.1" font-size="11.5" font-weight="700" fill="#c22b2b">무지개 5단지 청구 32평</text>
+<path d="M 52.0,265.8 L 107.8,244.9 L 163.6,275.9 L 219.4,235.3 L 275.2,231.3 L 331.0,194.7 L 386.8,157.0 L 498.4,138.8 L 554.2,115.3" fill="none" stroke="#b45309" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="52.0" cy="265.8" r="3" fill="#fff" stroke="#b45309" stroke-width="2"/>
+<circle cx="107.8" cy="244.9" r="3" fill="#fff" stroke="#b45309" stroke-width="2"/>
+<circle cx="163.6" cy="275.9" r="3" fill="#fff" stroke="#b45309" stroke-width="2"/>
+<circle cx="219.4" cy="235.3" r="3" fill="#fff" stroke="#b45309" stroke-width="2"/>
+<circle cx="275.2" cy="231.3" r="3" fill="#fff" stroke="#b45309" stroke-width="2"/>
+<circle cx="331.0" cy="194.7" r="3" fill="#fff" stroke="#b45309" stroke-width="2"/>
+<circle cx="386.8" cy="157.0" r="3" fill="#fff" stroke="#b45309" stroke-width="2"/>
+<circle cx="498.4" cy="138.8" r="3" fill="#fff" stroke="#b45309" stroke-width="2"/>
+<circle cx="554.2" cy="115.3" r="3" fill="#fff" stroke="#b45309" stroke-width="2"/>
+<text x="563.2" y="119.3" font-size="11.5" font-weight="700" fill="#b45309">무지개 4단지 주공 23평 (리모델링)</text>
+<path d="M 52.0,291.9 L 107.8,285.5 L 163.6,278.6 L 219.4,277.2 L 275.2,272.7 L 331.0,266.6 L 386.8,242.5 L 442.6,197.1 L 498.4,161.0 L 554.2,169.0 L 610.0,145.5" fill="none" stroke="#1b64da" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="52.0" cy="291.9" r="3" fill="#fff" stroke="#1b64da" stroke-width="2"/>
+<circle cx="107.8" cy="285.5" r="3" fill="#fff" stroke="#1b64da" stroke-width="2"/>
+<circle cx="163.6" cy="278.6" r="3" fill="#fff" stroke="#1b64da" stroke-width="2"/>
+<circle cx="219.4" cy="277.2" r="3" fill="#fff" stroke="#1b64da" stroke-width="2"/>
+<circle cx="275.2" cy="272.7" r="3" fill="#fff" stroke="#1b64da" stroke-width="2"/>
+<circle cx="331.0" cy="266.6" r="3" fill="#fff" stroke="#1b64da" stroke-width="2"/>
+<circle cx="386.8" cy="242.5" r="3" fill="#fff" stroke="#1b64da" stroke-width="2"/>
+<circle cx="442.6" cy="197.1" r="3" fill="#fff" stroke="#1b64da" stroke-width="2"/>
+<circle cx="498.4" cy="161.0" r="3" fill="#fff" stroke="#1b64da" stroke-width="2"/>
+<circle cx="554.2" cy="169.0" r="3" fill="#fff" stroke="#1b64da" stroke-width="2"/>
+<circle cx="610.0" cy="145.5" r="3" fill="#fff" stroke="#1b64da" stroke-width="2"/>
+<text x="619.0" y="149.5" font-size="11.5" font-weight="700" fill="#1b64da">무지개 12단지 주공 24평</text>
+<path d="M 52.0,302.6 L 107.8,302.6 L 163.6,298.9 L 219.4,300.8 L 275.2,308.0 L 331.0,301.3 L 386.8,283.9 L 498.4,195.7 L 610.0,179.2" fill="none" stroke="#0a7d43" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="52.0" cy="302.6" r="3" fill="#fff" stroke="#0a7d43" stroke-width="2"/>
+<circle cx="107.8" cy="302.6" r="3" fill="#fff" stroke="#0a7d43" stroke-width="2"/>
+<circle cx="163.6" cy="298.9" r="3" fill="#fff" stroke="#0a7d43" stroke-width="2"/>
+<circle cx="219.4" cy="300.8" r="3" fill="#fff" stroke="#0a7d43" stroke-width="2"/>
+<circle cx="275.2" cy="308.0" r="3" fill="#fff" stroke="#0a7d43" stroke-width="2"/>
+<circle cx="331.0" cy="301.3" r="3" fill="#fff" stroke="#0a7d43" stroke-width="2"/>
+<circle cx="386.8" cy="283.9" r="3" fill="#fff" stroke="#0a7d43" stroke-width="2"/>
+<circle cx="498.4" cy="195.7" r="3" fill="#fff" stroke="#0a7d43" stroke-width="2"/>
+<circle cx="610.0" cy="179.2" r="3" fill="#fff" stroke="#0a7d43" stroke-width="2"/>
+<text x="619.0" y="183.2" font-size="11.5" font-weight="700" fill="#0a7d43">무지개 11단지 금강 20평</text>
+</svg>
+      </div>
+      <p class="chart-cap">분기별 실거래 중앙값(억원) · 직거래 제외 · 거래가 없던 분기는 선을 이어 그렸습니다 · 출처: 국토교통부 실거래가</p>
+      <p style="margin-top:14px">2024년 내내 무지개마을은 옆으로 기었습니다. 12단지 24평은 2024년 1분기 5.9억에서 4분기 6.45억으로 <b>1년에 9% 올랐을 뿐</b>이에요. 주민들이 “제일 늦게 오른다”고 했던 그 흐름 그대로입니다.</p>
+      <p>변곡점은 <b>2025년 3분기</b>입니다. 12단지 24평이 6.85억에서 7.75억으로 한 분기에 13% 뛰었고, 4분기에 9.45억, 2026년 1분기에 10.8억이 됐어요. 2년 만에 값이 두 배가 됐습니다.</p>
+      <p>가장 극적인 건 <b>11단지 금강센테리움 20평</b>입니다. 2024년 내내 5.5억에서 꼼짝하지 않다가 2025년 3분기 6.2억, 그리고 2026년 1분기에 곧바로 <b>9.5억</b>으로 점프했어요. 3.3억이 한 번에 붙은 겁니다. 11단지는 12단지와 함께 무지개마을 4구역으로 묶여 2차 특별정비구역을 신청한 단지입니다.</p>
+      <p>반면 <b>4단지 주공</b>(주황색)은 남들보다 <b>1년 반 먼저</b> 올랐습니다. 2024년 2분기부터 이미 계단을 밟기 시작했어요. 유일하게 리모델링이 실제로 착공된 단지이기 때문입니다. 그리고 지금은 다른 단지들이 따라붙으면서 <b>프리미엄이 거의 사라졌습니다.</b> 2026년 2분기 4단지 23평 12.51억과 12단지 24평 10.5억의 차이는 2억뿐인데, 4단지는 2026년 11월 입주하는 신축이고 12단지는 아직 구역 지정도 안 된 1995년 아파트예요.</p>
+      <div class="term"><span class="chip">이게 중요한 이유</span><div>
+        <b>시장이 아직 일어나지 않은 재건축에 신축값의 80%를 매기고 있다</b>는 뜻입니다. 재건축이 예정대로 가면 이 가격은 정당화되고, 한 단계라도 어긋나면 4단지와의 격차가 다시 벌어지는 방향으로 조정됩니다.
+      </div></div>
+    </div>
+  </section>
+  <section id="redev" class="section">
+    <h2>정비사업: 한 동네에서 네 갈래가 동시에</h2>
+    <p class="sec-lede">무지개마을이라는 이름 하나로 묶여 있지만, 사업 방식도 진행 단계도 전부 다릅니다. 어느 단지를 사느냐가 곧 어느 사업에 베팅하느냐예요.</p>
+
+    <div class="card">
+      <h3>① 4단지 주공 → 더샵 분당 센트로 <span class="st 확정">확정</span></h3>
+      <p>1기 신도시 전체에서 <b>재정비 사업으로 이주와 착공을 처음 한 단지</b>입니다. 리모델링이고 재건축이 아니에요.</p>
+      <ul class="tl">
+        <li class="done"><span class="tl-t">이주</span><span class="tl-d">2022.12.26 ~ 2023.04</span></li>
+        <li class="done"><span class="tl-t">철거 후 착공</span><span class="tl-d">2023년 하반기</span></li>
+        <li class="done"><span class="tl-t">일반분양</span><span class="tl-d">2025년 11월</span></li>
+        <li class="now"><span class="tl-t">입주 예정</span><span class="tl-d">2026년 11월 · 지금부터 약 2개월 뒤</span></li>
+      </ul>
+      <p>563세대 5개 동이 <b>647세대 7개 동</b>으로 늘고, 지하 3층까지 파서 주차를 <b>1,112대(세대당 1.72대)</b> 확보합니다. 수평 증축과 별동 증축 방식이고 시공사는 포스코이앤씨예요. 주민 후기에서 반복되던 복도식과 이중주차 불만이 이 단지에서만 실제로 해소됩니다.</p>
+      <p class="note">앞의 제원표에 적힌 1,358대(세대당 2.41대)는 아파트미가 표기한 값이고, 언론 보도의 조합 계획은 1,112대입니다. 두 수치가 다르니 계약 전 조합 공고로 확인하세요.</p>
+      <p class="note">참고로 이 단지는 2023년 4월 이주가 끝난 뒤 <b>전월세 실거래가 한 건도 없습니다</b>. 최근 3년간의 매매는 사실상 입주권 거래예요. 표에 적힌 4단지 가격을 “지금 들어가 살 수 있는 집값”으로 읽으면 안 됩니다.</p>
+      <p class="asof"><span class="gr b">B</span> 출처: 디지털타임스, 서울경제, 리얼캐스트, 아시아경제 보도 종합 · 세대수는 보도 시점에 따라 647세대와 747세대가 혼재하므로 조합 공고로 확인이 필요합니다 <span class="st 확인">확인 필요</span></p>
+    </div>
+
+    <div class="card">
+      <h3>② 11·12단지 = 무지개마을 4구역 <span class="st 신뢰">진행 중</span></h3>
+      <p>분당 <b>2차 특별정비구역</b>에 통합 재건축으로 신청한 구역입니다. 2026년 7월 초안 접수 시점 기준 <b>동의율 89%</b>로, 30여 개 신청 구역 가운데 상위권이었어요. 1위는 한솔마을 1·2·3단지 94%입니다.</p>
+      <ul class="tl">
+        <li class="done"><span class="tl-t">성남시 2차 특별정비구역 지정 제안 공고</span><span class="tl-d">2025.12.19</span></li>
+        <li class="done"><span class="tl-t">특별정비계획서 초안 접수 · 동의율 89%</span><span class="tl-d">2026.07.01~10</span></li>
+        <li class="now"><span class="tl-t">자문위 검토 반영한 본안 접수</span><span class="tl-d">2026년 9월부터 · 바로 지금</span></li>
+        <li><span class="tl-t">구역 선정 확정</span><span class="tl-d">2026년 12월 예정 · 총 1만 2,000호 배정</span></li>
+        <li><span class="tl-t">조합 설립 → 사업시행 → 관리처분 → 이주 → 착공</span><span class="tl-d">미정</span></li>
+      </ul>
+      <p>사업성 자체는 좋은 편입니다. 12단지 용적률 <b>153%</b>, 11단지 <b>167%</b>인데 분당 기준용적률은 326%예요. 게다가 두 단지 모두 20~24평 소형으로만 구성돼 있어서, 통합 후 평형을 키우기 좋은 구조입니다.</p>
+      <p><b>다만 아직 아무것도 확정되지 않았습니다.</b> 12월에 구역으로 선정된다 해도 그건 시작점이지 결승선이 아니에요. 조합 설립부터 착공까지 최소 5~8년이 더 걸립니다.</p>
+      <p class="asof"><span class="gr b">B</span> 출처: 파이낸셜뉴스 2026.07.08, 한국경제·하우징헤럴드 2025.12.19 · 동의율은 초안 접수 시점 수치</p>
+    </div>
+
+    <div class="card">
+      <h3>③ 10단지 + S8구역 결합재건축 <span class="st 신뢰">진행 중</span></h3>
+      <p>무지개마을 10단지(건영·삼성, 498세대)가 인접한 <b>극동·대우·동부썬빌라(S8구역)</b>와 묶여 결합재건축을 추진합니다. 동의율은 전체 약 <b>92%</b>이고, 58구역이 상가 포함 91%, S8구역이 100%예요.</p>
+      <p>구조가 흥미롭습니다. 10단지 용적률은 152%, S8구역은 92%로 서로 크게 달라 갈등 소지가 큰데, <b>독립정산제</b>를 도입해 각자 자기 몫을 정산하는 방식으로 이를 피했습니다. 글로벌 설계사무소 유엔스튜디오(UNStudio)가 도시계획안을 냈고 한국토지신탁이 예비사업시행자로 들어와 있어요.</p>
+      <p class="asof"><span class="gr b">B</span> 출처: 도시정비뉴스, 하우징헤럴드, 한국경제 2026.05.28</p>
+    </div>
+
+    <div class="card">
+      <h3>④ 1·2단지 통합재건축 <span class="st 참고">거론 단계</span></h3>
+      <p>1단지 대림(778세대)과 2단지 엘지(888세대)를 묶는 통합 재건축이 커뮤니티에서 거론됩니다. 다만 <b>공식 접수 사실이나 동의율을 확인할 수 있는 자료를 이번 조사에서는 찾지 못했습니다.</b> 두 단지 모두 용적률이 209~210%로 이 동네에서 가장 높아 사업성이 상대적으로 불리해요.</p>
+      <p class="asof"><span class="gr d">D</span> 출처: 커뮤니티 언급 · <span class="st 확인">확인 필요</span></p>
+    </div>
+
+    <div class="card" style="background:var(--amber-bg);border-color:#f0d9ae">
+      <h3>정리하면</h3>
+      <p><b>6·7·8·9단지는 어느 사업에도 들어가 있지 않습니다.</b> 이 네 단지는 132~222세대의 소규모 단지이고, 오리역에서 1.1~1.35km로 가장 멀며, 37평 이상 중대형으로만 구성돼 있어요. 2026년 거래량도 단지당 0~6건으로 매우 적습니다. 무지개마을이라는 이름값으로 같이 올랐지만 재건축 시나리오에서는 빠져 있는 셈입니다.</p>
+    </div>
+  </section>
+
+  <section id="ori" class="section">
+    <h2>오리역 개발: 이 동네 상승의 진짜 연료</h2>
+    <p class="sec-lede">단지 재건축보다 판이 큰 이야기입니다. 그리고 진행 상황을 정확히 알아야 지금 가격을 판단할 수 있어요.</p>
+
+    <div class="card">
+      <h3>제4테크노밸리 (오리역세권 개발)</h3>
+      <p>오리역 일대 <b>57만㎡</b>에 AI, 시스템반도체, 팹리스 중심 첨단산업 클러스터를 만드는 사업입니다. 성남시는 <b>일자리 10만 개, 매출 220조원</b>을 목표로 내걸었어요. 분당에서 이만한 규모로 남아 있는 미개발 부지는 여기뿐입니다.</p>
+      <ul class="tl">
+        <li class="done"><span class="tl-t">국토부, 오리역 한국형 화이트존(도시혁신구역) 도입 검토</span><span class="tl-d">2024.11</span></li>
+        <li class="done"><span class="tl-t">신상진 성남시장, 개발 본격 시동 선언</span><span class="tl-d">2025.06</span></li>
+        <li class="done"><span class="tl-t">현대차그룹·스마트도시협회 컨소시엄, HFR 민간자문단 합류</span><span class="tl-d">2025.05</span></li>
+        <li class="done"><span class="tl-t">하나은행·미래에셋·LG CNS 등 8개 기관 상생협력 MOU</span><span class="tl-d">2025.09</span></li>
+        <li class="now"><span class="tl-t">도시혁신구역 지정 국토부 요청 · 지구단위계획 변경</span><span class="tl-d">2026년 상반기 요청</span></li>
+        <li><span class="tl-t">착공 목표</span><span class="tl-d">이르면 2030년</span></li>
+      </ul>
+      <p><b>착공 목표가 2030년입니다.</b> 지금은 2026년 9월이에요. 부지 조성과 기업 입주까지 감안하면 실제 일자리가 이 동네에 도착하는 시점은 2030년대 중후반입니다. 2024년 블라인드에서 “뭐라도 하나 삽 뜨는 거 보고 들어가라”던 말이 여기에 걸립니다.</p>
+      <p class="note">국내 금융투자회사가 최대 5조 5,000억원 규모 AI R&amp;D센터 조성을 제안했다는 보도가 있습니다. 제안이지 확정이 아니에요.</p>
+      <p class="asof"><span class="gr b">B</span> 출처: 경기일보 2025.09.03, 전자신문 2025.06.09, 경인일보, 성남일보, 한국경제 2025.11.19</p>
+    </div>
+
+    <div class="card">
+      <h3>SRT 오리역 신설 <span class="st 추정">불확실</span></h3>
+      <p>성남시가 국토부에 <b>수서~지제 복복선화를 통한 SRT 오리역 신설</b>을 요청했고, 국토부는 제5차 국가철도망계획(2026~2035)에 복복선화를 반영하는 과정에서 검토가 필요하다고 답했습니다. 2025년 12월 경기도의회에서는 경기도의 준비 부족이 지적됐어요.</p>
+      <p><b>아직 계획에 반영조차 되지 않은 단계입니다.</b> 이걸 가격에 반영해 계산하시면 안 됩니다.</p>
+      <p class="asof"><span class="gr c">C</span> 출처: 서울신문·화성저널 2025.12.11, 경인방송</p>
+    </div>
+
+    <div class="card">
+      <h3>지금 오리역이 가진 것과 갖지 못한 것</h3>
+      <div class="grid-2">
+        <div>
+          <p><b>가진 것</b></p>
+          <ul>
+            <li>수인분당선 오리역 (왕십리~수원)</li>
+            <li>강남·서울역·종로행 광역버스 (주민 다수가 언급)</li>
+            <li>분당서울대병원 (주민 후기에 반복 등장)</li>
+            <li>탄천 산책로, 불곡산 등산로</li>
+            <li>죽전 상권이 도로 하나 건너</li>
+          </ul>
+        </div>
+        <div>
+          <p><b>갖지 못한 것</b></p>
+          <ul>
+            <li><b>신분당선 직결 없음.</b> 미금역까지 마을버스</li>
+            <li>GTX 정차 없음</li>
+            <li>판교 직결 노선 없음 (분당선으로 우회)</li>
+            <li>제4테크노밸리 일자리 (2030년대)</li>
+          </ul>
+        </div>
+      </div>
+      <p class="note" style="margin-top:12px">커뮤니티에는 “오리역이 멀고 신분당선이 아니란 게 가장 뼈아프다”는 평가가 돕니다. 무지개마을의 구조적 한계를 한 문장으로 요약한 말인데, 이 문장은 검색 요약에서만 확인했고 원문 게시물은 찾지 못했습니다. <span class="st 확인">확인 필요</span></p>
+    </div>
+  </section>
+  <section id="jeonse" class="section">
+    <h2>전세와 갭: 여기가 가장 위험한 숫자입니다</h2>
+    <p class="sec-lede">매매만 뛰고 전세는 따라오지 않았습니다. 전세를 끼고 사실 계획이라면 이 표를 가장 오래 보셔야 해요.</p>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단지 / 평형</th><th class="num">최근 매매</th><th class="num">최근 신규 전세</th><th class="num">갭</th><th class="num">전세가율</th><th>전세 계약일</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td>12단지 20평(49.7㎡)</td><td class="num">10억 5,000</td><td class="num">2억 5,500</td><td class="num">7억 9,500</td><td class="num">24%</td><td>2026.08.08</td></tr>
+            <tr><td>12단지 24평(60.0㎡)</td><td class="num">11억 6,000</td><td class="num">5억 1,000</td><td class="num">6억 5,000</td><td class="num">44%</td><td>2026.08.06 신고가</td></tr>
+            <tr><td>12단지 24A평(58.1㎡)</td><td class="num">11억 8,000</td><td class="num">4억 7,000</td><td class="num">7억 1,000</td><td class="num">40%</td><td>2026.09.04</td></tr>
+            <tr><td>11단지 20평(49.8㎡)</td><td class="num">9억 8,500</td><td class="num">4억 4,000</td><td class="num">5억 4,500</td><td class="num">45%</td><td>2026.06.06 신고가</td></tr>
+            <tr><td>11단지 32평(85.0㎡)</td><td class="num">12억</td><td class="num">6억 8,500</td><td class="num">5억 1,500</td><td class="num">57%</td><td>2026.08.10 신고가</td></tr>
+            <tr><td>5단지 25평(58.5㎡)</td><td class="num">12억 4,800</td><td class="num">5억 5,000</td><td class="num">6억 9,800</td><td class="num">44%</td><td>2026.09.02</td></tr>
+            <tr><td>5단지 32평(85.0㎡)</td><td class="num">14억 5,000</td><td class="num">6억 5,000</td><td class="num">8억</td><td class="num">45%</td><td>2026.08.24</td></tr>
+            <tr><td>2단지 32평(84.8㎡)</td><td class="num">15억 3,500</td><td class="num">6억 7,000</td><td class="num">8억 6,500</td><td class="num">44%</td><td>2026.08.19</td></tr>
+            <tr><td>3단지 신한 32평(84.8㎡)</td><td class="num">15억</td><td class="num">6억</td><td class="num">9억</td><td class="num">40%</td><td>2026.08.30</td></tr>
+            <tr><td>3단지 건영 20평(53.8㎡)</td><td class="num">11억 4,000</td><td class="num">4억 4,000</td><td class="num">7억</td><td class="num">39%</td><td>2026.07.24</td></tr>
+            <tr><td>3단지 건영 26평(68.2㎡)</td><td class="num">13억 4,500</td><td class="num">5억 5,000</td><td class="num">7억 9,500</td><td class="num">41%</td><td>2026.08.10</td></tr>
+            <tr><td>1단지 32평(85.0㎡)</td><td class="num">14억 4,700</td><td class="num">6억 5,000</td><td class="num">7억 9,700</td><td class="num">45%</td><td>2026.08.17</td></tr>
+            <tr><td>10단지 48평(134.8㎡)</td><td class="num">16억 5,000</td><td class="num">8억 5,000</td><td class="num">8억</td><td class="num">52%</td><td>2026.06.20</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="asof">단위 만원 · 전세는 <b>신규 계약</b>만 썼습니다. 재계약은 직전 시세에 묶여 있어 현재 전세 시세를 왜곡해요. 월세와 반전세는 전부 제외했습니다. 매매는 각 평형의 <b>가장 최근 실거래</b>이고, 11단지 32평만 2025.10.18 거래여서 시차가 있습니다. <span class="gr b">B</span> 출처: 국토교통부 실거래가(아파트미) · 2026-09-10 조회</p>
+
+      <p style="margin-top:16px">읽어야 할 것은 세 가지입니다.</p>
+      <ol>
+        <li><b>전세가율이 대체로 40%대입니다.</b> 서울 강남권 구축 수준이에요. 실투자금이 평형과 무관하게 <b>5억 5,000만~9억원</b> 필요합니다. 10억짜리 소형이라고 갭이 작지 않아요.</li>
+        <li><b>12단지 20평의 24%가 가장 극단적입니다.</b> 같은 평형 재계약은 3억 450만~3억 1,500만원인데 신규 전세는 2억 5,500만~2억 9,100만원이에요. 매매가 2년 만에 두 배가 되는 동안 전세는 제자리였습니다. 재건축 기대감만으로 매매가 움직였다는 가장 선명한 증거입니다.</li>
+        <li><b>전세는 지금도 신고가가 나옵니다.</b> 11단지 32평 6억 8,500만원(08.10), 12단지 24평 5억 1,000만원(08.06), 1단지 25평 6억 1,000만원(07.01). 실수요 자체는 살아 있어요. 다만 매매가 오른 속도를 전혀 못 따라갑니다.</li>
+      </ol>
+      <div class="term"><span class="chip">주의</span><div>
+        재건축이 실제로 진행되면 <b>이주 시점에 전세를 뺄 수 없습니다.</b> 갭투자로 들어간다면 이주 공고 시점의 전세보증금 반환 재원을 지금 계산해두셔야 해요. 4단지가 2022년 12월부터 2023년 4월까지 이주하면서 전월세 거래가 완전히 끊긴 것이 실제 사례입니다.
+      </div></div>
+    </div>
+  </section>
+
+  <section id="edu" class="section">
+    <h2>교육</h2>
+    <p class="sec-lede">주민 후기에서 “초품아”가 반복해서 나오는데, 사실입니다. 다만 초등학교 이후가 문제예요.</p>
+    <div class="card">
+      <h3>초등학교는 이 동네의 확실한 강점</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단지</th><th>배정 초등학교</th><th class="num">거리</th><th class="num">도보</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td>5단지 청구</td><td>불곡초</td><td class="num">162m</td><td class="num">2분</td></tr>
+            <tr class="hl"><td>11단지 금강</td><td>구미초</td><td class="num">165m</td><td class="num">2분</td></tr>
+            <tr class="hl"><td>12단지 주공</td><td>구미초</td><td class="num">219m</td><td class="num">3분</td></tr>
+            <tr class="hl"><td>4단지 주공</td><td>불곡초</td><td class="num">247m</td><td class="num">4분</td></tr>
+            <tr><td>10단지 건영·삼성</td><td>구미초</td><td class="num">267m</td><td class="num">4분</td></tr>
+            <tr><td>6단지 건영</td><td>불곡초</td><td class="num">323m</td><td class="num">5분</td></tr>
+            <tr><td>1단지 대림</td><td>구미초</td><td class="num">341m</td><td class="num">5분</td></tr>
+            <tr><td>3단지 건영·신한</td><td>불곡초</td><td class="num">399m</td><td class="num">6분</td></tr>
+            <tr><td>2단지 엘지</td><td>구미초</td><td class="num">451m</td><td class="num">7분</td></tr>
+            <tr><td>7단지 라이프</td><td>불곡초</td><td class="num">587m</td><td class="num">9분</td></tr>
+            <tr><td>8단지 제일</td><td>구미초</td><td class="num">620m</td><td class="num">9분</td></tr>
+            <tr><td>9단지 동아</td><td>구미초</td><td class="num">649m</td><td class="num">10분</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="asof"><span class="gr b">B</span> 출처: 아파트미 단지정보 · 2026-09-10 조회 · 실제 배정은 성남교육지원청 통학구역 고시를 따르므로 계약 전 확인이 필요합니다 <span class="st 확인">확인 필요</span></p>
+    </div>
+
+    <div class="card">
+      <h3>중학교부터가 진짜 문제입니다</h3>
+      <p>무지개마을은 <b>분당중학군</b>에 속하고, 중학군 안에서 <b>추첨 배정</b>됩니다. 단지별로 학교가 고정되지 않아요.</p>
+      <p>분당중학군 학업성취도 A등급 비율을 보면 서현중 56.4%, 백현중 54.7%, 내정중 47.5%가 상위권이고, 구미동에 있는 <b>불곡중은 42%로 중상위권</b>입니다. 하탑중 15.8%, 장안중 18.9% 같은 학교도 같은 학군에 있어요.</p>
+      <p>즉 <b>분당중학군에 속한다는 것 자체는 확실한 이득</b>이지만, <b>구미동에 산다고 상위권 중학교에 배정된다는 보장은 없습니다.</b> 서현중이나 백현중은 물리적으로 상당히 떨어져 있고요.</p>
+      <p>주민 후기에도 이 지점이 나옵니다. “초등학교 외에는 통학해야 해요”, “학교도 초등학교가 근처에 두개있고, 중고등학교도 멀지않음”처럼 평가가 갈려요.</p>
+      <p class="asof"><span class="gr c">C</span> 출처: 아파트미 학군정보(학업성취도 A등급 비율) · 배정 방식은 성남교육지원청 확인 필요</p>
+    </div>
+  </section>
+
+  <section id="life" class="section">
+    <h2>생활 인프라</h2>
+    <p class="sec-lede">주민들이 자기 입으로 반복해서 말한 것만 적었습니다.</p>
+    <div class="card">
+      <div class="grid-2">
+        <div>
+          <h3>후기에서 반복된 것</h3>
+          <ul>
+            <li><b>탄천</b> — 가장 많이 언급됩니다. 산책, 운동, 반려동물</li>
+            <li><b>불곡산</b> — “불곡산 밑이라 공기 좋고 산행 가기 좋아요”</li>
+            <li><b>분당서울대병원</b> — “가까운 곳에 대학병원이 있고”</li>
+            <li><b>광역버스</b> — 강남, 서울역, 종로행. 여러 사람이 언급</li>
+            <li><b>단지 상가</b> — 헬스장, 마트, 돌봄센터</li>
+            <li><b>낮은 관리비</b> — “대단지라서 관리비가 다른 분당 아파트에 비해 저렴한 편”</li>
+            <li><b>치안</b> — 파출소 언급, “치안좋음” 반복</li>
+          </ul>
+        </div>
+        <div>
+          <h3>불편하다고 한 것</h3>
+          <ul>
+            <li><b>편의점</b> — “단지내 편의점없음”, “편의점이 근처에 없어요” 두 건</li>
+            <li><b>분리수거</b> — “주1회 배출”, “분리수거가 불편합니다”</li>
+            <li><b>지형</b> — “살짝 언덕이라는점”. 다만 “평지라서 걷기 좋고”라는 반대 진술도 있어 단지마다 다릅니다</li>
+            <li><b>놀이터 노후</b> — “놀이터도 후졌…”</li>
+            <li><b>벌레</b> — “개미 바퀴 등”</li>
+            <li><b>번화가와의 거리</b> — “중심 상권에서 너무…”, “번화가에서 살짝 떨어진 거리”. 조용함의 대가입니다</li>
+          </ul>
+        </div>
+      </div>
+      <p class="note" style="margin-top:12px">한 주민이 이 동네의 성격을 잘 요약했습니다. “취향이긴 한데 번화가에서 살짝 떨어진 거리라 조용해서 좋음.” 조용함을 원하면 장점이고, 활기를 원하면 단점이에요.</p>
+    </div>
+  </section>
+  <section id="risk" class="section">
+    <h2>리스크</h2>
+    <p class="sec-lede">심각도 순으로 정리했습니다. 조사하면서 오히려 약해진 리스크도 함께 적었어요.</p>
+
+    <div class="risk high">
+      <div class="t"><span class="sev">높음</span>가격이 2년 만에 두 배가 됐는데 근거는 전부 미래에 있습니다</div>
+      <p>12단지 24평 5.9억 → 11.6억, 11단지 20평 5.5억 → 10.9억. 이 상승을 정당화하는 것은 ①2026년 12월 특별정비구역 선정 ②2030년 착공 목표인 제4테크노밸리 ③아직 국가철도망계획에 반영도 안 된 SRT입니다. <b>셋 다 아직 일어나지 않았어요.</b> 전세가율이 40%대로 무너진 것이 이 괴리의 지표입니다.</p>
+    </div>
+    <div class="risk high">
+      <div class="t"><span class="sev">높음</span>12월 선정에서 탈락하면 되돌릴 근거가 마땅치 않습니다</div>
+      <p>2차 특별정비구역 배정 물량은 <b>1만 2,000호</b>인데 신청 구역은 <b>30여 곳</b>입니다. 무지개 4구역 동의율 89%는 상위권이지만 한솔 1·2·3단지 94%, 이매촌 삼성·삼환 90%, 아름마을 풍림·선경·효성 90%가 앞서 있어요. 게다가 성남시는 동의율만이 아니라 <b>사업 실행 가능성과 공공성</b>을 함께 본다고 밝혔습니다. 탈락 시 다음 회차를 기다려야 하고, 그 사이 가격은 기대감을 되돌립니다.</p>
+    </div>
+    <div class="risk high">
+      <div class="t"><span class="sev">높음</span>실투자금이 소형에서도 6억~8억입니다</div>
+      <p>전세가율 40%대라 10억짜리 20평을 사도 현금 6억~8억이 필요합니다. 12단지 20평은 전세가율 24%라 갭이 7억 9,500만원이에요. <b>“소형이라 부담이 적다”는 접근이 이 동네에서는 성립하지 않습니다.</b></p>
+    </div>
+    <div class="risk mid">
+      <div class="t"><span class="sev">중간</span>재건축이 되면 이주 시점에 전세를 뺄 수 없습니다</div>
+      <p>4단지가 2022년 12월부터 2023년 4월까지 이주하면서 <b>전월세 실거래가 3년 넘게 한 건도 없습니다.</b> 갭투자로 들어가면 이주 공고 시점에 보증금 반환 재원을 스스로 마련해야 해요. 사업이 잘 될수록 이 부담이 확정적으로 발생합니다.</p>
+    </div>
+    <div class="risk mid">
+      <div class="t"><span class="sev">중간</span>6·7·8·9단지는 어느 사업에도 들어가 있지 않습니다</div>
+      <p>132~222세대 소규모, 오리역에서 1.1~1.35km, 37평 이상 중대형 위주. 2026년 거래도 단지당 0~6건뿐이에요. 무지개마을 이름값으로 함께 올랐지만 재건축 시나리오의 수혜에서는 빠져 있습니다. 유동성도 낮아 되팔기가 어렵습니다.</p>
+    </div>
+    <div class="risk mid">
+      <div class="t"><span class="sev">중간</span>4단지 프리미엄이 사실상 사라졌습니다</div>
+      <p>2026년 11월 입주하는 신축(4단지 23평 12.51억)과, 구역 지정도 안 된 1995년 아파트(12단지 24평 11.6억)의 차이가 1억이 채 안 됩니다. 이 격차가 정상화되는 방향으로 움직인다면 구축 쪽이 조정받습니다.</p>
+    </div>
+    <div class="risk mid">
+      <div class="t"><span class="sev">중간</span>주차는 재건축 전까지 해결되지 않습니다</div>
+      <p>주민 후기에서 가장 많이 나온 불만이고, 제원과 정확히 일치합니다. 11단지 0.72대, 3단지 0.83대, 5단지 0.97대, 1·2·12단지 1.0대 안팎. 실거주 목적이라면 차량 대수를 먼저 계산하세요.</p>
+    </div>
+    <div class="risk low">
+      <div class="t"><span class="sev">낮음</span>고압선 <span class="st 확인">확인 필요</span></div>
+      <p>2009년 82cook에 “무지개마을 건영아파트 가면 정말 바로 코 앞에 있어요”라는 진술이 있습니다. 17년 전 글이고 이후 지중화 여부를 확인하지 못했어요. 건영은 3·6·10단지에 있습니다. 현장에서 직접 보셔야 합니다.</p>
+    </div>
+    <div class="risk low">
+      <div class="t"><span class="sev">약해진 리스크</span>“분당에서 제일 늦게 오르고 제일 빨리 떨어진다”</div>
+      <p>2024년 블라인드에서 나온 지적인데, 최소한 이번 상승기에는 틀렸습니다. 2025년 9월부터 2026년 8월까지 분당구 상승률 29.5%는 전국 1위였고, 2025년 6월부터 2026년 6월까지를 본 한국부동산원 집계에서 <b>무지개 12단지는 56.4%로 분당 단지 중 5위</b>였어요. 늦게 오른 건 맞지만 오를 때는 더 크게 올랐습니다. 다만 “제일 빨리 떨어진다”는 부분은 아직 검증되지 않았어요.</p>
+    </div>
+  </section>
+
+  <section id="bullbear" class="section">
+    <h2>사야 하는 이유 / 사면 안 되는 이유</h2>
+    <p class="sec-lede">같은 비중으로 정리했습니다. 어느 쪽이 본인에게 더 무겁게 다가오는지 보세요.</p>
+    <div class="bb">
+      <div class="card bull">
+        <h3>Bull</h3>
+        <ol>
+          <li>정비사업이 <b>네 갈래로 동시에</b> 움직이고, 그중 하나(4단지)는 이미 준공 단계입니다. 1기 신도시 전체에서 가장 앞서 있어요.
+            <span class="basis">근거: 4단지 2026.11 입주 · 4구역 동의율 89% · 10단지 결합재건축 92%</span></li>
+          <li>12단지 용적률 <b>153%</b>, 11단지 <b>167%</b>. 분당 기준용적률 326%와 비교하면 사업성이 좋은 편입니다.
+            <span class="basis">근거: 아파트미 건축물대장 기반 제원 · 분당 노후계획도시 기본계획</span></li>
+          <li>제4테크노밸리는 <b>분당에 남은 유일한 대규모 미개발 부지</b>입니다. 현대차그룹, 하나은행, 미래에셋, LG CNS가 이미 참여를 밝혔어요.
+            <span class="basis">근거: 성남시 MOU 2025.09 · 부지 57만㎡</span></li>
+          <li>실거주 만족도가 실제로 높습니다. 2026년 후기 별점이 4~5점대에 몰려 있고 탄천, 조용함, 초품아, 낮은 관리비가 반복 언급돼요.
+            <span class="basis">근거: 집품 실거주 후기 17건 · 2025~2026년</span></li>
+          <li>초등학교가 전 단지 도보 10분 이내이고, 5·11·12·4단지는 200m 안팎입니다. 어린 자녀 가구 수요가 구조적으로 받쳐줍니다.
+            <span class="basis">근거: 불곡초 162m(5단지), 구미초 165m(11단지)</span></li>
+        </ol>
+      </div>
+      <div class="card bear">
+        <h3>Bear</h3>
+        <ol>
+          <li>상승 근거가 전부 미래형입니다. 특별정비구역은 <b>12월에 결정</b>되고, 테크노밸리는 <b>2030년 착공 목표</b>이며, SRT는 계획 반영 전이에요.
+            <span class="basis">근거: 성남시 일정 · 국토부 답변 · 2026.09 현재</span></li>
+          <li>2차 선정은 <b>1만 2,000호에 30여 곳</b>이 경쟁합니다. 89%가 상위권이긴 해도 안전권은 아니에요.
+            <span class="basis">근거: 파이낸셜뉴스 2026.07.08 · 한솔123 94% 선두</span></li>
+          <li>전세가율이 40%대, 12단지 20평은 24%까지 무너졌습니다. 실투자금이 소형에서도 <b>6억~8억</b>이에요.
+            <span class="basis">근거: 국토부 전월세 실거래 · 신규 계약 기준</span></li>
+          <li><b>신분당선이 아닙니다.</b> 판교와 강남을 지하철로 가려면 우회하거나 마을버스로 미금역까지 가야 해요. 주민들도 이 점을 반복해 지적합니다.
+            <span class="basis">근거: 주민 후기 다수 · “마을버스... 생각보다 안 와요”</span></li>
+          <li>2026년 11월 입주하는 신축 4단지와의 가격 차이가 <b>1억 미만</b>입니다. 기대감이 이미 신축값 수준까지 반영됐어요.
+            <span class="basis">근거: 4단지 23평 12.51억(2026.06) vs 12단지 24평 11.6억(2026.08)</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="verdict" class="section">
+    <h2>최종 판단</h2>
+    <div class="verdict-box">
+      <div class="verdict-chips">
+        <span class="vchip">적극 매수</span>
+        <span class="vchip on">조건부 검토</span>
+        <span class="vchip">관망</span>
+        <span class="vchip">회피</span>
+      </div>
+      <p style="font-size:17px;font-weight:700;margin-bottom:14px">목적에 따라 답이 정반대로 갈리는 동네입니다.</p>
+      <ol class="reasons">
+        <li><b>실거주 + 장기 보유라면 검토할 만합니다.</b> 주민 만족도가 진짜이고, 초등학교와 탄천은 지금 당장 누릴 수 있는 효용이에요. 재건축은 보너스로 두시고, 안 돼도 사는 데 지장이 없는지를 기준으로 판단하세요. 단, 주차 대수를 반드시 먼저 확인하셔야 합니다.</li>
+        <li><b>재건축 차익이 주목적이라면 12월까지 기다리는 편이 낫습니다.</b> 2026년 12월 특별정비구역 선정 결과가 이 동네 가격의 다음 변곡점입니다. 지금 가격은 선정을 이미 반영한 값이라 맞혀도 먹을 게 크지 않고, 틀리면 되돌림이 큽니다. 블라인드의 “뭐라도 하나 삽 뜨는 거 보고 들어가라”는 조언이 지금도 유효해요.</li>
+        <li><b>갭투자는 권하기 어렵습니다.</b> 전세가율 40%대에 실투자금 6억~8억, 그리고 사업이 잘 되면 이주 시점에 보증금 반환 부담이 확정적으로 발생합니다. 성공 시나리오가 곧 현금 부담 시나리오예요.</li>
+        <li><b>단지를 고른다면 우선순위는 명확합니다.</b> 사업 확정도로는 4단지(준공 임박) → 11·12단지(동의율 89%, 용적률 여유) → 10단지(결합재건축 92%) 순이고, 오리역 접근성으로는 2단지 → 3단지 → 4단지 순입니다. <b>6·7·8·9단지는 두 기준 모두에서 뒤에 있습니다.</b></li>
+      </ol>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>현장에 가면 이것만은 확인하세요</h3>
+      <ul class="check">
+        <li><label><input type="checkbox"><span><span class="hot">평일 밤 9시 이후 주차장</span>을 직접 보세요. 후기 6건이 전부 같은 말을 합니다. 이중주차가 어느 정도인지 눈으로 확인하셔야 해요.</span></label></li>
+        <li><label><input type="checkbox"><span><span class="hot">오리역까지 실제로 걸어보세요.</span> 주민 진술이 8분과 15분으로 갈립니다. 사거리 두 개의 신호 대기가 변수예요. 출근 시간대에 걸어보시는 게 정확합니다.</span></label></li>
+        <li><label><input type="checkbox"><span>본인이 볼 단지가 <span class="hot">복도식인지 계단식인지</span> 확인하세요. 4·5단지 후기에 복도식 불만이 나옵니다.</span></label></li>
+        <li><label><input type="checkbox"><span>3·6·10단지를 보신다면 <span class="hot">고압선 위치</span>를 눈으로 확인하세요. 2009년 진술이라 현재 상태를 모릅니다.</span></label></li>
+        <li><label><input type="checkbox"><span>중개업소에 <span class="hot">특별정비계획 본안 접수 여부와 자문위 지적사항</span>을 물어보세요. 9월부터 본안 접수가 시작됐습니다.</span></label></li>
+        <li><label><input type="checkbox"><span>4단지를 보신다면 <span class="hot">최종 세대수와 주차 대수</span>를 조합 공고로 확인하세요. 보도마다 647세대와 747세대, 1,112대와 1,358대가 엇갈립니다.</span></label></li>
+        <li><label><input type="checkbox"><span>저층 매물이라면 <span class="hot">결로와 벌레</span>를 물어보세요. 베란다 크랙 결로 언급이 있습니다.</span></label></li>
+        <li><label><input type="checkbox"><span>중학교 배정은 <span class="hot">성남교육지원청 통학구역</span>으로 직접 확인하세요. 분당중학군 추첨이라 학교가 고정되지 않습니다.</span></label></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="src" class="section">
+    <h2>출처와 조사 한계</h2>
+    <p class="sec-lede">이 리포트에 쓴 모든 수치의 출처와, 확인하지 못한 것을 적었습니다.</p>
+    <div class="card">
+      <h3>출처</h3>
+      <ol class="src-list">
+        <li><span class="gr b">B</span> 국토교통부 실거래가 — 아파트미(apt2.me) 재배포. 매매 200건씩 14개 단지, 전월세 60건씩 9개 단지. 2026-09-10 조회</li>
+        <li><span class="gr b">B</span> 아파트미 단지정보 — 세대수, 동수, 용적률, 건폐율, 주차, 좌표, 학군. 건축물대장 기반</li>
+        <li><span class="gr c">C</span> 집품(zippoom) — 무지개마을 일대 실거주 후기 17건. 2025~2026년 작성. 단지 페이지 간 후기가 공유되므로 단지 귀속에 주의</li>
+        <li><span class="gr c">C</span> 블라인드 — “분당 구미동 무지개마을 어떤가요?”(2024.09.16, 댓글 17), “분당 구미동 무지개마을 실거주”(2020.10.28, 댓글 16)</li>
+        <li><span class="gr d">D</span> 82cook 자유게시판 — 구미동 무지개마을 거주 문의글(2009.10.05)</li>
+        <li><span class="gr b">B</span> 파이낸셜뉴스 2026.07.08 — 분당 2차 선도지구 30곳 동의율 현황</li>
+        <li><span class="gr b">B</span> 파이낸셜뉴스 2026.06.29 — 한국부동산원 기준 분당 단지별 1년 상승률(2025.06.22~2026.06.22). 무지개12단지 56.42%로 5위</li>
+        <li><span class="gr c">C</span> 공감신문·매일일보·더리포트 등 — 부동산 빅데이터 플랫폼 집계 기준 분당구 1년 상승률 29.5%(2025.09~2026.08). 원 집계기관은 보도에 명시되지 않았습니다</li>
+        <li><span class="gr b">B</span> 한국경제·하우징헤럴드·위클리한국주택경제 2025.12.19 — 성남시 2차 특별정비구역 지정 제안 공고</li>
+        <li><span class="gr b">B</span> 도시정비뉴스, 하우징헤럴드, 한국경제 2026.05.28 — 무지개 10단지·S8구역 결합재건축</li>
+        <li><span class="gr b">B</span> 디지털타임스, 서울경제, 아시아경제, 리얼캐스트 — 무지개마을 4단지 리모델링(더샵 분당 센트로)</li>
+        <li><span class="gr b">B</span> 경기일보 2025.09.03, 전자신문 2025.06.09, 경인일보, 성남일보, 한국경제 2025.11.19 — 오리역세권 제4테크노밸리</li>
+        <li><span class="gr c">C</span> 서울신문·화성저널 2025.12.11, 경인방송 — SRT 오리역 신설 추진 현황</li>
+        <li><span class="gr c">C</span> 파이낸셜뉴스 2024.11.01, 신아일보 — 오리역 화이트존(도시혁신구역)</li>
+      </ol>
+      <p class="note" style="margin-top:12px">출처 등급: <span class="gr a">A</span> 공공 원문 · <span class="gr b">B</span> 공공 데이터 재배포·주요 언론 · <span class="gr c">C</span> 실명 확인 어려운 후기·전문 매체 · <span class="gr d">D</span> 익명 커뮤니티 · <span class="gr e">E</span> 미확인</p>
+    </div>
+
+    <div class="card">
+      <h3>이번 조사에서 확인하지 못한 것</h3>
+      <ul>
+        <li><b>호가</b>. 아파트미 매물 페이지가 로그인을 요구해 접근하지 못했습니다. 이 리포트에는 실거래만 실었고 호가는 한 건도 섞이지 않았습니다.</li>
+        <li><b>무지개 4구역 특별정비계획의 구체적 내용</b>. 계획 세대수, 목표 용적률, 예상 분담금은 공식 자료를 찾지 못했습니다.</li>
+        <li><b>1·2단지 통합재건축의 공식 진행 여부</b>. 커뮤니티 언급만 있고 접수 사실을 확인하지 못했습니다.</li>
+        <li><b>4단지 최종 제원</b>. 세대수(647 vs 747), 주차(1,112대 vs 1,358대)가 자료마다 다릅니다.</li>
+        <li><b>중학교 실제 배정 결과</b>. 분당중학군 추첨이라 단지별 통계가 필요한데 확보하지 못했습니다.</li>
+        <li><b>고압선 현황</b>. 2009년 진술 이후 지중화 여부를 확인하지 못했습니다.</li>
+        <li><b>보행 시간</b>. 아파트미 표기와 주민 진술이 크게 어긋납니다. 이 리포트의 거리는 단지 좌표 기준 <b>직선거리</b>이고 실제 보행거리가 아닙니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="foot">
+    <p>온라인 임장 리포트 · 조사 기준일 2026년 9월 10일 · 대상 성남시 분당구 구미동 무지개마을 13개 단지</p>
+    <p style="margin-top:6px">이 문서는 공개된 자료를 정리한 사전조사이며 투자 권유가 아닙니다. 모든 수치는 조사 기준일 시점이고, 실거래와 호가를 혼용하지 않았습니다. 계약 전 등기부, 건축물대장, 조합 공고, 교육지원청 통학구역을 직접 확인하세요.</p>
+  </div>
+
+</div>
+
+</body>
+</html>
