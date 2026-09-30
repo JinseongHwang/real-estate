@@ -1,0 +1,878 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>외대앞역·신이문역 온라인 임장 리포트</title>
+<style>
+  :root{
+    --ink:#191f28; --sub:#6b7684; --faint:#8b95a1; --line:#e5e8eb;
+    --bg:#f7f8fa; --card:#ffffff;
+    --blue:#1b64da; --blue-bg:#eef4fd;
+    --green:#0a7d43; --green-bg:#e8f7ee;
+    --red:#c22b2b; --red-bg:#fdeeee;
+    --amber:#b45309; --amber-bg:#fdf3e3;
+    --gray-bg:#f2f4f6;
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",Pretendard,"Noto Sans KR","Malgun Gothic",sans-serif;
+    color:var(--ink); background:var(--bg); line-height:1.65;
+    -webkit-text-size-adjust:100%; word-break:keep-all;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+  sup a{font-size:11px;color:var(--faint)}
+
+  /* ── Cover ─────────────────────────────── */
+  .cover{background:var(--card);border-bottom:1px solid var(--line);padding:56px 0 36px}
+  .cover-kicker{font-size:14px;font-weight:700;color:var(--blue);letter-spacing:.06em}
+  .cover h1{font-size:40px;line-height:1.2;margin:10px 0 6px;font-weight:800}
+  .cover h1 .loc{font-size:20px;color:var(--sub);font-weight:500;margin-left:8px}
+  .cover-meta{color:var(--sub);font-size:14px}
+  .cover-meta b{color:var(--ink)}
+
+  /* 한 줄 결론 */
+  .conclusion{margin:26px 0 0;padding:22px 24px;background:var(--blue-bg);border:1px solid #d5e4fb;border-radius:var(--radius)}
+  .conclusion .label{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px}
+  .conclusion p{font-size:19px;font-weight:700;line-height:1.55}
+
+  /* ── 목차 ──────────────────────────────── */
+  .toc{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);
+       border-bottom:1px solid var(--line)}
+  .toc-row{display:flex;gap:6px;overflow-x:auto;padding:10px 20px;scrollbar-width:none}
+  .toc-row::-webkit-scrollbar{display:none}
+  .toc a{flex:0 0 auto;font-size:13px;color:var(--sub);padding:6px 12px;border-radius:999px;background:var(--gray-bg)}
+  .toc a:hover{color:var(--ink);text-decoration:none;background:var(--line)}
+
+  /* ── 공통 섹션/카드 ────────────────────── */
+  .section{padding:40px 0 8px;scroll-margin-top:64px}
+  .section h2{font-size:24px;font-weight:800;margin-bottom:4px}
+  .sec-lede{color:var(--sub);font-size:15px;margin-bottom:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;margin-bottom:16px}
+  .card h3{font-size:17px;font-weight:700;margin-bottom:10px}
+  .card p{font-size:15px;margin-bottom:10px}
+  .card p:last-child{margin-bottom:0}
+  .card ul,.card ol{padding-left:20px;font-size:15px}
+  .card li{margin-bottom:6px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .note{font-size:13px;color:var(--faint)}
+  .asof{font-size:12px;color:var(--faint)}
+
+  /* ── KPI 카드 ──────────────────────────── */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+  .kpi .l{font-size:12px;color:var(--sub);margin-bottom:4px}
+  .kpi .v{font-size:24px;font-weight:800;line-height:1.25}
+  .kpi .v small{font-size:14px;font-weight:600;color:var(--sub)}
+  .kpi .s{font-size:12px;color:var(--faint);margin-top:4px}
+  .kpi .up{color:var(--red)} .kpi .down{color:var(--blue)}
+
+  /* ── 배지 ──────────────────────────────── */
+  .st{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;vertical-align:1px;white-space:nowrap}
+  .st.확정{background:var(--green-bg);color:var(--green)}
+  .st.신뢰{background:var(--blue-bg);color:var(--blue)}
+  .st.참고{background:var(--gray-bg);color:var(--sub)}
+  .st.추정{background:var(--amber-bg);color:var(--amber)}
+  .st.확인{background:var(--red-bg);color:var(--red)}
+  .gr{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;
+      font-size:12px;font-weight:800;vertical-align:-3px;margin-right:6px}
+  .gr.a{background:#123c73;color:#fff}
+  .gr.b{background:#1b64da;color:#fff}
+  .gr.c{background:#5f6b7a;color:#fff}
+  .gr.d{background:#a08acb;color:#fff}
+  .gr.e{background:#d7dce2;color:#57606a}
+
+  /* ── 표 ────────────────────────────────── */
+  .table-wrap{overflow-x:auto;margin:6px 0 4px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+  th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{background:var(--gray-bg);font-size:13px;color:var(--sub);font-weight:700}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.hl td{background:var(--blue-bg);font-weight:700}
+
+  /* ── 차트 ──────────────────────────────── */
+  .chart-wrap{overflow-x:auto;padding:8px 0}
+  .chart-wrap svg{display:block;min-width:560px;width:100%;height:auto}
+  .chart-cap{font-size:12px;color:var(--faint);margin-top:6px}
+  .hbar{margin:8px 0}
+  .hbar .row{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:10px;margin-bottom:8px;font-size:14px}
+  .hbar .bar{display:block;height:14px;border-radius:7px;background:var(--blue);opacity:.85}
+  .hbar .row>span:nth-child(2){display:block}
+  .hbar .row .nm small{color:var(--faint);font-weight:400}
+  .hbar .row.me .bar{background:var(--green)}
+  .hbar .row.me .nm{font-weight:800}
+  .hbar .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--sub);font-size:13px}
+
+  /* ── 타임라인 (정비사업 단계) ──────────── */
+  .tl{list-style:none;padding-left:0;margin:8px 0}
+  .tl li{position:relative;padding:0 0 16px 26px;font-size:14px}
+  .tl li::before{content:"";position:absolute;left:6px;top:7px;width:9px;height:9px;border-radius:50%;
+                 background:var(--line);border:2px solid var(--faint)}
+  .tl li::after{content:"";position:absolute;left:10px;top:20px;bottom:-2px;width:1.5px;background:var(--line)}
+  .tl li:last-child::after{display:none}
+  .tl li.done::before{background:var(--green);border-color:var(--green)}
+  .tl li.now::before{background:#fff;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+  .tl li.now .tl-t{color:var(--blue);font-weight:800}
+  .tl .tl-t{font-weight:700}
+  .tl .tl-d{color:var(--faint);font-size:12px;margin-left:6px}
+
+  /* ── 리스크 카드 ───────────────────────── */
+  .risk{border-left:4px solid var(--line);padding:14px 18px;background:var(--card);border-radius:0 12px 12px 0;
+        border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:12px}
+  .risk .t{font-weight:700;font-size:15px;margin-bottom:4px}
+  .risk p{font-size:14px;color:var(--sub);margin:0}
+  .risk.high{border-left-color:var(--red)} .risk.high .sev{color:var(--red)}
+  .risk.mid{border-left-color:var(--amber)} .risk.mid .sev{color:var(--amber)}
+  .risk.low{border-left-color:var(--faint)} .risk.low .sev{color:var(--faint)}
+  .risk .sev{font-size:12px;font-weight:800;margin-right:6px}
+
+  /* ── Bull / Bear ───────────────────────── */
+  .bb{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .bb .card{margin-bottom:0}
+  .bull{border-top:4px solid var(--green)}
+  .bear{border-top:4px solid var(--red)}
+  .bull h3{color:var(--green)} .bear h3{color:var(--red)}
+  .bb ol{padding-left:18px}
+  .bb li{margin-bottom:10px;font-size:15px}
+  .bb .basis{display:block;font-size:12.5px;color:var(--faint);margin-top:2px}
+  .conf{font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--gray-bg);color:var(--sub);margin-left:6px;vertical-align:1px}
+
+  /* ── 용어 박스 ─────────────────────────── */
+  .term{display:flex;gap:10px;background:var(--gray-bg);border-radius:10px;padding:12px 14px;margin:10px 0;font-size:13.5px;color:var(--sub)}
+  .term .chip{flex:0 0 auto;font-size:11px;font-weight:800;color:var(--blue);background:var(--blue-bg);
+              border-radius:6px;padding:2px 7px;height:fit-content;margin-top:2px}
+  .term b{color:var(--ink)}
+
+  /* ── 체크리스트 ────────────────────────── */
+  .check{list-style:none;padding-left:0}
+  .check li{margin-bottom:8px;font-size:15px}
+  .check label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+  .check input{margin-top:5px;width:15px;height:15px;accent-color:var(--blue)}
+  .check .hot{color:var(--red);font-weight:700}
+
+  /* ── 최종 판단 ─────────────────────────── */
+  .verdict-box{background:var(--card);border:2px solid var(--ink);border-radius:var(--radius);padding:26px 28px}
+  .verdict-chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
+  .vchip{font-size:14px;font-weight:700;padding:7px 16px;border-radius:999px;background:var(--gray-bg);color:var(--faint)}
+  .vchip.on{background:var(--ink);color:#fff}
+  .verdict-box .reasons{padding-left:20px}
+  .verdict-box .reasons li{margin-bottom:8px;font-size:15px}
+
+  /* ── 출처 ──────────────────────────────── */
+  .src-list{list-style:none;padding-left:0;counter-reset:src}
+  .src-list li{counter-increment:src;font-size:13.5px;color:var(--sub);padding:9px 0;border-bottom:1px solid var(--line);
+               display:flex;gap:10px;align-items:baseline}
+  .src-list li::before{content:"["counter(src)"]";color:var(--faint);font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .src-list li:last-child{border-bottom:none}
+
+  /* ── 푸터 ──────────────────────────────── */
+  .foot{margin:48px 0 0;padding:28px 0 44px;border-top:1px solid var(--line);color:var(--faint);font-size:12.5px}
+
+  /* ── 반응형/인쇄 ───────────────────────── */
+  @media (max-width:680px){
+    .cover h1{font-size:30px}
+    .cover h1 .loc{display:block;margin:4px 0 0}
+    .grid-2,.bb{grid-template-columns:1fr}
+    .hbar .row{grid-template-columns:96px 1fr 76px}
+    .kpi .v{font-size:20px}
+  }
+  @media print{
+    .toc{display:none}
+    body{background:#fff}
+    .card,.kpi,.risk,.verdict-box{break-inside:avoid;border-color:#ccc}
+  }
+
+  /* ── 주민 목소리 ───────────────────────── */
+  .voice{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--blue);
+         border-radius:0 12px 12px 0;padding:16px 20px;margin-bottom:12px}
+  .voice .q{font-size:15px;line-height:1.7;color:var(--ink)}
+  .voice .q b{background:#fff3c4;font-weight:700;padding:0 2px;border-radius:2px}
+  .voice .who{margin-top:9px;font-size:12.5px;color:var(--faint)}
+  .voice .who b{color:var(--sub);font-weight:700}
+  .voice.pos{border-left-color:var(--green)}
+  .voice.neg{border-left-color:var(--red)}
+  .voice.mix{border-left-color:var(--amber)}
+  .vtag{display:inline-block;font-size:11px;font-weight:800;padding:1px 8px;border-radius:999px;margin-right:6px;vertical-align:2px}
+  .vtag.pos{background:var(--green-bg);color:var(--green)}
+  .vtag.neg{background:var(--red-bg);color:var(--red)}
+  .vtag.mix{background:var(--amber-bg);color:var(--amber)}
+  .vgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:680px){.vgrid{grid-template-columns:1fr}}
+  .tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0 4px}
+  .tally .t{background:var(--gray-bg);border-radius:10px;padding:12px 14px}
+  .tally .t .n{font-size:20px;font-weight:800}
+  .tally .t .l{font-size:12px;color:var(--sub);margin-top:2px}
+  /* ── 이 리포트 전용 ─────────────────────── */
+  .map-wrap{overflow-x:auto;padding:6px 0}
+  .map-wrap svg{display:block;width:100%;max-width:560px;height:auto;margin:0 auto}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--sub);margin-top:8px}
+  .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+  .legend .l-new::before{background:var(--blue)}
+  .legend .l-old::before{background:#8b95a1}
+  .legend .l-st::before{background:var(--ink)}
+  .legend .l-plan::before{background:#fff;border:2px dashed var(--amber);width:8px;height:8px}
+  .money{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:10px 0}
+  .money .m{background:var(--gray-bg);border-radius:12px;padding:14px 16px}
+  .money .m .l{font-size:12px;color:var(--sub)}
+  .money .m .v{font-size:22px;font-weight:800;margin:2px 0}
+  .money .m .s{font-size:12px;color:var(--faint)}
+  .persona{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+  .persona .p{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--card)}
+  .persona .p .h{font-weight:800;font-size:15px;margin-bottom:4px}
+  .persona .p .fit{font-size:12px;font-weight:800;padding:2px 8px;border-radius:999px;margin-left:6px}
+  .persona .p .fit.ok{background:var(--green-bg);color:var(--green)}
+  .persona .p .fit.so{background:var(--amber-bg);color:var(--amber)}
+  .persona .p .fit.no{background:var(--red-bg);color:var(--red)}
+  .persona .p p{font-size:14px;color:var(--sub);margin:0}
+  @media (max-width:680px){.persona{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="wrap">
+    <div class="cover-kicker">온라인 임장 · 경량 모드 · 실거주민 발언 우선</div>
+    <h1>외대앞역·신이문역 도보권<span class="loc">서울 동대문구 이문동·휘경동</span></h1>
+    <p class="cover-meta">조사 기준일 <b>2026년 10월 1일(목)</b> · 실거래는 국토교통부 공개분을 아파트미(2026년 8월 집계)와 집품(2026년 9월 30일 집계)에서 재수집 · 단일 세션 조사, 교차검증 최소화</p>
+
+    <div class="conclusion">
+      <div class="label">한 줄 결론</div>
+      <p>이문·휘경뉴타운 신축 3개 단지(9,196세대)가 1년 새 들어서면서 외대앞역 일대는 "1호선 도심 출퇴근용 신축 대단지 밀집지"로 바뀌었다. 신축 59㎡가 15.8억, 84㎡가 17.5~20억까지 올랐고 구축도 1년 만에 20~36% 뛰었다. 다만 주민들이 입을 모아 말하는 세 가지, 즉 <b>1호선 지상 철길 소음, 편도 2차선 이문로 정체, 외대앞역 건너편에 쏠린 상권</b>은 값에 이미 녹아 있으니 동 위치와 출퇴근 방향이 1호선인지부터 따져야 한다. 강남 출퇴근이라면 이 동네가 아니다.</p>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="l">신축 3단지 세대수</div><div class="v">9,196<small>세대</small></div><div class="s">라그란데 3,069 · 아이파크자이 4,321 · 휘경자이 1,806</div></div>
+      <div class="kpi"><div class="l">이문아이파크자이 59㎡ 실거래</div><div class="v">15.8<small>억</small></div><div class="s">2026-06-25 · 27층 · 입주권</div></div>
+      <div class="kpi"><div class="l">래미안라그란데 84㎡ 실거래</div><div class="v">17.5<small>억</small></div><div class="s">2026-05-08 · 14층 · 입주권 신고가</div></div>
+      <div class="kpi"><div class="l">구축 84㎡ 1년 상승률</div><div class="v up">+20~36<small>%</small></div><div class="s">휘경SK뷰 +20% · 쌍용 +31% · 이문e편한세상 +36%</div></div>
+      <div class="kpi"><div class="l">신축 59㎡ 전세가율</div><div class="v down">46<small>%</small></div><div class="s">전세 7.3억 / 매매 15.8억 · 갭 8.5억</div></div>
+      <div class="kpi"><div class="l">남은 정비사업</div><div class="v">4,688<small>세대</small></div><div class="s">이문4구역 3,488(2027 착공 목표) · 신이문역세권 1,200</div></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc"><div class="toc-row">
+  <a href="#map">지형</a><a href="#voice">주민 목소리</a><a href="#price">실거래</a><a href="#trend">가격 추이</a>
+  <a href="#jeonse">전세·갭·규제</a><a href="#redev">정비사업·교통</a><a href="#edu">교육</a>
+  <a href="#life">생활</a><a href="#risk">리스크</a><a href="#bullbear">Bull/Bear</a><a href="#verdict">최종 판단</a><a href="#src">출처</a>
+</div></nav>
+
+<div class="wrap">
+
+  <!-- ───────────────────────── 지형 ───────────────────────── -->
+  <section id="map" class="section">
+    <h2>먼저, 철길이 동네를 둘로 가릅니다</h2>
+    <p class="sec-lede">외대앞역과 신이문역은 1호선(경원선) 지상 구간의 이웃 역이고, 두 역 사이 거리는 직선 900m 남짓입니다. 철길 서쪽은 한국외대와 이문·휘경뉴타운 신축이, 철길 동쪽은 중랑천변 2000년대 구축이 자리잡고 있어요. 어느 쪽이냐에 따라 값도, 주민 불만도 완전히 달라집니다.</p>
+
+    <div class="card">
+      <h3>단지 배치도</h3>
+      <p class="note">좌표는 아파트미와 집품이 공개한 단지 중심점, 역 좌표는 공개 지도 값을 썼습니다. 축척은 실제 위경도 비율대로 맞췄고(가로 1.7km, 세로 2.0km), 이문4구역과 이문차량기지는 번지 기준으로 개략 표시했습니다.</p>
+      <div class="map-wrap">
+      <svg viewBox="0 0 560 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="외대앞역·신이문역 주변 단지 배치도">
+        <!-- 중랑천 -->
+        <path d="M520 20 C 505 200, 515 420, 500 640" stroke="#cfe3f7" stroke-width="22" fill="none" stroke-linecap="round"/>
+        <text x="536" y="330" font-size="11" fill="#6b7684" transform="rotate(90 536 330)">중랑천</text>
+        <!-- 한국외대 캠퍼스 -->
+        <rect x="120" y="300" width="110" height="105" rx="10" fill="#eef2f5"/>
+        <text x="175" y="356" font-size="11" fill="#8b95a1" text-anchor="middle">한국외대</text>
+        <!-- 이문4구역 (개략) -->
+        <rect x="108" y="112" width="114" height="100" rx="8" fill="#fff" fill-opacity="0.85" stroke="#b45309" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="165" y="152" font-size="11" fill="#b45309" text-anchor="middle" font-weight="700">이문4구역</text>
+        <text x="165" y="167" font-size="10" fill="#b45309" text-anchor="middle">3,488세대 · 2027 착공 목표</text>
+        <text x="165" y="181" font-size="9.5" fill="#b45309" text-anchor="middle">(개략 위치)</text>
+        <!-- 이문차량기지 (개략) -->
+        <rect x="392" y="10" width="112" height="54" rx="8" fill="#fff" fill-opacity="0.85" stroke="#8b95a1" stroke-width="1.2" stroke-dasharray="4 4"/>
+        <text x="448" y="32" font-size="10.5" fill="#6b7684" text-anchor="middle">이문차량기지</text>
+        <text x="448" y="46" font-size="9.5" fill="#8b95a1" text-anchor="middle">20만㎡ · 복합개발 구상 (개략)</text>
+        <!-- 이문로 -->
+        <path d="M246 392 L 300 265 L 352 150" stroke="#e5e8eb" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <text x="262" y="345" font-size="10" fill="#8b95a1" transform="rotate(-66 262 345)">이문로(편도 2차선)</text>
+        <!-- 신이문역세권 시프트 (개략, 신이문역 남서측) -->
+        <rect x="296" y="158" width="74" height="52" rx="6" fill="#fff" fill-opacity="0.85" stroke="#b45309" stroke-width="1.2" stroke-dasharray="4 3"/>
+        <text x="333" y="180" font-size="9.5" fill="#b45309" text-anchor="middle">신이문역세권</text>
+        <text x="333" y="194" font-size="9.5" fill="#b45309" text-anchor="middle">1,200세대(개략)</text>
+        <!-- 1호선 경원선 -->
+        <path d="M95 640 L 121 599 L 271 376 L 387 139 L 430 40" stroke="#191f28" stroke-width="3" fill="none"/>
+        <path d="M95 640 L 121 599 L 271 376 L 387 139 L 430 40" stroke="#fff" stroke-width="1.2" fill="none" stroke-dasharray="7 7"/>
+        <!-- 역 -->
+        <g>
+          <circle cx="121" cy="599" r="8" fill="#191f28" stroke="#fff" stroke-width="2"/>
+          <text x="134" y="604" font-size="12" font-weight="800" fill="#191f28">회기역 <tspan font-size="10" font-weight="400" fill="#6b7684">1호선·경의중앙</tspan></text>
+          <circle cx="271" cy="376" r="8" fill="#191f28" stroke="#fff" stroke-width="2"/>
+          <text x="284" y="371" font-size="12" font-weight="800" fill="#191f28">외대앞역</text>
+          <circle cx="387" cy="139" r="8" fill="#191f28" stroke="#fff" stroke-width="2"/>
+          <text x="400" y="134" font-size="12" font-weight="800" fill="#191f28">신이문역</text>
+        </g>
+        <!-- 신축 -->
+        <g fill="#1b64da">
+          <circle cx="217" cy="259" r="9"/><text x="207" y="245" font-size="11" font-weight="700" fill="#1b64da" text-anchor="end">래미안라그란데 3,069</text>
+          <circle cx="279" cy="306" r="10"/><text x="292" y="310" font-size="11" font-weight="700" fill="#1b64da">이문아이파크자이 4,321</text>
+          <circle cx="256" cy="485" r="8"/><text x="244" y="489" font-size="11" font-weight="700" fill="#1b64da" text-anchor="end">휘경자이디센시아 1,806</text>
+          <circle cx="357" cy="449" r="7"/><text x="368" y="453" font-size="11" font-weight="700" fill="#1b64da">휘경SK뷰 900</text>
+          <circle cx="277" cy="532" r="5"/><text x="288" y="536" font-size="10.5" fill="#1b64da">휘경해모로 299</text>
+        </g>
+        <!-- 구축 -->
+        <g fill="#8b95a1">
+          <circle cx="431" cy="273" r="7"/><text x="442" y="277" font-size="11" fill="#6b7684">쌍용 1,318 (2000)</text>
+          <circle cx="362" cy="94" r="7"/><text x="352" y="98" font-size="11" fill="#6b7684" text-anchor="end">이문e편한세상 1,378 (2003)</text>
+          <circle cx="272" cy="132" r="5"/><text x="292" y="121" font-size="10.5" fill="#6b7684" text-anchor="middle">신이문금호어울림 166</text>
+          <circle cx="474" cy="86" r="4"/><text x="474" y="102" font-size="10" fill="#6b7684" text-anchor="middle">이문2차푸르지오 96</text>
+          <circle cx="160" cy="457" r="5"/><text x="150" y="461" font-size="10.5" fill="#6b7684" text-anchor="end">래미안이문2차 648</text>
+          <circle cx="80" cy="244" r="5"/><text x="80" y="262" font-size="10.5" fill="#6b7684" text-anchor="middle">이문삼성래미안 379</text>
+          <circle cx="322" cy="511" r="4"/><text x="330" y="515" font-size="10" fill="#6b7684">롯데낙천대 239</text>
+          <circle cx="378" cy="562" r="4"/><text x="386" y="566" font-size="10" fill="#6b7684">브라운스톤휘경 451</text>
+          <circle cx="407" cy="577" r="4"/><text x="415" y="581" font-size="10" fill="#6b7684">휘경센트레빌 297</text>
+        </g>
+        <!-- 축척 -->
+        <line x1="30" y1="640" x2="184" y2="640" stroke="#191f28" stroke-width="2"/>
+        <text x="107" y="632" font-size="10" fill="#6b7684" text-anchor="middle">500m</text>
+      </svg>
+      </div>
+      <div class="legend"><span class="l-st">1호선 역</span><span class="l-new">2019년 이후 신축(크기는 세대수)</span><span class="l-old">2000년대 구축</span><span class="l-plan">추진 중 정비사업(개략)</span></div>
+    </div>
+
+    <div class="card">
+      <h3>역까지 거리와 단지 제원</h3>
+      <p class="note">도보 시간과 거리는 아파트미가 표기한 값입니다(분당 약 70m 환산). 배정 초등학교는 아파트미 표기와 2024년 10월 교육청 배정 보도를 합쳤고, 신축 3단지는 <b>동별로 배정이 갈리므로</b> 계약 전 동별 확인이 필요합니다.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단지</th><th class="num">준공</th><th class="num">세대</th><th class="num">세대당 주차</th><th>가까운 역 · 도보</th><th>배정 초등</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td>이문아이파크자이 <small>(이문3)</small></td><td class="num">2025.11<br><small>3단지 2026.06</small></td><td class="num">4,321<br><small>임대 1,340 · 오피스텔 594실</small></td><td class="num">미확인</td><td>외대앞역 바로 앞(집품 4분) · 신이문역 9분 625m(3-1BL, 당근)</td><td>1·3단지 청량초 / 2단지 이문초</td></tr>
+            <tr class="hl"><td>래미안라그란데 <small>(이문1)</small></td><td class="num">2025.01</td><td class="num">3,069<br><small>임대 541 · 39동</small></td><td class="num">1.23대</td><td>외대앞역 7분 417m · 신이문역 9분 573m</td><td>1단지 이문초(235m) / 2단지 청량초</td></tr>
+            <tr class="hl"><td>휘경자이디센시아 <small>(휘경3)</small></td><td class="num">2025.06</td><td class="num">1,806<br><small>임대 433</small></td><td class="num">1.20대</td><td>외대앞역 4분 229m · 회기역 7분 428m</td><td>휘경초·청량초 공동학구</td></tr>
+            <tr><td>휘경SK뷰 <small>(휘경2)</small></td><td class="num">2019.06</td><td class="num">900<br><small>임대 174</small></td><td class="num">1.20대</td><td>외대앞역 6분 284m · 회기역 14분 910m</td><td>미확인</td></tr>
+            <tr><td>휘경해모로프레스티지 <small>(휘경1)</small></td><td class="num">2021</td><td class="num">299<br><small>임대 51</small></td><td class="num">1.00대</td><td>회기역 5분 340m</td><td>미확인</td></tr>
+            <tr><td>래미안이문2차</td><td class="num">2004</td><td class="num">648</td><td class="num">미확인</td><td>외대앞역 6분 324m · 회기역 8분 484m</td><td>미확인</td></tr>
+            <tr><td>이문삼성래미안</td><td class="num">2001</td><td class="num">379</td><td class="num">1.60대</td><td>외대앞역 14분 819m</td><td>청량초 884m</td></tr>
+            <tr><td>휘경센트레빌</td><td class="num">2011</td><td class="num">297</td><td class="num">1.27대</td><td>외대앞역 13분 720m</td><td>미확인</td></tr>
+            <tr><td>쌍용 <small>(이문2동)</small></td><td class="num">2000</td><td class="num">1,318<br><small>15동</small></td><td class="num">1.16대</td><td>신이문역 3분 188m · 외대앞역 14분 863m</td><td>이문초 8분 518m</td></tr>
+            <tr><td>이문e편한세상 <small>(대림)</small></td><td class="num">2003</td><td class="num">1,378<br><small>19동</small></td><td class="num">지하주차장 있음</td><td>신이문역 4분 227m</td><td>이문초 2분 127m</td></tr>
+            <tr><td>신이문금호어울림</td><td class="num">2008</td><td class="num">166<br><small>장기전세 13</small></td><td class="num">미확인</td><td>신이문역 8분 487m · 돌곶이역 14분 919m</td><td>이문초 2분 116m</td></tr>
+            <tr><td>이문2차푸르지오</td><td class="num">2007</td><td class="num">96</td><td class="num">1.15대</td><td>신이문역 7분 427m</td><td>석계초 385m</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">이문아이파크자이 세대수는 나무위키 기준(아파트 4,321세대)이고, 당근부동산은 3-1블록 기준 4,169세대로 표기합니다. 준공 연도는 아파트미 표기이며 휘경해모로는 나무위키가 2020년 2월 입주로 적어 1년 차이가 납니다.</p>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 주민 목소리 ───────────────────────── -->
+  <section id="voice" class="section">
+    <h2>주민 목소리: 살아본 사람들이 실제로 하는 말</h2>
+    <p class="sec-lede">집품(거주 인증 후기), 당근부동산(살아본 후기), 기사 인터뷰, 커뮤니티 글에서 실제 거주자와 오래 산 사람의 발언만 골랐습니다. 중개업소 문구와 기사 요약은 뺐고, 원문 표기와 오탈자는 그대로 두었어요. 형광 표시는 여러 사람이 반복해서 말한 대목입니다.</p>
+
+    <div class="tally">
+      <div class="t"><div class="n">62</div><div class="note">수집한 거주자 발언 수</div></div>
+      <div class="t"><div class="n">5</div><div class="note">철길·도로 소음 언급</div></div>
+      <div class="t"><div class="n">6</div><div class="note">이문로 정체 언급</div></div>
+      <div class="t"><div class="n">6</div><div class="note">상권 편중·부족 언급</div></div>
+      <div class="t"><div class="n">4</div><div class="note">학군 걱정 언급</div></div>
+    </div>
+
+    <h3 style="margin:18px 0 10px;font-size:17px">1. 역세권은 진짜다, 단 1호선 하나뿐이다</h3>
+    <div class="vgrid">
+      <div class="voice pos"><div class="q"><span class="vtag pos">긍정</span>아파트 대단지에 상가도 좋고 살기좋아요 <b>지하철역 3분컷</b>이고 상가에 다양하게 들어와있고 외대역 상권이라서 먹거리들이…</div><div class="who"><b>이문아이파크자이 현재 거주자</b> · 집품 거주 인증 · 2026-08-12 · 평점 4.0</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>단점은 딱 하나입니다. <b>1호선 출근하는사람이 아니라면 지하철이 불편한것.</b> 전에 송파구에서 살다와서 약속있으면 거의 송…</div><div class="who"><b>휘경자이디센시아 현재 거주자</b> · 집품 거주 인증 · 2026-08-08 · 평점 5.0</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>위치가 너무 서울 동부고… 다니는 지하철이 <b>1호선이랑 경의중앙선 밖에 없어서</b> 다른 서울 위치로 가… 경의중앙선이 매우 극혐이었던 거 빼고는 완벽했어요</div><div class="who"><b>휘경 제이스카이시티 전 거주자</b>(회기역 인근) · 집품 · 작성일 미표기</div></div>
+      <div class="voice pos"><div class="q"><span class="vtag pos">긍정</span>실거주 최고, 너무 만족합니다 1,7호선 더블 역세권이고 <b>중랑천 조망뷰</b>라 시야도 너무 좋습니다 채광 통풍 진짜 좋고</div><div class="who"><b>쌍용아파트 현재 거주자</b> · 집품 거주 인증 · 2026-09-07 · 평점 5.0</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>큰 단점이라고 생각하지는 않지만 이문아이파크자이 보다는 <b>외대역까지 조금 더 걸어야한다</b>는 것? 유치원, 식당 등 일부…</div><div class="who"><b>래미안라그란데 현재 거주자</b> · 집품 거주 인증 · 2026-09-13 · 평점 4.5</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>장점 주차 편의, 조용한 환경 / 단점 <b>대중교통 불편, 접근로 정체</b></div><div class="who"><b>래미안라그란데 거주 1~3년(동대문구 인증 6회)</b> · 당근부동산 · 2026-09-29 · "또 살고 싶어요"</div></div>
+    </div>
+
+    <h3 style="margin:22px 0 10px;font-size:17px">2. 철길 소음은 "창문 닫으면 괜찮다"는 수준, 동에 따라 다르다</h3>
+    <div class="vgrid">
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span><b>저녁에 조용하면 지하철 소음이 있어요</b> 세대에비해 분리수거공간이 작아서 늘 넘쳐요 옆에 재개발 공사구역이라 먼지, 분…</div><div class="who"><b>이문아이파크자이 현재 거주자</b> · 집품 거주 인증 · 2026-08-12</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>외대앞역이랑 가까운게 너무 좋아요. 밤에도 하나도 안 무섭고 … <b>기차소리가 있어서 예민하신분들은 계속 창문 닫아놓으셔야</b> 할 것 같아요. 근데 창문 닫아 놓으면 괜찮습니다.</div><div class="who"><b>휘경자이디센시아 현재 거주자</b> · 집품 거주 인증 · 2026-07-23 · 평점 5.0</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span><b>도로 바로 앞이라 아침 저녁으로는 조금 시끄러움</b></div><div class="who"><b>휘경자이디센시아 거주 1~3년</b> · 당근부동산 · 2026-07-18</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>방음 너무 안돼요. 내가 윗집소리 듣는만큼…</div><div class="who"><b>휘경자이디센시아 거주 1~3년</b> · 당근부동산 · 2026-08-19</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>다른세댄 모르겠지만 저희동은 <b>층간소음이 좀 있습니다.</b> 윗집이 시끄러운게 아니라 방음이 잘안되는지 문닫고 여는 끼익 소…</div><div class="who"><b>휘경SK뷰 현재 거주자</b> · 집품 거주 인증 · 2026-07-21 · 평점 4.0</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>신이문역 가깝고 273 이용할 수 있어서 너무 좋아요 … 주변에 아무것도 없어요 … 현대아파트 쪽에 편의점 생긴게 엄청 획기적인 일이었고 <b>신이문역 고가 때문에</b>…</div><div class="who"><b>이문2차푸르지오 전 거주자</b> · 집품 · 작성일 미표기 · 평점 4.7</div></div>
+    </div>
+    <p class="note" style="margin-top:8px">참고로 나무위키는 신이문역 구간을 "코레일 광역전철 구간이라 화물열차가 지나다니고 일부 주택은 한쪽 담벼락이 철도 방음벽일 정도"라고 서술합니다. 주민 발언과 방향이 같아서 실었지만 출처 등급은 C입니다.</p>
+
+    <h3 style="margin:22px 0 10px;font-size:17px">3. 이문로 정체는 주민, 중개사, 기자가 다 같은 말을 한다</h3>
+    <div class="vgrid">
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>인근 아파트 세대수에 비해 <b>도로가 좁아 차가 항상 막힙니다</b></div><div class="who"><b>이문아이파크자이 거주 1년 미만</b> · 당근부동산 · 2026-01-21</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>아파트 입주 초기에 차를 몰고 다녀봤는데 <b>너무 막혀서 지금은 지하철을 더 자주 이용</b>하고 있다</div><div class="who"><b>주민 김다현(35세)</b> · 르데스크 기사 인터뷰 · 2026-01-22</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>재개발을 할 거면 교통 대책도 함께 마련했어야 하는 것 아니냐</div><div class="who"><b>주민 이건우(52세)</b> · 르데스크 기사 인터뷰 · 2026-01-22</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>우회도로도 마땅치 않고 신호 주기도 짧아 체감 정체가 더 심한 것 같다. 현재 이문 아이파크 자이 지하를 지나는 도로 공사가 진행 중이지만 <b>이문4구역 사업이 마무리돼야 완전 개통</b>이 가능하다</div><div class="who"><b>이문동 공인중개사</b> · 르데스크 기사 · 2026-01-22</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>차 네다섯 대만 지나가도 신호가 끊겨 정체가 해소되지 않는다</div><div class="who"><b>이문동 B공인중개사무소</b> · 한국경제 기사 · 2025-04-09</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>CCTV를 더 촘촘히 설치해 불법 주정차 단속을 강화하는 등 현실적인 대책이 필요하다</div><div class="who"><b>주민 조은정(37세)</b> · 르데스크 기사 인터뷰 · 2026-01-22</div></div>
+    </div>
+
+    <h3 style="margin:22px 0 10px;font-size:17px">4. 상권은 외대앞역 서쪽에 몰려 있고, 신이문역 동쪽 구축은 "사먹을 데가 없다"</h3>
+    <div class="vgrid">
+      <div class="voice pos"><div class="q"><span class="vtag pos">긍정</span>솔직히 아파트에 있는 오피스텔이라그런지 보안은 좋아요 그리고 역이랑 진짜 가까워서 편해요~!!! <b>주변에 상가도 엄청 많아서</b> 왠만한 식당이나 병원</div><div class="who"><b>이문아이파크자이(오피스텔) 현재 거주자</b> · 집품 · 2026-09-18 · 평점 4.0</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span><b>상권이 대부분 외대앞역 건너에있어서</b> 그건 좀 아쉬워요</div><div class="who"><b>휘경자이디센시아 거주 1~3년</b> · 당근부동산 · 2026-09-20 · "또 살고 싶어요"</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>상권은 <b>역 지나서 가야해서</b> 약간 불편합니다</div><div class="who"><b>휘경자이디센시아 거주 1~3년</b> · 당근부동산 · 2026-09-04 · "보통"</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>고성방가나 주취자 난동 없이 동네가 조용하고 주차 걱정 할 일이 없음 … 작은 아파트단지가 아닌데도 단지내에도 그렇고 주변에도 그렇고 <b>상업시설이 부족함. 특히 음식점이든 술집이든 뭔가 사먹을</b>…</div><div class="who"><b>쌍용아파트 전 거주자</b> · 집품 거주 인증 · 2026-09-17 · 평점 5.0</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>회기역 가깝고(단지마다 다르겠지만 도보 5~10분 이내) 삼육서울병원 정류장도 바로 앞이라 교통이 편리합니다 … 도로에 가까운 단지는 차소리, 도로소음이 좀 있습니다. <b>집 바로 근처에 큰 마트가 없습니다</b>(편의점은 있음).</div><div class="who"><b>휘경해모로프레스티지 전 거주자</b> · 집품 · 작성일 미표기 · 평점 4.0</div></div>
+      <div class="voice pos"><div class="q"><span class="vtag pos">긍정</span>주변에 상점과 병원이 많아서 살기가 정말 좋고… 아파트 단지안은 조용하고 산책하기 좋</div><div class="who"><b>래미안라그란데 거주 1~3년</b> · 당근부동산 · 2026-08-19</div></div>
+    </div>
+
+    <h3 style="margin:22px 0 10px;font-size:17px">5. 신축 입주 1년차의 현실: 커뮤니티는 만족, 이웃과 쓰레기는 불만</h3>
+    <div class="vgrid">
+      <div class="voice pos"><div class="q"><span class="vtag pos">긍정</span><b>커뮤니티 사우나 헬스장 도서관 키즈카페</b> 너무 잘 되어있어요. 조경이 예쁘고 매일 분리수거 가능한게 정말 좋아요.</div><div class="who"><b>휘경자이디센시아 현재 거주자</b> · 집품 거주 인증 · 2026-08-08 · 평점 5.0</div></div>
+      <div class="voice pos"><div class="q"><span class="vtag pos">긍정</span>이문동 신축 대단지. 천지개벽 그 자체 <b>아기 키우는 신혼부부들이 많아요.</b> 산책하기에도 좋고 외대, 경희대 대학상권을…</div><div class="who"><b>래미안라그란데 현재 거주자</b> · 집품 거주 인증 · 2026-09-13 · 평점 4.5</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>역세권 아기들 신혼부부많아 좋음 주차 공간이 넉넉해거 좋음 뷰가 좋음 … <b>일분 원주민 할머니들 공동 시설에 모여 다른 집 뒷담화</b>나 지나가는 견주들 이유없이 욕하는거 듣기 싫어요 동마다 다르</div><div class="who"><b>이문아이파크자이 현재 거주자</b> · 집품 거주 인증 · 2026-09-19 · 평점 4.5</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>벌레가 나와요.. 신축 첫입준데;;; 그리고 <b>분리수거 관리가 잘 안되서 봉지 맨날 터져있고 냄새나고</b> 벌레 날아댕겨요ㅠ</div><div class="who"><b>이문아이파크자이(오피스텔) 현재 거주자</b> · 집품 · 2026-09-18</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>세대는 많은데 상가와 오피스텔 쓰레기 함께 버려 냄새 남</div><div class="who"><b>이문아이파크자이 거주 1년 미만</b> · 당근부동산 · 2026-07-20</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>단지 만족 위치 만족 <b>사람 비만족.</b> 상식이하의 사건이 많음</div><div class="who"><b>휘경자이디센시아 거주 1~3년</b> · 당근부동산 · 2026-08-16</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>입주한지 1년밖에 안되어서 그런지 아직 안정화가 덜된듯</div><div class="who"><b>휘경자이디센시아 거주 1~3년</b> · 당근부동산 · 2026-09-24 · "또 살고 싶어요"</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>이사오고 1년 간은 문제없었는데 <b>26년 본격적인 이문4구역 개발과 함께 바퀴벌레가 단지 및 세대내에 출몰</b>하며 아파트…</div><div class="who"><b>휘경SK뷰 현재 거주자</b> · 집품 거주 인증 · 2026-08-08 · 평점 4.0</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>터치식 불켜기 불편함... 그냥 똑딱이로 지어주시지 그리고 신축인데 아파트가 못생기고 <b>엘레베이터 한대라서</b> 좀 의문이었…</div><div class="who"><b>래미안라그란데 현재 거주자</b> · 집품 거주 인증 · 2026-08-21 · 평점 4.5</div></div>
+    </div>
+
+    <h3 style="margin:22px 0 10px;font-size:17px">6. 아이 키우기: "학군은 항상 고민"</h3>
+    <div class="vgrid">
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>살기 좋아요 외대학세권! ㅎㅎㅎ 저렴하고 산책하기도 좋아요 의릉도 가고 … <b>학군은 항상고민이고 단지내 어린이집 정원이 많지 않아서 대기</b>를 항상 생각해야해용 가끔씩 지상으로 차량다니는데 아이들이…</div><div class="who"><b>래미안라그란데 전 거주자</b> · 집품 거주 인증 · 2026-08-31 · 평점 5.0</div></div>
+      <div class="voice pos"><div class="q"><span class="vtag pos">긍정</span>단지가 조용하고 아이들이 많아요 어린 유아 키우기 좋은 아파트</div><div class="who"><b>래미안라그란데 거주 1~3년(동대문구 인증 26회)</b> · 당근부동산 · 2026-08-09</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>장점 조경, 관리비 부담 적음 / 단점 <b>층간소음, 학군 거리</b></div><div class="who"><b>래미안라그란데 거주 1~3년(동대문구 인증 14회)</b> · 당근부동산 · 2026-09-28 · "보통"</div></div>
+      <div class="voice pos"><div class="q"><span class="vtag pos">긍정</span><b>인근에 초등학교가 있어서 좋고</b>, 1호선 역세권으로 출퇴근하기 좋음. 의릉, 중랑천이 있어 산책하기 좋음. 대단지여서…</div><div class="who"><b>이문e편한세상 현재 거주자</b> · 집품 거주 인증 · 2026-07-25 · 평점 4.5</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>1. 단지가 작다. 2. <b>학군이 좋지 않아서 아이들 키우기는 환경이 좋지 않다.</b> 3. 주변에 생활에 필요한 상가들이…</div><div class="who"><b>이문동 대성유니드 전 거주자</b> · 집품 · 작성일 미표기</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>키워드 후기: 장점 건물관리, 치안, 평지, 조용한 동네, 대중교통 / 단점 <b>학군, 마트ㆍ편의점, 주차</b></div><div class="who"><b>이문e편한세상 현재 거주자</b> · 집품 거주 인증 · 2025-10-23 (같은 단지 2026-02-03 전 거주자도 단점에 "학군")</div></div>
+    </div>
+
+    <h3 style="margin:22px 0 10px;font-size:17px">7. 신이문역 동쪽 구축은 "조용하고 주차 편한데 지하주차장이 집과 안 이어진다"</h3>
+    <div class="vgrid">
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>교통이 좋아서 어디든 가기 좋아요 지하철역도 걸어서 10분안에 갈 수 있어요 10년이상 연식이 되었지만 관리 잘 되어… <b>엘리베이터가 지하주차장까지 연결되어 있지 않아서</b> 불편할 수 있습니다 최근 엘리베이트 교체 이야기가 나오…</div><div class="who"><b>이문e편한세상 현재 거주자</b> · 집품 거주 인증 · 2026-09-14 · 평점 4.0</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>장점은 크게 없으나 신이문역 지하철역이 가까웠어요. 주변 아파트 건설 전이라서 인프라가 많이 부족한 시기에 거주했었지… <b>단열도 잘 안 되어 있고, 무엇보다 1층이라 여름엔 덥고 겨울엔 추웠어요.</b></div><div class="who"><b>이문e편한세상 전 거주자</b> · 집품 거주 인증 · 2026-08-14 · 평점 3.0</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>딱히 없습니다 지하주차장 주차공간은 넉넉한데 <b>지상과 연결이 안 되어 있어서</b> 짐 옮기거나 아이 데리고 다닐 때 조금 불…</div><div class="who"><b>쌍용아파트 현재 거주자</b> · 집품 거주 인증 · 2026-09-07</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>엘리베이터 잘되던걸 새로교체해서 고층 사는 노약자분들이 너무 힘들어하셨어요 아무래도 구축이다보니 <b>누수 결로 문제</b>있어서…</div><div class="who"><b>쌍용아파트 전 거주자</b> · 집품 거주 인증 · 2026-04-29 · 평점 5.0</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>신이문역에서 가깝고, 좀 걸으면 돌곶이역 이용 가능합니다. 주변에 초등학교도 있고 … <b>역 내려오자마자 담배피는 아저씨들 많습니다</b>... 집까지 숨참고 가야함... 주거단지 대비 상가가 잘 없고, 버스 도…</div><div class="who"><b>어울림아파트(신이문역 인근) 전 거주자</b> · 집품 · 작성일 미표기 · 평점 3.5</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>현 시점에서 실거주가 편한 아파트 … 집 들어가 보면 정말 잘 지어졌다는 것을 느낄 수 있습니다 / 방음이 잘 안 되서 종종 옆방 소리가 조금 들린다</div><div class="who"><b>신이문금호어울림 호갱노노 커뮤니티</b> · 검색 스니펫 · 작성일 미확인 · 출처 등급 C</div></div>
+    </div>
+
+    <h3 style="margin:22px 0 10px;font-size:17px">8. 동네 분위기: 재개발 직전 골목과 대학가가 섞여 있다</h3>
+    <div class="vgrid">
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>신이문역에서 내렸습니다. 5번출구로 나오니 <b>재개발 직전의 동네 풍경</b>이 나타납니다 … 길에는 사람이 없습니다. 순찰도는 사람이나 재개발 공사 관계자들만 가끔 마주칩니다 … 이경시장을 가봤더니 이곳도 대부분 가게들이 문을 닫고 떠났습니다.</div><div class="who"><b>어릴 때 이문동에 살았던 방문자</b> · DVDPrime 커뮤니티 · 2025-10-25</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>조용한 주택가 이지만 외국어대학교 인근이라 그런지 중국인이 많아 좀 무섭고 <b>근처가 다 재개발 시작이라 좀 어수선</b>합니다</div><div class="who"><b>이문동 115-15 단독주택 전 거주자</b>(이문4구역 인근) · 집품 · 작성일 미표기</div></div>
+      <div class="voice mix"><div class="q"><span class="vtag mix">양면</span>역세권이고, 평지입니다. 동네 전체가 재개발 진행중이라 향후 대단지 아파트가 기대됩니다 … <b>골목이 협소하고 현재 재정비단지 선정되어 이주중</b>에 있는 상황입니다.</div><div class="who"><b>이문동 114-47 다세대 전 거주자</b> · 집품 · 작성일 미표기</div></div>
+      <div class="voice neg"><div class="q"><span class="vtag neg">부정</span>외대 정문 앞에 오피스텔이 있는데 돈이 좀 들어도 이쪽에 얻어주세요. <b>골목골목이 많아서 밤엔 좀 그래요.</b> 그동네 오래 살았거든요.</div><div class="who"><b>이문동 장기 거주자</b> · 82cook 댓글 · <b>2012-01-07(14년 전 발언, 참고만)</b></div></div>
+      <div class="voice pos"><div class="q"><span class="vtag pos">긍정</span>살기좋은동네! 서울주요동네와는 막 가까운 편은 아니지만 <b>조용하고 최근 대단지아파트들이 들어서면서 편의시설도 많이생기고</b>…</div><div class="who"><b>래미안라그란데 현재 거주자</b> · 집품 거주 인증 · 2026-08-21 · 평점 4.5</div></div>
+      <div class="voice pos"><div class="q"><span class="vtag pos">긍정</span>신축이라 뭐 깔끔함 <b>산책에 완벽 중랑천 부터 배봉산까지</b> 좀 질린다 싶으면 다른단지 구경하는것도 개꿀잼 이문아이파크자이…</div><div class="who"><b>휘경자이디센시아 현재 거주자</b> · 집품 거주 인증 · 2026-07-24 · 평점 5.0</div></div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>집품 항목별 평점(거주 인증 후기 평균, 5점 만점)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단지</th><th class="num">후기 수</th><th class="num">종합</th><th class="num">교통</th><th class="num">주변환경</th><th class="num">내부</th><th class="num">생활편의</th><th class="num">건물</th></tr></thead>
+          <tbody>
+            <tr><td>휘경자이디센시아</td><td class="num">6</td><td class="num">4.75</td><td class="num">4.50</td><td class="num">4.50</td><td class="num">4.83</td><td class="num">4.33</td><td class="num">4.83</td></tr>
+            <tr><td>래미안라그란데</td><td class="num">12</td><td class="num">4.63</td><td class="num">4.25</td><td class="num">4.75</td><td class="num">4.67</td><td class="num">4.67</td><td class="num">4.75</td></tr>
+            <tr><td>휘경SK뷰</td><td class="num">21</td><td class="num">4.40</td><td class="num">4.52</td><td class="num">4.57</td><td class="num">4.43</td><td class="num">4.48</td><td class="num">4.67</td></tr>
+            <tr><td>쌍용</td><td class="num">28</td><td class="num">4.16</td><td class="num">4.46</td><td class="num">4.21</td><td class="num">4.25</td><td class="num">3.75</td><td class="num">4.04</td></tr>
+            <tr><td>이문아이파크자이</td><td class="num">4</td><td class="num">4.13</td><td class="num">4.75</td><td class="num">4.75</td><td class="num">4.50</td><td class="num">4.75</td><td class="num">4.50</td></tr>
+            <tr><td>이문e편한세상</td><td class="num">30</td><td class="num">3.98</td><td class="num">4.47</td><td class="num">4.33</td><td class="num">4.13</td><td class="num">4.07</td><td class="num">4.33</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">집품 2026-09-30 기준. 후기 수가 적은 신축은 평점이 흔들릴 수 있습니다. 쌍용의 생활편의 3.75가 상권 부족 발언과 맞물리고, 래미안라그란데의 교통 4.25가 신축 중 가장 낮은 것도 역까지 거리 발언과 맞아떨어집니다.</p>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 실거래 ───────────────────────── -->
+  <section id="price" class="section">
+    <h2>실거래: 신축 59㎡는 15.8억, 84㎡는 17.5~20억</h2>
+    <p class="sec-lede">국토교통부 실거래 공개분입니다. 호가는 섞지 않았고, 신축 3단지는 소유권 등기 전 거래가 <b>입주권·분양권</b>으로 잡히므로 따로 표시했습니다. 법인이 개인에게 직거래한 건은 조합 보류지 매각으로 추정돼 대표 수치에서 뺐어요.</p>
+
+    <div class="card">
+      <h3>신축 3단지 최근 실거래</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단지</th><th>전용</th><th>계약일</th><th class="num">층</th><th class="num">금액</th><th>구분</th><th>상태</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td>이문아이파크자이</td><td>84㎡</td><td>2026-08-18</td><td class="num">미확인</td><td class="num">20억 6,000</td><td>집품 요약값</td><td><span class="st 참고">참고</span> 층·거래유형 미확인</td></tr>
+            <tr><td>이문아이파크자이</td><td>84.94㎡</td><td>2026-01-15</td><td class="num">미확인</td><td class="num">17억 1,000</td><td>집품(검색 스니펫)</td><td><span class="st 참고">참고</span></td></tr>
+            <tr class="hl"><td>이문아이파크자이</td><td>59.91㎡</td><td>2026-06-25</td><td class="num">27</td><td class="num">15억 8,000</td><td>입주권 · 중개</td><td><span class="st 신뢰">신뢰</span> 집품</td></tr>
+            <tr><td>이문아이파크자이</td><td>59.91㎡</td><td>2026-04-14</td><td class="num">28</td><td class="num">15억 3,500</td><td>입주권 · 중개</td><td><span class="st 신뢰">신뢰</span></td></tr>
+            <tr><td>이문아이파크자이</td><td>59.95㎡</td><td>2025-11-22</td><td class="num">28</td><td class="num">15억 0,000</td><td>입주권 · 중개</td><td><span class="st 신뢰">신뢰</span></td></tr>
+            <tr class="hl"><td>래미안라그란데</td><td>84.97㎡</td><td>2026-05-08</td><td class="num">14</td><td class="num">17억 5,000</td><td>입주권 · 신고가</td><td><span class="st 신뢰">신뢰</span> 아파트미</td></tr>
+            <tr><td>래미안라그란데</td><td>84.97㎡</td><td>2026-06-15</td><td class="num">3</td><td class="num">17억 2,040</td><td>분양권</td><td><span class="st 신뢰">신뢰</span></td></tr>
+            <tr><td>래미안라그란데</td><td>84.97㎡</td><td>2025-10-19</td><td class="num">14</td><td class="num">15억 0,000</td><td>입주권</td><td><span class="st 신뢰">신뢰</span></td></tr>
+            <tr><td>래미안라그란데</td><td>84.97㎡</td><td>2025-10-11</td><td class="num">2</td><td class="num">13억 9,000</td><td>등기 후 매매</td><td><span class="st 신뢰">신뢰</span> 저층</td></tr>
+            <tr><td>래미안라그란데</td><td>59.95㎡</td><td>2026-04-17</td><td class="num">17</td><td class="num">14억 9,900</td><td>입주권 · 신고가</td><td><span class="st 신뢰">신뢰</span></td></tr>
+            <tr><td>래미안라그란데</td><td>99.98㎡</td><td>2026-08-07</td><td class="num">12</td><td class="num">18억 5,130</td><td>법인→개인 직거래</td><td><span class="st 확인">제외</span> 보류지 추정, 6월 동일 건 취소 후 재등록</td></tr>
+            <tr class="hl"><td>휘경자이디센시아</td><td>59.93㎡</td><td>2026-07-03</td><td class="num">16</td><td class="num">15억 8,000</td><td>등기 후 매매 · 신고가</td><td><span class="st 확정">확정</span> 아파트미·집품 일치</td></tr>
+            <tr><td>휘경자이디센시아</td><td>59.93㎡</td><td>2026-05-02</td><td class="num">15</td><td class="num">15억 0,000</td><td>등기 후 매매</td><td><span class="st 확정">확정</span></td></tr>
+            <tr><td>휘경자이디센시아</td><td>59.93㎡</td><td>2026-04-26</td><td class="num">8</td><td class="num">15억 2,500</td><td>입주권</td><td><span class="st 확인">취소</span> 2026-08-03 해제</td></tr>
+            <tr><td>휘경자이디센시아</td><td>84.97㎡</td><td>2025-10-13</td><td class="num">16</td><td class="num">15억 0,000</td><td>입주권 · 신고가</td><td><span class="st 신뢰">신뢰</span> 이후 84㎡ 거래 없음</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">이문아이파크자이는 아파트미 단지 목록에 아직 없어 집품 자료만 썼습니다. 84㎡ 20.6억은 집품 단지 요약에만 나오고 층과 거래 유형을 못 봤으니, 매수 전 국토부 시스템에서 직접 확인하세요. 휘경자이디센시아 84㎡는 2025년 10월 이후 거래가 한 건도 없어서 현재 시세를 실거래로 말할 수 없습니다. KB 매물 평균가는 15.48억(매매 53건, 2026-09)이지만 이것은 호가예요.</p>
+    </div>
+
+    <div class="card">
+      <h3>구축·준신축 최근 실거래 (등기 후 매매만)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>단지</th><th>전용</th><th>최근 거래</th><th class="num">금액</th><th>1년 전 같은 평형</th><th class="num">상승</th><th class="num">최근 12개월 거래</th></tr></thead>
+          <tbody>
+            <tr><td>휘경SK뷰 <small>(2019)</small></td><td>84.31㎡</td><td>2026-07-11 · 20층 · 신고가</td><td class="num">16억 1,000</td><td>2025-07 중앙값 12.9억</td><td class="num up">+20%</td><td class="num">15건</td></tr>
+            <tr><td>휘경SK뷰</td><td>59.39㎡</td><td>2026-06-19 · 12층 · 신고가</td><td class="num">14억 2,000</td><td>2025-07 11.0억</td><td class="num up">+25%</td><td class="num">17건</td></tr>
+            <tr><td>휘경해모로프레스티지 <small>(2021)</small></td><td>84.99㎡</td><td>2026-07-04 · 12층 · 신고가</td><td class="num">13억 3,000</td><td>2025-10 직거래 8.5억(제외)</td><td class="num">-</td><td class="num">7건</td></tr>
+            <tr><td>휘경해모로프레스티지</td><td>59.82㎡</td><td>2026-07-29 · 15층 · 신고가</td><td class="num">11억 9,000</td><td>2025-08 중앙값 9.03억</td><td class="num up">+25%</td><td class="num">16건</td></tr>
+            <tr><td>래미안이문2차 <small>(2004)</small></td><td>84.61㎡</td><td>2026-06-03 · 7층 · 신고가</td><td class="num">12억 1,500</td><td>2025-07 9.27억</td><td class="num up">+31%</td><td class="num">6건</td></tr>
+            <tr><td>래미안이문2차</td><td>59.79㎡</td><td>2026-04-26 · 16층 · 신고가</td><td class="num">11억 4,000</td><td>2025-07 중앙값 9.02억</td><td class="num up">+23%</td><td class="num">14건</td></tr>
+            <tr><td>휘경센트레빌 <small>(2011)</small></td><td>84.79㎡</td><td>2026-06-25 · 24층 · 신고가</td><td class="num">11억 8,500</td><td>2025-10 9.8억</td><td class="num up">+21%</td><td class="num">5건</td></tr>
+            <tr><td>브라운스톤휘경 <small>(2013)</small></td><td>84.91㎡</td><td>2026-03-18 · 6층 · 신고가</td><td class="num">10억 8,500</td><td>2025-12 10.0억</td><td class="num">-</td><td class="num">4건</td></tr>
+            <tr><td>이문삼성래미안 <small>(2001)</small></td><td>84.95㎡</td><td>2026-06-19 · 16층 · 신고가</td><td class="num">9억 0,000</td><td>2025-10 8.2~8.4억</td><td class="num up">+8%</td><td class="num">8건</td></tr>
+            <tr><td>롯데낙천대 <small>(2003)</small></td><td>82.82㎡</td><td>2026-07-11 · 14층 · 신고가</td><td class="num">9억 0,000</td><td>2025-10 7.75억</td><td class="num up">+16%</td><td class="num">3건</td></tr>
+            <tr class="hl"><td>쌍용 <small>(2000, 신이문역 188m)</small></td><td>84.89㎡</td><td>2026-08-19 · 9층 · 신고가</td><td class="num">11억 4,500</td><td>2025-09 중앙값 8.2억</td><td class="num up">+31%</td><td class="num">14건</td></tr>
+            <tr class="hl"><td>쌍용</td><td>59.99㎡</td><td>2026-08-13 · 15층 · 신고가</td><td class="num">11억 0,000</td><td>2025-09 중앙값 7.8억</td><td class="num up">+37%</td><td class="num">35건</td></tr>
+            <tr class="hl"><td>이문e편한세상 <small>(2003, 신이문역 227m)</small></td><td>84.97㎡</td><td>2026-08-17 · 21층 · 신고가</td><td class="num">12억 5,000</td><td>2025-07 9.2억</td><td class="num up">+36%</td><td class="num">22건</td></tr>
+            <tr class="hl"><td>이문e편한세상</td><td>59.96㎡</td><td>2026-07-18 · 2층</td><td class="num">10억 3,500</td><td>2025-07 중앙값 8.6억</td><td class="num up">+20%</td><td class="num">24건</td></tr>
+            <tr><td>이문e편한세상</td><td>79.35㎡</td><td>2026-08-01 · 6층 · 신고가</td><td class="num">12억 1,000</td><td>2025-10 9.6억</td><td class="num up">+26%</td><td class="num">10건</td></tr>
+            <tr><td>신이문금호어울림 <small>(2008)</small></td><td>84.84㎡</td><td>2026-08-12 · 10층 · 신고가</td><td class="num">10억 2,000</td><td>2025-10 8.85억</td><td class="num up">+15%</td><td class="num">7건</td></tr>
+            <tr><td>이문2차푸르지오 <small>(2007)</small></td><td>84.98㎡</td><td>2026-07-11 · 14층 · 신고가</td><td class="num">9억 0,000</td><td>2025-10 7.7억</td><td class="num up">+17%</td><td class="num">7건</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">거래 건수는 2025-10-01 이후 계약 기준이고 취소·직거래는 뺐습니다. 이문e편한세상 59㎡의 2026-07 거래는 2층이라 상승률이 낮게 잡혔고, 같은 평형 10층은 2026-04-29에 10.8억 신고가를 찍었습니다. 쌍용 59㎡는 12개월에 35건이 거래돼 이 일대에서 가장 유동성이 좋은 평형입니다.</p>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 가격 추이 ───────────────────────── -->
+  <section id="trend" class="section">
+    <h2>가격 추이: 구축이 1년 새 20~36% 올랐다</h2>
+    <p class="sec-lede">신축 3단지는 등기 후 거래가 아직 적어서 연속 추이를 그리기 어렵습니다. 대신 거래가 꾸준한 구축 3개 단지의 84㎡ 월별 중앙값을 그렸어요. 2025년 가을 신축 입주가 시작되고, 10월 15일 서울 전역 규제 이후에도 상승이 이어진 모습이 보입니다.</p>
+
+    <div class="card">
+      <h3>84㎡ 월별 실거래 중앙값 (억원, 2025-07 ~ 2026-08)</h3>
+      <div class="chart-wrap">
+      <svg viewBox="0 0 840 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="구축 3개 단지 84제곱미터 월별 실거래 중앙값 추이">
+        <g stroke="#e5e8eb" stroke-width="1">
+          <line x1="60" y1="250" x2="690" y2="250"/><line x1="60" y1="192.5" x2="690" y2="192.5"/><line x1="60" y1="135" x2="690" y2="135"/><line x1="60" y1="77.5" x2="690" y2="77.5"/><line x1="60" y1="20" x2="690" y2="20"/>
+        </g>
+        <g font-size="11" fill="#8b95a1" text-anchor="end">
+          <text x="52" y="254">8억</text><text x="52" y="196.5">10억</text><text x="52" y="139">12억</text><text x="52" y="81.5">14억</text><text x="52" y="24">16억</text>
+        </g>
+        <g font-size="11" fill="#8b95a1" text-anchor="middle">
+          <text x="60" y="272">25.07</text><text x="205.4" y="272">25.10</text><text x="350.8" y="272">26.01</text><text x="496.2" y="272">26.04</text><text x="641.5" y="272">26.07</text>
+        </g>
+        <!-- 10·15 규제 -->
+        <line x1="229" y1="20" x2="229" y2="250" stroke="#8b95a1" stroke-width="1" stroke-dasharray="3 3"/>
+        <text x="233" y="32" font-size="10" fill="#8b95a1">10·15 서울 전역 규제</text>
+        <!-- 휘경SK뷰 -->
+        <polyline fill="none" stroke="#1b64da" stroke-width="2" stroke-linejoin="round" points="60,109.1 108.5,110.8 156.9,108.3 205.4,95.3 253.8,78.9 350.8,63.1 544.6,34.4 641.5,35.8"/>
+        <g fill="#1b64da"><circle cx="60" cy="109.1" r="4"/><circle cx="108.5" cy="110.8" r="4"/><circle cx="156.9" cy="108.3" r="4"/><circle cx="205.4" cy="95.3" r="4"/><circle cx="253.8" cy="78.9" r="4"/><circle cx="350.8" cy="63.1" r="4"/><circle cx="544.6" cy="34.4" r="4"/><circle cx="641.5" cy="35.8" r="4"/></g>
+        <text x="650" y="39" font-size="11.5" font-weight="700" fill="#191f28">휘경SK뷰 15.5</text>
+        <!-- 이문e편한세상 -->
+        <polyline fill="none" stroke="#0a7d43" stroke-width="2" stroke-linejoin="round" points="60,215.5 108.5,214.1 156.9,222.1 205.4,204 253.8,190.5 302.3,201.7 350.8,171.8 447.7,158 496.2,143.6 544.6,123.5 593.1,143.6 641.5,126.4 690,120.6"/>
+        <g fill="#0a7d43"><rect x="56" y="211.5" width="8" height="8"/><rect x="104.5" y="210.1" width="8" height="8"/><rect x="152.9" y="218.1" width="8" height="8"/><rect x="201.4" y="200" width="8" height="8"/><rect x="249.8" y="186.5" width="8" height="8"/><rect x="298.3" y="197.7" width="8" height="8"/><rect x="346.8" y="167.8" width="8" height="8"/><rect x="443.7" y="154" width="8" height="8"/><rect x="492.2" y="139.6" width="8" height="8"/><rect x="540.6" y="119.5" width="8" height="8"/><rect x="589.1" y="139.6" width="8" height="8"/><rect x="637.5" y="122.4" width="8" height="8"/><rect x="686" y="116.6" width="8" height="8"/></g>
+        <text x="698" y="124" font-size="11.5" font-weight="700" fill="#191f28">이문e편한세상 12.5</text>
+        <!-- 쌍용 -->
+        <polyline fill="none" stroke="#b45309" stroke-width="2" stroke-linejoin="round" points="156.9,244.3 205.4,232.2 253.8,215.5 302.3,221.3 350.8,224.1 399.2,193.4 496.2,193.9 544.6,181 593.1,152.3 690,170.9"/>
+        <g fill="#b45309"><path d="M156.9 239.3 l5 5 -5 5 -5 -5z"/><path d="M205.4 227.2 l5 5 -5 5 -5 -5z"/><path d="M253.8 210.5 l5 5 -5 5 -5 -5z"/><path d="M302.3 216.3 l5 5 -5 5 -5 -5z"/><path d="M350.8 219.1 l5 5 -5 5 -5 -5z"/><path d="M399.2 188.4 l5 5 -5 5 -5 -5z"/><path d="M496.2 188.9 l5 5 -5 5 -5 -5z"/><path d="M544.6 176 l5 5 -5 5 -5 -5z"/><path d="M593.1 147.3 l5 5 -5 5 -5 -5z"/><path d="M690 165.9 l5 5 -5 5 -5 -5z"/></g>
+        <text x="698" y="175" font-size="11.5" font-weight="700" fill="#191f28">쌍용 10.75</text>
+      </svg>
+      </div>
+      <div class="legend" style="gap:18px"><span style="display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="#1b64da"/></svg>휘경SK뷰 84㎡ (원)</span><span style="display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 14 14"><rect x="2" y="2" width="10" height="10" fill="#0a7d43"/></svg>이문e편한세상 84㎡ (네모)</span><span style="display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 1 l6 6 -6 6 -6 -6z" fill="#b45309"/></svg>쌍용 84㎡ (마름모)</span></div>
+      <p class="chart-cap">국토교통부 실거래, 아파트미 재수집. 취소·직거래 제외 후 월별 중앙값이며 거래가 없는 달은 선으로 이었습니다. 층 차이가 섞여 있어 한 달 단위 등락은 의미가 작고, 1년 방향만 보세요. 오른쪽 끝 숫자는 마지막 거래 월 중앙값(억원)입니다.</p>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>단지 84㎡</th><th class="num">25.07</th><th class="num">25.09</th><th class="num">25.10</th><th class="num">25.11</th><th class="num">26.01</th><th class="num">26.04</th><th class="num">26.05</th><th class="num">26.07</th><th class="num">26.08</th></tr></thead>
+          <tbody>
+            <tr><td>휘경SK뷰</td><td class="num">12.90</td><td class="num">12.93</td><td class="num">13.38</td><td class="num">13.95</td><td class="num">14.50</td><td class="num">-</td><td class="num">15.50</td><td class="num">15.45</td><td class="num">-</td></tr>
+            <tr><td>이문e편한세상</td><td class="num">9.20</td><td class="num">8.97</td><td class="num">9.60</td><td class="num">10.07</td><td class="num">10.72</td><td class="num">11.70</td><td class="num">12.40</td><td class="num">12.30</td><td class="num">12.50</td></tr>
+            <tr><td>쌍용</td><td class="num">-</td><td class="num">8.20</td><td class="num">8.62</td><td class="num">9.20</td><td class="num">8.90</td><td class="num">9.95</td><td class="num">10.40</td><td class="num">-</td><td class="num">10.75</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>신축 입주권 값도 1년 새 3~4억 뛰었다</h3>
+      <ul>
+        <li><b>래미안라그란데 84㎡</b>: 2025-06 13.4~14.0억 → 2025-10 15.0억 → 2026-05 17.5억(신고가). 11개월 만에 +25%.</li>
+        <li><b>이문아이파크자이 59㎡</b>: 2025-09 12.6~13.3억 → 2025-11 15.0억 → 2026-06 15.8억. 2025년 가을 입주 직전에 한 단계 올라선 뒤 완만하게 상승.</li>
+        <li><b>휘경자이디센시아 59㎡</b>: 2025-06 11.3~11.7억 → 2025-08 12.8억 → 2026-07 15.8억(등기 후 신고가). 13개월 만에 +37%.</li>
+        <li>2023년 10월 분양 당시 84㎡ 분양가는 라그란데 11억 후반, 아이파크자이 최고 13억이었습니다(머니투데이 2023-10-27). 3년 만에 5~7억이 붙은 셈이에요.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 전세·갭·규제 ───────────────────────── -->
+  <section id="jeonse" class="section">
+    <h2>전세·갭·규제: 갭투자는 막혀 있고, 대출은 4억까지다</h2>
+    <p class="sec-lede">전세가율은 신축 46~50%, 구축 40~52%입니다. 그런데 이 숫자보다 중요한 건 2025년 10월 15일 대책 이후 동대문구 전체가 토지거래허가구역이라 <b>전세 낀 매수 자체가 안 된다</b>는 점이에요.</p>
+
+    <div>
+      <div class="card">
+        <h3>전세 실거래와 전세가율</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>단지 · 전용</th><th class="num">최근 전세</th><th class="num">최근 매매</th><th class="num">전세가율</th><th class="num">갭</th></tr></thead>
+            <tbody>
+              <tr><td>이문아이파크자이 59㎡</td><td class="num">7.3억 <small>(26-09-23, 21층)</small></td><td class="num">15.8억</td><td class="num">46%</td><td class="num">8.5억</td></tr>
+              <tr><td>휘경자이디센시아 59㎡</td><td class="num">7.3억 <small>(26-08-07, 4층)</small></td><td class="num">15.8억</td><td class="num">46%</td><td class="num">8.5억</td></tr>
+              <tr><td>래미안라그란데 84㎡</td><td class="num">7.0~9.0억 <small>(26-06~09)</small></td><td class="num">17.5억</td><td class="num">40~51%</td><td class="num">8.5~10.5억</td></tr>
+              <tr><td>래미안라그란데 59㎡</td><td class="num">7.5억 <small>(26-08-10, 24층)</small></td><td class="num">15.0억</td><td class="num">50%</td><td class="num">7.5억</td></tr>
+              <tr><td>휘경SK뷰 84㎡</td><td class="num">7.6~8.0억 <small>(26-06~07)</small></td><td class="num">16.1억</td><td class="num">47~50%</td><td class="num">8.1~8.5억</td></tr>
+              <tr><td>쌍용 84㎡</td><td class="num">4.5~4.8억 <small>(26-06~09)</small></td><td class="num">11.45억</td><td class="num">39~42%</td><td class="num">6.6~6.9억</td></tr>
+              <tr><td>이문e편한세상 84㎡</td><td class="num">6.5~6.6억 <small>(26-07~08)</small></td><td class="num">12.5억</td><td class="num">52%</td><td class="num">5.9억</td></tr>
+              <tr><td>이문e편한세상 59㎡</td><td class="num">5.0~5.2억 <small>(26-06 신규)</small></td><td class="num">10.35~10.8억</td><td class="num">48%</td><td class="num">5.3~5.6억</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">신규 계약만 썼고 갱신 계약(직전 대비 5% 인상)은 뺐습니다. 래미안라그란데 84㎡ 전세가 7억과 9억으로 벌어지는 것은 층·향·동 차이로 보이며, 9억은 17층과 10층, 7억은 3층입니다. 신축 59㎡ 월세는 보증금 1억에 월 240~260만원 선(2026-07~09)입니다.</p>
+      </div>
+      <div class="card">
+        <h3>자금 계획: 15.8억 신축 59㎡를 사려면</h3>
+        <div class="money">
+          <div class="m"><div class="l">주택담보대출 한도</div><div class="v">4억</div><div class="s">시가 15억 초과 25억 이하 구간 · 10·15 대책</div></div>
+          <div class="m"><div class="l">필요 자기자본</div><div class="v">약 12억+</div><div class="s">취득세(3.3%) 약 5천만원 별도</div></div>
+          <div class="m"><div class="l">실거주 의무</div><div class="v">허가 조건</div><div class="s">토지거래허가구역 · 전세 끼고 매수 불가</div></div>
+          <div class="m"><div class="l">규제 효력</div><div class="v">~2026-12-31</div><div class="s">2025-10-20 발효 · 연장 여부 미정</div></div>
+        </div>
+        <p>2025-10-15 주택시장 안정화 대책으로 서울 25개 구 전체가 조정대상지역·투기과열지구·토지거래허가구역이 됐습니다. 동대문구도 포함이에요. 규제지역 주택담보대출 한도는 시가 15억 이하 6억, 15억 초과 25억 이하 4억, 25억 초과 2억이고, 토지거래허가구역에서는 구청 허가를 받아야 하며 허가 조건으로 실거주 의무가 붙습니다.</p>
+        <p class="note">라그란데 84㎡(17.5억)나 아이파크자이 84㎡(20억 안팎)는 대출 4억을 빼면 자기자본 13.5~16억이 필요합니다. 15억 이하로 내려오는 쌍용·이문e편한세상 84㎡(11.5~12.5억)는 한도 6억 구간이라 자기자본 6~7억으로 접근 가능해요. 이 차이가 이 동네 신축과 구축의 수요층을 갈라놓습니다.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>임대 물량이 많다는 점을 기억하세요</h3>
+      <ul>
+        <li>KB부동산 기준 래미안라그란데 등록 매물은 <b>694건</b>(매매 324, 전세 189, 월세 181)입니다. 3,069세대의 23%가 매물로 나와 있는 셈이에요(2026-09).</li>
+        <li>휘경자이디센시아는 106건(매매 53, 전세 20, 월세 33), 휘경SK뷰는 매매 106건이 등록돼 있습니다(KB, 2026-09-25).</li>
+        <li>이문아이파크자이 3단지가 2026년 6월에 추가 입주했고, 세 단지 임대 세대만 2,314세대(라그란데 541, 아이파크자이 1,340, 휘경자이 433)입니다. 전세 낀 매수가 막힌 뒤 투자자 물량이 전월세로 계속 나오는 구조라 전세가는 당분간 세게 오르기 어렵습니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 정비사업·교통 ───────────────────────── -->
+  <section id="redev" class="section">
+    <h2>정비사업과 교통: 남은 것은 이문4구역과 GTX-C</h2>
+    <p class="sec-lede">이문·휘경뉴타운 7개 구역 중 5개가 입주를 마쳤습니다. 남은 이문4구역(3,488세대)과 신이문역세권(1,200세대)이 들어오면 이 일대 신축은 1만 4천 세대에 육박해요. 다만 그 공사가 2027년부터 3년 넘게 이어진다는 뜻이기도 합니다.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>이문·휘경뉴타운 진행 단계</h3>
+        <ul class="tl">
+          <li class="done"><span class="tl-t">휘경2구역 휘경SK뷰 900세대 입주</span><span class="tl-d">2019-06</span></li>
+          <li class="done"><span class="tl-t">휘경1구역 휘경해모로프레스티지 299세대 입주</span><span class="tl-d">2020~2021</span></li>
+          <li class="done"><span class="tl-t">이문1구역 래미안라그란데 3,069세대 입주</span><span class="tl-d">2025-01</span></li>
+          <li class="done"><span class="tl-t">휘경3구역 휘경자이디센시아 1,806세대 입주</span><span class="tl-d">2025-06</span></li>
+          <li class="done"><span class="tl-t">이문3구역 이문아이파크자이 1·2단지 입주, 3단지 2026-06</span><span class="tl-d">2025-11-28</span></li>
+          <li class="now"><span class="tl-t">이문4구역 3,488세대(임대 717) 최고 43층 · 통합심의 통과</span><span class="tl-d">2025-09-04 · 관리처분인가 2024-04 · 이주 2024-11부터 · 착공 목표 2027 상반기 · 롯데건설·현대건설</span></li>
+          <li><span class="tl-t">신이문역세권 시프트(구 이문2구역) 1,200세대 최고 40층 7개동</span><span class="tl-d">지구단위계획 고시 2024-06 · 시공사 대우건설 선정 2026-02-02(5,292억) · 착공 미정</span></li>
+          <li><span class="tl-t">이문차량기지 20만㎡ 복합개발</span><span class="tl-d">2023-02 기본구상 용역 착수 · 이후 공개된 진전 없음 <span class="st 확인">확인 필요</span></span></li>
+        </ul>
+        <p class="note">이문4구역은 2024년 4월 보도 당시 "2026년 상반기 착공"이었으나 2025년 9월 통합심의 기사에서 "2027년 상반기 착공"으로 1년 밀렸습니다. 세대수도 3,505 → 3,628 → 3,488로 기사마다 다르며 최신 통합심의 기준 3,488세대를 썼습니다.</p>
+      </div>
+      <div class="card">
+        <h3>교통 인프라 일정</h3>
+        <ul class="tl">
+          <li class="done"><span class="tl-t">GTX-C 착공 (덕정~수원 86.6km, 청량리 정차)</span><span class="tl-d">2026-09-15 · 사업기간 60개월 → 2031년 개통 목표 · 수원~청량리 75분 → 30분</span></li>
+          <li class="now"><span class="tl-t">이문로 도로체계 개선 용역 · 아이파크자이 지하 관통도로 공사</span><span class="tl-d">구청 용역 2025-06 말 마무리 예정 · 관통도로는 이문4구역 완료 후 완전 개통(중개사, 2026-01)</span></li>
+          <li><span class="tl-t">이문로 관통로 한천로 연결</span><span class="tl-d">2027 예정 · 나무위키 서술 <span class="st 참고">참고</span></span></li>
+          <li><span class="tl-t">신이문역 재개축</span><span class="tl-d">고가도로 문제로 무기한 연기 · 승강장 틈 30cm 구간에 안전발판 2025년 여름 설치</span></li>
+        </ul>
+        <p><b>현재 교통의 실체</b>: 외대앞역에서 종각까지 19분, 광화문 27분, 여의도 40분(나무위키). 청량리는 두 정거장이라 GTX-C 개통 뒤에는 삼성역까지 환승 한 번으로 갈 수 있게 됩니다. 다만 그 시점이 2031년이고, 그때까지 강남 출퇴근은 1호선에서 갈아타는 50분 안팎 코스예요.</p>
+        <p class="note">신이문역 하루 평균 이용객은 2024년 15,874명이며, 웰컴홈즈는 신이문역에서 종로3가 20분, 을지로3가 24분, 시청 29분으로 안내합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 교육 ───────────────────────── -->
+  <section id="edu" class="section">
+    <h2>교육: 배정 초등학교가 동마다 갈리고, 학원가는 약하다</h2>
+    <p class="sec-lede">이 동네는 대학교가 세 곳(한국외대, 경희대, 한예종)이지만 초·중등 학원가는 형성돼 있지 않습니다. 거주자 후기에서 "학군"이 단점 키워드로 반복되는 이유예요. 신축 대단지 배정은 2024년 가을 교육청 결정으로 갈렸고, 통학로 논란이 있었습니다.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>초등학교 배정 (2024-10 교육청 결정 기준)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>단지</th><th>배정</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>래미안라그란데 1단지</td><td>서울이문초</td><td>단지 중심에서 235m(아파트미)</td></tr>
+              <tr><td>래미안라그란데 2단지</td><td>서울청량초</td><td>주민 "도보 20분" 주장</td></tr>
+              <tr><td>이문아이파크자이 2단지</td><td>서울이문초</td><td>-</td></tr>
+              <tr><td>이문아이파크자이 1·3단지</td><td>서울청량초</td><td>주민 "이면도로 섞여 위험" 항의</td></tr>
+              <tr><td>휘경자이디센시아</td><td>휘경초·청량초 공동학구</td><td>호갱노노 커뮤니티 <span class="st 참고">참고</span></td></tr>
+              <tr><td>쌍용 · 이문e편한세상 · 신이문금호어울림</td><td>서울이문초</td><td>아파트미 표기, 116~518m</td></tr>
+              <tr><td>이문2차푸르지오</td><td>서울석계초</td><td>385m</td></tr>
+              <tr><td>이문삼성래미안</td><td>서울청량초</td><td>884m</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">2024-10-04 보도 기준입니다. 청량초 배정 주민들은 이문초와 공동통학구역 지정, 단지 내 초등학교 신설, 이문초 증축을 요구했고 교육청은 "통학 여건과 학교의 수용 규모, 인근 학교 간 균형"을 이유로 배정을 유지했습니다. 2025-02-17 구청이 학부모와 통학로를 점검해 청량초 쪽 보행자우선도로 연장과 안전펜스, 이문초 쪽 어린이보호구역 지정과 CCTV를 약속했어요. 이후 배정이 바뀌었는지는 확인하지 못했으니 <b>계약 전 동 단위로 학구도(schoolzone.emac.kr)를 직접 조회</b>하세요.</p>
+      </div>
+      <div class="card">
+        <h3>학교 현황과 학원가</h3>
+        <ul>
+          <li><b>서울이문초</b>: 1967년 개교, 2024-03-01 기준 학생 755명. 신축 2개 단지 배정을 받아 2026~2027년 학생 수 급증이 예상되지만, 증축 계획은 공개 자료에서 찾지 못했습니다.</li>
+          <li><b>중학교</b>: 동부1학교군. 경희중(회기동), 석관중(석관동), 휘경중(285명), 휘경여중, 정화여중이 배정권입니다.</li>
+          <li><b>고등학교</b>: 경희고, 휘경여고, 휘봉고, 석관고가 인근이고, 경희고는 자사고가 아닌 일반고입니다.</li>
+          <li><b>이문4구역 초등학교 신설</b>: 나무위키에 2030년 신설 예정으로 적혀 있으나 공식 자료로 확인하지 못했습니다. <span class="st 참고">참고</span></li>
+          <li><b>학원가</b>: 외대앞·회기 상권은 대학생 상권이라 초중등 학원 밀집지가 없습니다. 거주자 후기에서 "학군"이 단점으로 4건 반복되고, 한 거주자는 "학군은 항상 고민"이라고 썼어요. 중계동이나 노원까지 이동하는 수요가 있을 것으로 봅니다. <span class="st 추정">추정</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 생활 ───────────────────────── -->
+  <section id="life" class="section">
+    <h2>생활 인프라: 대학가 상권, 병원 둘, 산책은 중랑천과 배봉산</h2>
+    <p class="sec-lede">주민들이 가장 자주 칭찬한 건 산책 환경(중랑천, 배봉산, 의릉)이고, 가장 자주 아쉬워한 건 큰 마트와 상권 위치였습니다.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>있는 것</h3>
+        <ul>
+          <li><b>상권</b>: 외대앞역 서쪽 한국외대 앞 대학가 상권(프랜차이즈 카페·식당 밀집). 이문아이파크자이 단지 내 상가 500실 규모(나무위키)에 병원·식당·카페 입점 중이고, 거주자들은 "역 앞 상가 이용 좋음", "왠만한 식당이나 병원" 있다고 평가합니다. 회기역 상권과 청량리(롯데백화점, 경동시장)는 1호선 1~2정거장.</li>
+          <li><b>병원</b>: 경희의료원(회기동), 삼육서울병원(휘경동). 휘경 쪽 단지는 삼육서울병원 정류장이 바로 앞이라는 후기가 있습니다.</li>
+          <li><b>자연</b>: 중랑천(쌍용·이문e편한세상은 조망까지), 배봉산 둘레길, 의릉(한예종 옆, 세계유산), 천장산. 휘경자이 거주자는 "산책에 완벽, 중랑천부터 배봉산까지"라고 썼습니다.</li>
+          <li><b>물가</b>: 웰컴홈즈 기준 신이문역 일대 평균 월세 54만원, 편의점 12곳, 카페 14곳, 음식점 154곳, 공원 8곳. "물가가 저렴하고 1인가구에 알맞은 편의시설이 많다"는 서술은 대학가 특성입니다. <span class="st 참고">참고</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>없는 것, 약한 것</h3>
+        <ul>
+          <li><b>대형마트</b>: 도보권에 대형마트가 없습니다. 휘경해모로 전 거주자 "집 바로 근처에 큰 마트가 없습니다(편의점은 있음)". 아이파크자이 상가에 하나로마트가 들어왔다는 커뮤니티 언급은 있으나 확인하지 못했습니다. <span class="st 확인">확인 필요</span></li>
+          <li><b>신이문역 동쪽 상권</b>: 쌍용 전 거주자 "음식점이든 술집이든 뭔가 사먹을" 곳이 부족. 이문2차푸르지오 전 거주자 "편의점 생긴게 엄청 획기적인 일". 나무위키는 5번 출구 쪽에 과일·두부 가게가 있는 작은 시장을 언급합니다.</li>
+          <li><b>휘경자이 쪽 상권</b>: 거주자 두 명이 "상권이 대부분 외대앞역 건너에", "역 지나서 가야" 한다고 썼습니다. 철길을 건너야 상권이 나온다는 뜻이에요.</li>
+          <li><b>지상 산책로</b>: 래미안라그란데 당근 후기 "주변 공사, 단지 외 산책로 부족"(2026-09). 이문4구역 공사가 끝나는 2030년 전후까지는 단지 밖 보행 환경이 어수선합니다.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 리스크 ───────────────────────── -->
+  <section id="risk" class="section">
+    <h2>리스크: 값에 녹아 있는 것과 아직 안 녹은 것</h2>
+    <p class="sec-lede">심각도는 실거주 관점입니다. 소음과 정체는 이미 값에 반영돼 있고, 규제와 공급은 앞으로 값을 누를 수 있는 요인이에요.</p>
+
+    <div class="risk high"><div class="t"><span class="sev">높음</span>1호선 지상 철길 소음, 화물열차 포함</div><p>아이파크자이·휘경자이·SK뷰 거주자가 모두 "창문 닫으면 괜찮다"고 말했고, 이는 곧 창문을 열면 들린다는 뜻입니다. 철길에 접한 동과 뒤쪽 동의 값 차이가 커야 정상이니 동별 소음을 저녁 시간에 직접 확인하세요. 나무위키는 화물열차 통행과 방음벽 접한 주택을 서술합니다.</p></div>
+    <div class="risk high"><div class="t"><span class="sev">높음</span>편도 2차선 이문로 정체와 2027~2030년 이문4구역 공사</div><p>주민 3명, 중개사 2명, 기사 3건이 같은 말을 합니다. 관통도로는 이문4구역이 끝나야 완전 개통이고, 그 공사는 2027년 상반기 착공 목표입니다. 자차 출퇴근이라면 이 동네의 장점이 대부분 사라져요. 휘경SK뷰 거주자는 4구역 철거와 함께 바퀴벌레가 출몰했다고 썼습니다.</p></div>
+    <div class="risk high"><div class="t"><span class="sev">높음</span>대출 한도 4억과 토지거래허가</div><p>신축 59㎡(15.8억)부터 시가 15억을 넘어 주담대 한도가 4억으로 줄고, 허가 조건인 실거주 의무 때문에 전세 끼고 사둘 수 없습니다. 자기자본 12억 이상을 가진 실수요만 신축을 살 수 있는 구조라 매수자 층이 얇고, 규제가 2026년 말에 풀리는지 연장되는지에 따라 값 방향이 갈립니다.</p></div>
+    <div class="risk mid"><div class="t"><span class="sev">중간</span>전월세 매물 과잉과 낮은 전세가율</div><p>라그란데 매물 694건(세대의 23%), 세 단지 임대 2,314세대, 아이파크자이 3단지 2026-06 추가 입주. 전세가율 46~50%는 전세 수요가 매매값을 못 따라온다는 뜻이고, 규제가 풀려도 갭이 8.5억이라 갭투자 수요가 값을 밀어올리기 어렵습니다.</p></div>
+    <div class="risk mid"><div class="t"><span class="sev">중간</span>초등학교 배정과 통학로</div><p>같은 단지라도 동에 따라 이문초와 청량초로 갈립니다. 청량초 배정 동은 주민 기준 도보 20분에 이면도로가 섞이고, 이문초는 신축 2개 단지를 받아 과밀이 예상됩니다. 학원가도 없어 초등 고학년 이후에는 이동이 필요합니다.</p></div>
+    <div class="risk mid"><div class="t"><span class="sev">중간</span>입주 1년차 안정화 부족</div><p>쓰레기·분리수거 넘침, 상가와 오피스텔 쓰레기 혼합 냄새, 이웃 간 갈등("사람 비만족", "뒷담화"), 신축 하자 A/S. 대부분 2~3년이면 가라앉지만 지금 사면 그 과정을 겪습니다.</p></div>
+    <div class="risk low"><div class="t"><span class="sev">낮음</span>상권 편중과 대형마트 부재</div><p>상권이 외대앞역 서쪽에 몰려 있어 휘경자이와 신이문역 동쪽 구축은 철길이나 역을 건너야 합니다. 배달과 온라인 장보기로 상쇄 가능한 수준입니다.</p></div>
+    <div class="risk low"><div class="t"><span class="sev">낮음</span>신이문역 노후와 이문차량기지 개발 불확실성</div><p>역사 재개축은 무기한 연기, 차량기지 복합개발은 2023년 용역 착수 뒤 공개된 진전이 없습니다. 기대 요인으로 값에 넣지 않는 편이 안전합니다.</p></div>
+    <div class="risk low"><div class="t"><span class="sev">낮음</span>강남 접근성</div><p>1호선 하나뿐이라 강남은 환승 50분 안팎입니다. GTX-C 청량리 정차로 개선되지만 2031년 얘기이고, 거주자도 "1호선 출근하는 사람이 아니라면 불편"하다고 씁니다.</p></div>
+  </section>
+
+  <!-- ───────────────────────── Bull / Bear ───────────────────────── -->
+  <section id="bullbear" class="section">
+    <h2>Bull / Bear</h2>
+    <p class="sec-lede">같은 사실을 사는 쪽과 안 사는 쪽에서 읽었습니다. 경량 조사라 별도 대심 없이 조사자 한 명이 양쪽을 썼어요.</p>
+    <div class="bb">
+      <div class="card bull">
+        <h3>Bull: 도심 출퇴근 실수요라면 지금이 진입 구간</h3>
+        <ol>
+          <li>신축 9,196세대가 한꺼번에 들어와 동네가 통째로 바뀌었고, 거주자 평점이 4.1~4.8로 높다.<span class="basis">집품 거주 인증 후기, "천지개벽 그 자체"</span></li>
+          <li>구축까지 1년에 20~36% 오른 것은 신축 프리미엄이 주변으로 번지는 초기 국면이다.<span class="basis">쌍용·이문e편한세상·SK뷰 월별 중앙값</span></li>
+          <li>이문4구역 3,488세대와 신이문역세권 1,200세대가 더해지면 1만 4천 세대 신축 타운이 되고, 도로와 학교 같은 기반시설 투자가 따라온다.<span class="basis">통합심의 2025-09, 대우건설 시공사 선정 2026-02</span></li>
+          <li>GTX-C 청량리 정차가 착공됐다. 2031년 이후 삼성역 접근성이 생기면 1호선 단일 노선이라는 약점이 상당 부분 사라진다.<span class="basis">국토부 2026-09-15 착공</span></li>
+          <li>외대앞·회기의 대학가 상권, 경희의료원·삼육서울병원, 중랑천·배봉산·의릉이 이미 있다. 신축 상가가 채워지면 생활 편의는 계속 좋아진다.<span class="basis">거주자 후기 다수</span></li>
+        </ol>
+      </div>
+      <div class="card bear">
+        <h3>Bear: 값은 다 올랐고 불편은 앞으로 3년 더 간다</h3>
+        <ol>
+          <li>1년 새 20~37% 오른 값에 대출은 4억, 전세 낀 매수는 금지. 살 수 있는 사람이 자기자본 12억 이상 실수요로 좁혀졌다.<span class="basis">10·15 대책, 토지거래허가구역</span></li>
+          <li>매물 694건, 임대 2,314세대, 3단지 추가 입주. 전세가율 46%는 이 값을 받쳐줄 전세 수요가 없다는 신호다.<span class="basis">KB 매물, 집품 전세 실거래</span></li>
+          <li>이문4구역 공사가 2027년 시작해 2030년 전후까지 이어진다. 그동안 이문로 정체, 먼지, 공사 차량, 바퀴벌레가 실거주 만족도를 깎는다.<span class="basis">거주자·중개사 발언, 르데스크 2026-01</span></li>
+          <li>철길 소음은 신축이어도 그대로다. 동별로 값이 갈리는 단지에서 잘못 고르면 되팔 때 할인이 붙는다.<span class="basis">아이파크자이·휘경자이·SK뷰 거주자</span></li>
+          <li>학원가가 없고 초등 배정이 동마다 갈린다. 자녀 학령기에 이사 나갈 수요가 많다는 뜻이라 5년 뒤 매도 시장이 두텁지 않을 수 있다.<span class="basis">후기 "학군" 단점 4건</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 최종 판단 ───────────────────────── -->
+  <section id="verdict" class="section">
+    <h2>최종 판단</h2>
+    <div class="verdict-box">
+      <div class="verdict-chips"><span class="vchip on">조건부 매수</span><span class="vchip">적극 매수</span><span class="vchip">관망</span><span class="vchip">회피</span></div>
+      <p style="font-size:16px;font-weight:700;margin-bottom:12px">1호선으로 종로·시청·서울역 방면 출퇴근을 하고, 자기자본이 넉넉한 실거주자라면 조건부 매수. 그 외에는 관망이나 회피입니다.</p>
+      <ol class="reasons">
+        <li><b>출퇴근 방향이 1호선 도심이면 맞고, 강남이면 아니다.</b> 거주자가 "1호선 출근하는 사람이 아니라면 지하철이 불편"이라고 딱 잘라 말했고, 강남까지는 환승 50분 안팎입니다. GTX-C는 2031년 얘기예요.</li>
+        <li><b>신축을 살 거면 동을 고르는 게 단지를 고르는 것보다 중요하다.</b> 철길 접면, 이문로 접면, 초등 배정(이문초/청량초)이 동마다 갈립니다. 저녁 8시 이후 창문 열고 소음, 오전 8시 이문로 정체, 학구도 조회 세 가지는 계약 전 필수입니다.</li>
+        <li><b>가성비는 신이문역 동쪽 구축에 있다.</b> 쌍용(신이문역 188m, 84㎡ 11.45억, 59㎡ 11.0억)과 이문e편한세상(신이문역 227m, 이문초 127m, 84㎡ 12.5억)은 대출 한도 6억 구간이고, 거주자들이 "조용하고 주차 걱정 없음", "초등학교 바로 앞"이라고 씁니다. 단점은 상권 부족과 지하주차장 미연결, 20년 넘은 연식이에요.</li>
+        <li><b>신축 중에서는 휘경자이디센시아와 이문아이파크자이가 역 4분 이내로 가깝고, 래미안라그란데는 7~9분이다.</b> 라그란데는 그만큼 값이 낮고(84㎡ 17.5억 vs 아이파크자이 20억 안팎), 단지 안이 조용하며 아이 키우는 집이 많다는 후기가 붙습니다. 휘경자이는 커뮤니티 평가가 가장 좋지만 상권이 역 건너편입니다.</li>
+        <li><b>가격은 2025년 가을부터 1년간 급등했고 규제 만료(2026-12-31) 전후가 변곡점이다.</b> 서두를 이유가 없습니다. 매물이 700건 가까이 쌓여 있으니 급매를 기다릴 여지가 있어요.</li>
+      </ol>
+
+      <div class="persona">
+        <div class="p"><div class="h">종로·시청 출퇴근 맞벌이, 자녀 없음<span class="fit ok">적합</span></div><p>휘경자이디센시아 59㎡ 또는 이문아이파크자이 59㎡(15.8억). 역 4분, 커뮤니티, 산책 환경을 다 누립니다. 철길 반대편 동으로 고르세요.</p></div>
+        <div class="p"><div class="h">초등 자녀 실거주, 예산 12~13억<span class="fit ok">적합</span></div><p>이문e편한세상 84㎡(12.5억, 이문초 127m) 또는 쌍용 84㎡(11.45억). 대출 6억 한도 구간이고 초등학교가 붙어 있습니다. 중학교 이후 학원은 이동 전제.</p></div>
+        <div class="p"><div class="h">강남·판교 출퇴근<span class="fit no">부적합</span></div><p>1호선 환승 50분 안팎, 자차는 이문로 정체와 동부간선도로 정체가 겹칩니다. 2031년 GTX-C까지 기다릴 이유가 없어요.</p></div>
+        <div class="p"><div class="h">전세 끼고 사두려는 투자<span class="fit no">불가</span></div><p>토지거래허가구역이라 허가 조건상 실거주 의무가 붙고, 갭이 8.5억, 전세가율 46%입니다. 규제 해제 뒤에도 매물 700건이 먼저 소화돼야 합니다.</p></div>
+        <div class="p"><div class="h">자차 통근 위주 가구<span class="fit so">보류</span></div><p>이문4구역 공사가 끝나 관통도로가 열리는 2030년 전후까지는 매일 정체를 겪습니다. 사려면 이문로에서 먼 휘경 쪽(SK뷰, 해모로)을 보세요.</p></div>
+        <div class="p"><div class="h">신축 84㎡ 원하는 3~4인 가구, 자기자본 14억+<span class="fit so">조건부</span></div><p>래미안라그란데 84㎡(17.5억)가 아이파크자이보다 2억 이상 싸고 단지가 조용합니다. 대신 역까지 7~9분, 1단지(이문초)인지 2단지(청량초)인지 확인.</p></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>현장 임장 체크리스트</h3>
+      <ul class="check">
+        <li><label><input type="checkbox"><span><span class="hot">저녁 8시 이후</span> 관심 동에서 창문 열고 10분 서 있기. 화물열차 통과 시간대가 겹치는지 확인.</span></label></li>
+        <li><label><input type="checkbox"><span><span class="hot">평일 오전 8시</span> 이문로 외대앞역~신이문역 구간 통과 시간 재기. 관통도로 공사 구간 위치도 확인.</span></label></li>
+        <li><label><input type="checkbox"><span>학구도안내서비스(schoolzone.emac.kr)에서 동·호수 단위 배정 초등학교 조회. 2024-10 배정이 유지되는지 학교에 전화.</span></label></li>
+        <li><label><input type="checkbox"><span>관리비 고지서 최근 3개월 확인. 아이파크자이는 "관리비 비싼 편"이라는 커뮤니티 언급이 있음.</span></label></li>
+        <li><label><input type="checkbox"><span>단지 상가 공실률과 입점 업종. 마트, 소아과, 학원이 들어왔는지.</span></label></li>
+        <li><label><input type="checkbox"><span>구축(쌍용, 이문e편한세상)은 지하주차장에서 집까지 동선을 직접 걸어보고, 엘리베이터 교체 시기와 누수·결로 이력을 관리사무소에 문의.</span></label></li>
+        <li><label><input type="checkbox"><span>구청 토지거래허가 신청 요건(실거주 계획서, 기존 주택 처분 조건)을 미리 확인.</span></label></li>
+        <li><label><input type="checkbox"><span>이문아이파크자이 84㎡ 20.6억 거래는 국토부 실거래가 공개시스템에서 층과 거래 유형을 직접 확인.</span></label></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── 출처 ───────────────────────── -->
+  <section id="src" class="section">
+    <h2>출처</h2>
+    <p class="sec-lede">등급 A는 정부·공식 원문, B는 공식 자료를 재배포한 서비스와 거주 인증 후기, C는 커뮤니티·위키·검색 스니펫입니다. 모든 수치의 기준일은 본문에 함께 적었습니다.</p>
+    <ol class="src-list">
+      <li><span class="gr b">B</span><span>아파트미(apt2.me) 동대문구 실거래 이력 · 래미안라그란데, 휘경자이디센시아, 휘경SK뷰, 쌍용, 대림e-편한세상, 신이문금호어울림 등 20개 단지 매매·전월세·분양권 이력 · 국토교통부 실거래 재배포 · 2026-08 집계 · 수집 2026-10-01</span></li>
+      <li><span class="gr b">B</span><span>집품(zippoom.com) 이문아이파크자이, 휘경자이디센시아, 래미안라그란데, 휘경에스케이뷰, 쌍용, 이문e편한세상 단지 페이지 · 실거래 이력, 항목별 평점, 거주 인증 후기 · 2026-09-30 집계</span></li>
+      <li><span class="gr b">B</span><span>당근부동산 래미안라그란데 살아본 후기 86건 중 11건 열람(2026-03~09), 휘경자이디센시아 34건 중 11건, 이문아이파크자이(3-1BL) 19건 중 10건 · realty.daangn.com/complexes/11062253, 11067586, 20832128</span></li>
+      <li><span class="gr b">B</span><span>KB부동산 래미안라그란데(매물 694건), 휘경자이디센시아(매물 106건, 매물 평균 매매 15.48억), 휘경SK뷰(KB시세 일반가 15.5억, 2026-09-25) · kbland.kr/se/c/1074841, 801142, 32721</span></li>
+      <li><span class="gr a">A</span><span>대한민국 정책브리핑 "서울 전역·경기 12곳 투기과열지구·토지거래허가구역 지정" · 2025-10-15 · 대출 한도 6억/4억/2억, 효력 2025-10-20</span></li>
+      <li><span class="gr b">B</span><span>머니투데이 "GTX-C 15일 착공…수원~청량리 75분→30분 단축" · 2026-09-14</span></li>
+      <li><span class="gr b">B</span><span>위클리한국주택경제신문 "이문4구역, 통합심의 통과… 2027년 상반기 착공" · 2025-09-05 · 3,488세대, 43층</span></li>
+      <li><span class="gr b">B</span><span>쿠키뉴스 "[단독] 이문4구역 관리처분인가 완료" · 2024-04-02 / 한국아이닷컴 "이문4구역, 이르면 11월 이주" · 2024-10-04</span></li>
+      <li><span class="gr b">B</span><span>머니투데이 "대우건설, 신이문 역세권재개발 시공사 선정…5300억 규모" · 2026-02-02 · 1,200세대 40층 7개동</span></li>
+      <li><span class="gr b">B</span><span>헤럴드경제 "신이문역 초역세권 1265가구 재탄생" · 2024-06-24 · 지구단위계획 고시</span></li>
+      <li><span class="gr b">B</span><span>르데스크 "1만 가구 들어섰는데 길은 그대로…이문·휘경 뉴타운 재개발의 그늘" · 2026-01-22 · 주민 3명, 중개사 인터뷰</span></li>
+      <li><span class="gr b">B</span><span>한국경제 "이문·휘경뉴타운 1만가구 입주하는데…도로는 편도 2차로" · 2025-04-09 · 중개사 2명, 구청 관계자 발언</span></li>
+      <li><span class="gr b">B</span><span>서울신문 "심미경 서울시의원 이문뉴타운 교통혼잡 숨통 트이나" · 2025-04-15</span></li>
+      <li><span class="gr b">B</span><span>다음뉴스(원 기사 매체 미확인) "단지 내 신설 또는 가까운 곳 배정해달라, 신축 아파트 입주때마다 학교 문제로 몸살" · 2024-10-04 · 이문1·3구역 초등 배정</span></li>
+      <li><span class="gr b">B</span><span>동대문이슈 "동대문구, 학부모들과 이문 1·3구역 통학로 점검" · 2025-02-18</span></li>
+      <li><span class="gr b">B</span><span>머니투데이 부릿지 "신호 하나 건널 뿐인데 2억 차이? 이문동 대장 후보 아파트 가보니" · 2023-10-27 · 분양가</span></li>
+      <li><span class="gr b">B</span><span>매일일보 "이문·휘경 뉴타운 휘경SK뷰 가보니" · 2016-04-18 · 외대앞역 도보 3~5분 실측</span></li>
+      <li><span class="gr c">C</span><span>나무위키 이문휘경뉴타운, 이문 아이파크 자이, 신이문역, 서울이문초등학교 문서 · 열람 2026-10-01 · 구역 표, 층수, 단지 구성, 이용객 수, 학생 수</span></li>
+      <li><span class="gr c">C</span><span>DVDPrime 프라임차한잔 "이문동 동네 구경하기" 본문과 댓글 · 2025-10-25</span></li>
+      <li><span class="gr c">C</span><span>82cook "이문동 신이문역 외대 쪽 분위기 어때요?" 댓글 · 2012-01-07 · 14년 전 발언</span></li>
+      <li><span class="gr c">C</span><span>호갱노노 커뮤니티 신이문금호어울림, 이문아이파크자이, 휘경자이디센시아 · 검색 스니펫만 열람(직접 접근 403)</span></li>
+      <li><span class="gr c">C</span><span>웰컴홈즈 "신이문 살기 어때?의 해답, 우리동네 신이문역" · 평균 월세, 편의시설 수, 도심 소요 시간</span></li>
+      <li><span class="gr c">C</span><span>이투데이·철도경제신문·대한경제 이문차량기지 복합개발 기본구상 보도 · 2023-02, 2024-04</span></li>
+    </ol>
+    <div class="card" style="margin-top:16px">
+      <h3>조사 한계</h3>
+      <ul>
+        <li>단일 세션 경량 조사라 교차검증을 최소화했습니다. 실거래는 아파트미와 집품 두 경로가 겹치는 값(휘경자이 59㎡ 15.8억, SK뷰 84㎡ 16.1억, 쌍용 84㎡ 11.45억 등)만 확정으로 표시했습니다.</li>
+        <li>이문아이파크자이는 아파트미에 없어 집품 자료만 썼고, 84㎡ 20.6억은 층과 유형을 확인하지 못했습니다.</li>
+        <li>도보 거리는 아파트미 표기값이며 실측하지 않았습니다. 이전 조사에서 커뮤니티 도보 시간이 실측의 절반이었던 경험이 있으니 여유 있게 보세요.</li>
+        <li>호갱노노와 네이버 카페는 직접 열람하지 못해 검색 스니펫 수준으로만 반영했습니다. 당근부동산 후기는 로그인 없이 보이는 범위만 읽었습니다.</li>
+        <li>호가는 KB 매물 평균과 당근 매물 1건(라그란데 84㎡ 20억 호가)만 참고했고, 실거래와 섞지 않았습니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="foot">
+    외대앞역·신이문역 온라인 임장 리포트 · 조사 기준일 2026-10-01 · 경량 모드(단일 세션) · 이 문서는 매수 판단을 돕는 사전조사이며 현장 임장과 전문가 상담을 대체하지 않습니다.
+  </div>
+</div>
+</body>
+</html>

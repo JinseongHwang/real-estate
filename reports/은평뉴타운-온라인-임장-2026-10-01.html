@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>은평뉴타운 온라인 임장 리포트</title>
+<style>
+  :root{
+    --ink:#191f28; --sub:#6b7684; --faint:#8b95a1; --line:#e5e8eb;
+    --bg:#f7f8fa; --card:#ffffff;
+    --blue:#1b64da; --blue-bg:#eef4fd;
+    --green:#0a7d43; --green-bg:#e8f7ee;
+    --red:#c22b2b; --red-bg:#fdeeee;
+    --amber:#b45309; --amber-bg:#fdf3e3;
+    --gray-bg:#f2f4f6;
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",Pretendard,"Noto Sans KR","Malgun Gothic",sans-serif;
+    color:var(--ink); background:var(--bg); line-height:1.65;
+    -webkit-text-size-adjust:100%; word-break:keep-all;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+  sup a{font-size:11px;color:var(--faint)}
+
+  /* ── Cover ─────────────────────────────── */
+  .cover{background:var(--card);border-bottom:1px solid var(--line);padding:56px 0 36px}
+  .cover-kicker{font-size:14px;font-weight:700;color:var(--blue);letter-spacing:.06em}
+  .cover h1{font-size:40px;line-height:1.2;margin:10px 0 6px;font-weight:800}
+  .cover h1 .loc{font-size:20px;color:var(--sub);font-weight:500;margin-left:8px}
+  .cover-meta{color:var(--sub);font-size:14px}
+  .cover-meta b{color:var(--ink)}
+
+  /* 한 줄 결론 */
+  .conclusion{margin:26px 0 0;padding:22px 24px;background:var(--blue-bg);border:1px solid #d5e4fb;border-radius:var(--radius)}
+  .conclusion .label{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px}
+  .conclusion p{font-size:19px;font-weight:700;line-height:1.55}
+
+  /* ── 목차 ──────────────────────────────── */
+  .toc{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);
+       border-bottom:1px solid var(--line)}
+  .toc-row{display:flex;gap:6px;overflow-x:auto;padding:10px 20px;scrollbar-width:none}
+  .toc-row::-webkit-scrollbar{display:none}
+  .toc a{flex:0 0 auto;font-size:13px;color:var(--sub);padding:6px 12px;border-radius:999px;background:var(--gray-bg)}
+  .toc a:hover{color:var(--ink);text-decoration:none;background:var(--line)}
+
+  /* ── 공통 섹션/카드 ────────────────────── */
+  .section{padding:40px 0 8px;scroll-margin-top:64px}
+  .section h2{font-size:24px;font-weight:800;margin-bottom:4px}
+  .sec-lede{color:var(--sub);font-size:15px;margin-bottom:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;margin-bottom:16px}
+  .card h3{font-size:17px;font-weight:700;margin-bottom:10px}
+  .card p{font-size:15px;margin-bottom:10px}
+  .card p:last-child{margin-bottom:0}
+  .card ul,.card ol{padding-left:20px;font-size:15px}
+  .card li{margin-bottom:6px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .note{font-size:13px;color:var(--faint)}
+  .asof{font-size:12px;color:var(--faint)}
+
+  /* ── KPI 카드 ──────────────────────────── */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+  .kpi .l{font-size:12px;color:var(--sub);margin-bottom:4px}
+  .kpi .v{font-size:24px;font-weight:800;line-height:1.25}
+  .kpi .v small{font-size:14px;font-weight:600;color:var(--sub)}
+  .kpi .s{font-size:12px;color:var(--faint);margin-top:4px}
+  .kpi .up{color:var(--red)} .kpi .down{color:var(--blue)}
+
+  /* ── 배지 ──────────────────────────────── */
+  .st{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;vertical-align:1px;white-space:nowrap}
+  .st.확정{background:var(--green-bg);color:var(--green)}
+  .st.신뢰{background:var(--blue-bg);color:var(--blue)}
+  .st.참고{background:var(--gray-bg);color:var(--sub)}
+  .st.추정{background:var(--amber-bg);color:var(--amber)}
+  .st.확인{background:var(--red-bg);color:var(--red)}
+  .gr{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;
+      font-size:12px;font-weight:800;vertical-align:-3px;margin-right:6px}
+  .gr.a{background:#123c73;color:#fff}
+  .gr.b{background:#1b64da;color:#fff}
+  .gr.c{background:#5f6b7a;color:#fff}
+  .gr.d{background:#a08acb;color:#fff}
+  .gr.e{background:#d7dce2;color:#57606a}
+
+  /* ── 표 ────────────────────────────────── */
+  .table-wrap{overflow-x:auto;margin:6px 0 4px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+  th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{background:var(--gray-bg);font-size:13px;color:var(--sub);font-weight:700}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.hl td{background:var(--blue-bg);font-weight:700}
+
+  /* ── 차트 ──────────────────────────────── */
+  .chart-wrap{overflow-x:auto;padding:8px 0}
+  .chart-wrap svg{display:block;min-width:560px;width:100%;height:auto}
+  .chart-cap{font-size:12px;color:var(--faint);margin-top:6px}
+  .hbar{margin:8px 0}
+  .hbar .row{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:10px;margin-bottom:8px;font-size:14px}
+  .hbar .bar{display:block;height:14px;border-radius:7px;background:var(--blue);opacity:.85}
+  .hbar .row>span:nth-child(2){display:block}
+  .hbar .row .nm small{color:var(--faint);font-weight:400}
+  .hbar .row.me .bar{background:var(--green)}
+  .hbar .row.me .nm{font-weight:800}
+  .hbar .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--sub);font-size:13px}
+
+  /* ── 타임라인 (정비사업 단계) ──────────── */
+  .tl{list-style:none;padding-left:0;margin:8px 0}
+  .tl li{position:relative;padding:0 0 16px 26px;font-size:14px}
+  .tl li::before{content:"";position:absolute;left:6px;top:7px;width:9px;height:9px;border-radius:50%;
+                 background:var(--line);border:2px solid var(--faint)}
+  .tl li::after{content:"";position:absolute;left:10px;top:20px;bottom:-2px;width:1.5px;background:var(--line)}
+  .tl li:last-child::after{display:none}
+  .tl li.done::before{background:var(--green);border-color:var(--green)}
+  .tl li.now::before{background:#fff;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+  .tl li.now .tl-t{color:var(--blue);font-weight:800}
+  .tl .tl-t{font-weight:700}
+  .tl .tl-d{color:var(--faint);font-size:12px;margin-left:6px}
+
+  /* ── 리스크 카드 ───────────────────────── */
+  .risk{border-left:4px solid var(--line);padding:14px 18px;background:var(--card);border-radius:0 12px 12px 0;
+        border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:12px}
+  .risk .t{font-weight:700;font-size:15px;margin-bottom:4px}
+  .risk p{font-size:14px;color:var(--sub);margin:0}
+  .risk.high{border-left-color:var(--red)} .risk.high .sev{color:var(--red)}
+  .risk.mid{border-left-color:var(--amber)} .risk.mid .sev{color:var(--amber)}
+  .risk.low{border-left-color:var(--faint)} .risk.low .sev{color:var(--faint)}
+  .risk .sev{font-size:12px;font-weight:800;margin-right:6px}
+
+  /* ── Bull / Bear ───────────────────────── */
+  .bb{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .bb .card{margin-bottom:0}
+  .bull{border-top:4px solid var(--green)}
+  .bear{border-top:4px solid var(--red)}
+  .bull h3{color:var(--green)} .bear h3{color:var(--red)}
+  .bb ol{padding-left:18px}
+  .bb li{margin-bottom:10px;font-size:15px}
+  .bb .basis{display:block;font-size:12.5px;color:var(--faint);margin-top:2px}
+  .conf{font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--gray-bg);color:var(--sub);margin-left:6px;vertical-align:1px}
+
+  /* ── 용어 박스 ─────────────────────────── */
+  .term{display:flex;gap:10px;background:var(--gray-bg);border-radius:10px;padding:12px 14px;margin:10px 0;font-size:13.5px;color:var(--sub)}
+  .term .chip{flex:0 0 auto;font-size:11px;font-weight:800;color:var(--blue);background:var(--blue-bg);
+              border-radius:6px;padding:2px 7px;height:fit-content;margin-top:2px}
+  .term b{color:var(--ink)}
+
+  /* ── 체크리스트 ────────────────────────── */
+  .check{list-style:none;padding-left:0}
+  .check li{margin-bottom:8px;font-size:15px}
+  .check label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+  .check input{margin-top:5px;width:15px;height:15px;accent-color:var(--blue)}
+  .check .hot{color:var(--red);font-weight:700}
+
+  /* ── 최종 판단 ─────────────────────────── */
+  .verdict-box{background:var(--card);border:2px solid var(--ink);border-radius:var(--radius);padding:26px 28px}
+  .verdict-chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
+  .vchip{font-size:14px;font-weight:700;padding:7px 16px;border-radius:999px;background:var(--gray-bg);color:var(--faint)}
+  .vchip.on{background:var(--ink);color:#fff}
+  .verdict-box .reasons{padding-left:20px}
+  .verdict-box .reasons li{margin-bottom:8px;font-size:15px}
+
+  /* ── 출처 ──────────────────────────────── */
+  .src-list{list-style:none;padding-left:0;counter-reset:src}
+  .src-list li{counter-increment:src;font-size:13.5px;color:var(--sub);padding:9px 0;border-bottom:1px solid var(--line);
+               display:flex;gap:10px;align-items:baseline}
+  .src-list li::before{content:"["counter(src)"]";color:var(--faint);font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .src-list li:last-child{border-bottom:none}
+
+  /* ── 푸터 ──────────────────────────────── */
+  .foot{margin:48px 0 0;padding:28px 0 44px;border-top:1px solid var(--line);color:var(--faint);font-size:12.5px}
+
+  /* ── 반응형/인쇄 ───────────────────────── */
+  @media (max-width:680px){
+    .cover h1{font-size:30px}
+    .cover h1 .loc{display:block;margin:4px 0 0}
+    .grid-2,.bb{grid-template-columns:1fr}
+    .hbar .row{grid-template-columns:96px 1fr 76px}
+    .kpi .v{font-size:20px}
+  }
+  @media print{
+    .toc{display:none}
+    body{background:#fff}
+    .card,.kpi,.risk,.verdict-box{break-inside:avoid;border-color:#ccc}
+  }
+
+  /* ── 주민 목소리 ───────────────────────── */
+  .voice{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--blue);
+         border-radius:0 12px 12px 0;padding:16px 20px;margin-bottom:12px}
+  .voice .q{font-size:15px;line-height:1.7;color:var(--ink)}
+  .voice .q b{background:#fff3c4;font-weight:700;padding:0 2px;border-radius:2px}
+  .voice .who{margin-top:9px;font-size:12.5px;color:var(--faint)}
+  .voice .who b{color:var(--sub);font-weight:700}
+  .voice.pos{border-left-color:var(--green)}
+  .voice.neg{border-left-color:var(--red)}
+  .voice.mix{border-left-color:var(--amber)}
+  .vtag{display:inline-block;font-size:11px;font-weight:800;padding:1px 8px;border-radius:999px;margin-right:6px;vertical-align:2px}
+  .vtag.pos{background:var(--green-bg);color:var(--green)}
+  .vtag.neg{background:var(--red-bg);color:var(--red)}
+  .vtag.mix{background:var(--amber-bg);color:var(--amber)}
+  .vgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:680px){.vgrid{grid-template-columns:1fr}}
+  .tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0 4px}
+  .tally .t{background:var(--gray-bg);border-radius:10px;padding:12px 14px}
+  .tally .t .n{font-size:20px;font-weight:800}
+  .tally .t .l{font-size:12px;color:var(--sub);margin-top:2px}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="wrap">
+    <div class="cover-kicker">온라인 임장 리포트</div>
+    <h1>은평뉴타운<span class="loc">서울 은평구 진관동</span></h1>
+    <div class="cover-meta">
+      조사 기준일 <b>2026년 10월 1일</b> · 대상 <b>3개 지구 21,513세대 (실거래 표본 20개 블록)</b> ·
+      실거래 출처 <b>국토교통부(아파트미 재배포)</b>
+    </div>
+
+    <div class="conclusion">
+      <div class="label">한 줄 결론</div>
+      <p>은평뉴타운은 15년 동안 “살기는 최고인데 집값은 안 오르는 동네”였습니다. 2026년 들어 그 뒷부분이 깨지고 있는데,
+         깨지는 곳은 <u>구파발역 도보 10분 안쪽 블록</u>뿐이에요. 마을버스를 타야 역에 가는 상림마을과 제각말은 2021년 고점을 아직 회복하지 못했고,
+         2027년 말부터 옆 동네 창릉에 3만 8천 가구가 들어옵니다.</p>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="l">박석고개1단지 84㎡ 최고 실거래</div><div class="v">13억 2,500<small>만원</small></div><div class="s up">2026.09.08 · 12층 · 신고가</div></div>
+      <div class="kpi"><div class="l">역세권 4개 블록 84㎡ 중위</div><div class="v">11억 7,800<small>만원</small></div><div class="s up">2026년 28건 · 2021년(11.7억) 회복</div></div>
+      <div class="kpi"><div class="l">외곽 8개 블록 84㎡ 중위</div><div class="v">8억 6,500<small>만원</small></div><div class="s down">2026년 45건 · 2021년(9.0억) 대비 -4%</div></div>
+      <div class="kpi"><div class="l">2026년 8월 신고가 비중</div><div class="v">47<small>%</small></div><div class="s up">표본 19건 중 9건 · 7월 33%</div></div>
+      <div class="kpi"><div class="l">창릉신도시 계획 가구</div><div class="v">38,073<small>가구</small></div><div class="s">첫 입주 2027.12 · 고양은평선 2031 개통 목표</div></div>
+    </div>
+  </div>
+</div>
+
+<nav class="toc"><div class="toc-row">
+  <a href="#map">단지 지형</a><a href="#voice">주민 목소리</a><a href="#price">실거래</a><a href="#trend">가격 추이</a>
+  <a href="#jeonse">전세·갭</a><a href="#transit">교통</a><a href="#edu">교육</a><a href="#life">생활</a><a href="#supply">공급·경쟁</a>
+  <a href="#risk">리스크</a><a href="#bullbear">Bull/Bear</a><a href="#verdict">최종 판단</a><a href="#src">출처</a>
+</div></nav>
+
+<div class="wrap">
+
+  <section id="map" class="section">
+    <h2>먼저, 은평뉴타운은 하나의 동네가 아닙니다</h2>
+    <p class="sec-lede">면적 349만㎡, 21,513세대, 53,807명(2026년 1월)이 사는 서울 최대 뉴타운입니다.<sup><a href="#src">[25]</a></sup> 구파발역을 기준으로 역 앞 블록과 마을버스 블록의 가격 흐름이 완전히 다릅니다.</p>
+
+    <div class="card">
+      <h3>세 개 지구, 여덟 개 마을</h3>
+      <p>2008년 6월 상림마을 입주를 시작으로 2010년까지 대부분 입주를 마쳤고, 이후 기자촌 11단지(2015), 엘크루(2017), 꿈에그린(2018), 스카이뷰자이(2019), 디에트르 더 퍼스트(민간임대 452가구, 2025)가 구파발역 주변 빈 땅을 채웠습니다.<sup><a href="#src">[25][27][28]</a></sup>
+      3호선 구파발역 하나가 유일한 지하철역이고, 연신내역(3호선, 6호선, GTX-A)은 한 정거장 떨어져 있어요.</p>
+      <div class="term"><span class="chip">구분</span><div>이 리포트는 아파트미 단지 정보의 <b>구파발역 도보 거리</b>를 기준으로 20개 블록을 세 묶음으로 나눴습니다.<sup><a href="#src">[27]</a></sup> 역세권은 도보 8분 이내, 중간은 도보 11~13분, 외곽은 아파트미가 도보 시간을 표기하지 않는 블록으로 역까지 직선거리가 1.1km를 넘는 곳입니다. 직선거리는 아파트미 단지 좌표와 위키백과 구파발역 좌표로 직접 계산했으니 참고치예요.<sup><a href="#src">[29]</a></sup></div></div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>묶음</th><th>블록</th><th>입주</th><th class="num">세대(임대 포함)</th><th>구파발역</th><th class="num">주차/세대</th><th>배정 초등</th></tr></thead>
+        <tbody>
+          <tr class="hl"><td>역세권</td><td>은평스카이뷰자이</td><td>2019</td><td class="num">361</td><td>도보 4분 227m</td><td class="num">1.43</td><td>은진초 314m</td></tr>
+          <tr class="hl"><td>역세권</td><td>박석고개1단지힐스테이트 116~131동</td><td>2009</td><td class="num">947 (임대 341)</td><td>도보 5분 217m</td><td class="num">1.17</td><td>은진초 63m</td></tr>
+          <tr class="hl"><td>역세권</td><td>박석고개1단지힐스테이트 101~111동</td><td>2009</td><td class="num">660 (임대 357)</td><td>도보 8분 406m</td><td class="num">1.15</td><td>은진초 195m</td></tr>
+          <tr class="hl"><td>역세권</td><td>마고정3단지센트레빌 323~335동</td><td>2009</td><td class="num">434 (임대 193)</td><td>도보 7분 420m</td><td class="num">1.37</td><td>은진초 183m</td></tr>
+          <tr><td>역세권(소형)</td><td>은평뉴타운엘크루 / 꿈에그린</td><td>2017 / 2018</td><td class="num">146 / 142</td><td>도보 4분 / 6분</td><td class="num">1.87 / 0.65</td><td>은빛초</td></tr>
+          <tr><td>중간</td><td>구파발10단지어울림</td><td>2010</td><td class="num">334</td><td>도보 12분 691m</td><td class="num">1.63</td><td>은빛초 77m</td></tr>
+          <tr><td>중간</td><td>구파발9단지래미안</td><td>2010</td><td class="num">486</td><td>도보 11분 695m</td><td class="num">1.66</td><td>은빛초 41m</td></tr>
+          <tr><td>중간</td><td>마고정3단지센트레빌 310~322동</td><td>2009</td><td class="num">659 (임대 200)</td><td>도보 12분 676m</td><td class="num">1.42</td><td>신도초 58m</td></tr>
+          <tr><td>중간</td><td>우물골2단지두산위브 223~244동</td><td>2010</td><td class="num">472</td><td>도보 13분 758m</td><td class="num">1.81</td><td>신도초 425m</td></tr>
+          <tr><td>중간</td><td>상림마을8단지롯데캐슬 810~820동</td><td>2008</td><td class="num">707 (임대 403)</td><td>도보 13분 825m</td><td class="num">1.24</td><td>진관초 669m</td></tr>
+          <tr><td>외곽</td><td>우물골2단지두산위브 209~222동</td><td>2009</td><td class="num">448</td><td>직선 1.1km</td><td class="num">1.47</td><td>신도초 259m</td></tr>
+          <tr><td>외곽</td><td>상림마을7단지아이파크 719~742동</td><td>2008</td><td class="num">298 + 300</td><td>직선 1.2km</td><td class="num">1.91 / 2.0</td><td>진관초 300m</td></tr>
+          <tr><td>외곽</td><td>은평뉴타운기자촌11단지</td><td>2015</td><td class="num">426 (임대 21)</td><td>직선 1.3km</td><td class="num">1.16</td><td>신도초 587m</td></tr>
+          <tr><td>외곽</td><td>제각말 푸르지오 5-4 / 5-1단지</td><td>2010</td><td class="num">412 / 330</td><td>직선 1.3 / 1.55km</td><td class="num">1.28 / 1.55</td><td>신도초</td></tr>
+          <tr><td>외곽</td><td>폭포동4단지힐스테이트 408~422동</td><td>2010</td><td class="num">571</td><td>직선 1.4km</td><td class="num">1.95</td><td>신도초 458m</td></tr>
+          <tr><td>외곽</td><td>상림마을6단지푸르지오 606~614동</td><td>2008</td><td class="num">378 (임대 89)</td><td>직선 1.76km</td><td class="num">1.3</td><td>진관초 395m</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">세대수, 임대 세대, 주차, 도보 거리, 배정 초등학교는 아파트미 단지 정보(2026.10.01 열람) 기준.<sup><a href="#src">[27]</a></sup> 임대는 “기타임대”로 표기된 SH 공공임대이며, 은평뉴타운은 2003년 국내 최초로 분양과 임대를 한 단지에 섞은 곳입니다. 박석고개 101~111동은 660세대 중 357세대, 상림마을 8단지 810~820동은 707세대 중 403세대가 임대예요. 이 비율은 현장에서 관리비와 커뮤니티 분위기로 체감되는 부분이라 반드시 확인해야 합니다.</p>
+  </section>
+
+  <section id="voice" class="section">
+    <h2>실제로 살아본 사람들이 하는 말</h2>
+    <p class="sec-lede">82cook, 블라인드, 집품에서 거주자 또는 거주 경험자의 발언 28건을 원문 그대로 모았습니다. 기사와 중개업소 문구보다 이 섹션을 먼저 읽으세요. 14년치 발언인데 내용이 놀랄 만큼 일관됩니다.</p>
+
+    <div class="tally">
+      <div class="t"><div class="n">28건</div><div class="l">거주자·경험자 발언</div></div>
+      <div class="t"><div class="n">17건</div><div class="l">자연·공기·조용함 언급</div></div>
+      <div class="t"><div class="n">16건</div><div class="l">교통(통일로·3호선) 불만</div></div>
+      <div class="t"><div class="n">5건</div><div class="l">“집값 안 오른다” 언급</div></div>
+      <div class="t"><div class="n">4건</div><div class="l">노후화·결로 언급</div></div>
+    </div>
+
+    <div class="card">
+      <h3>가장 자주 나오는 문장: “출퇴근만 없으면 최고”</h3>
+      <p>거주자들이 장점으로 꼽는 것은 거의 예외 없이 북한산, 공기, 조용함, 성모병원, 롯데몰과 스타필드입니다. 단점도 거의 예외 없이 통일로 정체와 3호선 하나뿐인 지하철이에요. 그래서 “은퇴하면 가고 싶은 곳”이라는 말이 2012년, 2020년, 2023년 글에 모두 등장합니다. 매수자가 답해야 할 질문은 하나예요. 내 출퇴근이 이 동네의 단점을 매일 감당할 수 있는 경로인가.</p>
+    </div>
+
+    <div class="voice mix">
+      <p class="q"><span class="vtag mix">거주 10년+</span>“저은평뉴타운 10년넘었어요 산 뷰 원하시면 5층이상올라가셔야해요 전<b>상림마을6단지살고,그전에는7단지 살아봤고 엄마는8단지 사시고</b>..저희집은 산이바로 .나무가우거져있는데4층이라 나무만보여요... 6층 은복층...복층 은 추워요 전 1지구가살기좋아요. 이말산이 바로뒤라서 산에가기도좋고 바로앞이버스정거장있고 걸을수있는길도바로고...<b>단지10년넘으면 집이 낡아요.</b>그거빼고는 사람도 많이없고 자전거타기도좋고 북한산근처라 까페도많고 동네사람들도좀순한편이예요”</p>
+      <p class="who"><b>82cook · 닉네임 주니</b> · 2023.06.03 · 상림마을 6·7·8단지 거주 경험<sup><a href="#src">[2]</a></sup></p>
+    </div>
+
+    <div class="voice mix">
+      <p class="q"><span class="vtag mix">현재 거주</span>“살고있는데요 ᆢ <b>집값 잘 안오르는거빼고 다 만족</b> 왜냐면 북한산을 매일 걸어갈수있고 진관사 한옥마을 하나고 성모병원 스타필드 창릉천자전거로 행주산성까지ᆢ 까페많고 일단은 단지를 휙돌면 산챗길 <b>일단 연신내녹번으로 나가는길때문에교통지옥인데ᆢ 신분당선생기기만 고대함</b> ... 아파트가 2010입주라 십년넘어가서 새아파트살고싶은거ᆢ단점 이런동네 없어요 버스한벅타면 남대문가고 명동서 약속잡고 집뒤가 이말산 북한산 향로봉 나이50대이상이신분들은 어디 전원주택보다 나아요”</p>
+      <p class="who"><b>82cook · 닉네임 주민</b> · 2023.06.03 · 2010년 입주 단지 거주 중<sup><a href="#src">[2]</a></sup></p>
+    </div>
+
+    <div class="voice neg">
+      <p class="q"><span class="vtag neg">현재 거주</span>“은평구 거주중인데 안똘똘하고요 <b>초등만 보내실거면 괜찮지만 중등 이후로는 학군이 좋다고 말하긴 어렵죠.</b> 그리고 <b>구파발부터 시내(서대문?)까지 자차로는 답이 없어요 통일로 교통체증 최악이고 3호선은 출퇴근시간 앉지도 못해요.</b> 대안이 없달까요. 9억이면 다른 곳보시라고 하고싶어요. 30년 후에 오세요..”</p>
+      <p class="who"><b>82cook · 닉네임 음</b> · 2023.05.22 · 9억 예산으로 구파발역 부근을 묻는 글에 대한 답<sup><a href="#src">[3]</a></sup></p>
+    </div>
+
+    <div class="voice mix">
+      <p class="q"><span class="vtag mix">거주 후 이주</span>“여기서 이런글쓰면 욕먹어요 교통 불편하다 집값 안오르다 등등등 ㅋ 그런데 <b>7년 살고 나온 입장에서 다시 가고싶어요 나이들어서 살기에 좋아요.</b> 롯데마트 스타필드 트레이더스 하나로마트에서 골라서 장보고 북한산 둘레 언제든 산책할수 있구요.”</p>
+      <p class="who"><b>82cook · 닉네임 ㅎㅎ</b> · 2023.06.03 · 7년 거주 후 이사<sup><a href="#src">[2]</a></sup></p>
+    </div>
+
+    <div class="voice pos">
+      <p class="q"><span class="vtag pos">현재 거주</span>“통창에 복층인데요 단지에 고층이 없기때문에 바깥 풍경이 이국적이죠 북한산도 바로 보이고요 <b>단지가 구파발에서 안쪽으로 들어와 있어서 조용하고</b> 둘레길도 가깝지요 편의시설도 다 있고 성모병원 있어 걱정 없고 진짜 조용히 살기에 딱 좋아요 자식도 출가했는데 은평뉴타운에 다시 와서 살고 싶다해요”</p>
+      <p class="who"><b>82cook · 닉네임 사는이</b> · 2023.06.03<sup><a href="#src">[2]</a></sup></p>
+    </div>
+
+    <div class="voice mix">
+      <p class="q"><span class="vtag mix">인근 거주</span>“살기는 좋아요. 단지들이 쭉 이어져있고 동네 안에도 산 있고 뒤로 북한산 있고 롯데몰에 성모병원 차로 5분거리 스타필드. <b>3호선도 구파발행 구파발 출발이 있어서 불과 한두 정거장 차이 지축 삼송 보다 나은데… 서울 전체로 보면 끄트머리라 똘똘한 한채는 아니지요.</b> 아이들 공부 학군 생각하시면… 차라리 강서구가 나아요.”</p>
+      <p class="who"><b>82cook · 닉네임 …</b> · 2023.05.22<sup><a href="#src">[3]</a></sup></p>
+    </div>
+
+    <div class="voice mix">
+      <p class="q"><span class="vtag mix">인근 거주</span>“어릴때 살기 좋은 곳이에요 초중고 학군 좋고 사는 사람은 만족해요 <b>그런데 보통 아이들이 다니는 대학과는 거리가 있어서 졸업후 나가는 곳이에요</b>”</p>
+      <p class="who"><b>82cook · 닉네임 아이들</b> · 2023.05.22<sup><a href="#src">[3]</a></sup></p>
+    </div>
+
+    <div class="voice mix">
+      <p class="q"><span class="vtag mix">인근 거주</span>“집값이 확 오르지는 않지만 주변 경기도 등에 비하면 어느 정도는 방어가 되는 듯 있을 상점 다 있고 학군도 괜찮다 하고 교통이 좀 아쉽지만 교통 좋은 곳 사려면 비싼 땅에서 살아야죠 <b>살짝 주변과 떨어진 섬 같은 느낌도 있지만</b> 뉴타운이나 신도시가 대개 그런듯”</p>
+      <p class="who"><b>82cook · 닉네임 ㄷㄷ</b> · 2023.05.22<sup><a href="#src">[3]</a></sup></p>
+    </div>
+
+    <div class="voice pos">
+      <p class="q"><span class="vtag pos">지인 가족 거주</span>“아파트 거실 통창에 북한산이 통째로 한가득 들어오니 무슨 유럽 알프스 사진 보는 것도 같고.. 친구네 딸 둘인데 가족이 강아지 데리고 북한산 산책 가는게 일상인지라 ... 병원도 성모병원에서 다 해결하고 부모님 돌아가실 때도 성모 호스피스에서 고통없이 편안한 상태에서 보내드렸어요 ... <b>죽을 때까지 산다고 하더라고요</b>” (친구네 집은 우물골)</p>
+      <p class="who"><b>82cook · 닉네임 좋죠</b> · 2023.06.03 · 우물골 거주 지인 이야기<sup><a href="#src">[2]</a></sup></p>
+    </div>
+
+    <div class="voice mix">
+      <p class="q"><span class="vtag mix">추천 조건부</span>“은평뉴타운. <b>출퇴근 안하실거면 너무 좋아요.</b> 공기좋고 은평 성모병원과 각종 동네병원. 롯데몰 스타필드 다 가깝고. 둘레길에 하천변 산책로에 아파트도 복층이나 특이 구조 많아요.”</p>
+      <p class="who"><b>82cook · 닉네임 무명</b> · 2020.06.04 · 은퇴 후 살 곳을 묻는 글에 대한 답<sup><a href="#src">[5]</a></sup></p>
+    </div>
+
+    <div class="vgrid">
+      <div class="voice pos">
+        <p class="q"><span class="vtag pos">현재 거주 · 삼성동 출근</span>“저는 삼성동에 근무하는 직딩이고 집은 은뉴에 삽니다. 출퇴근이 염려되어 입주를 고민했었는데 지금은 아주 만족합니다. 일단 구파발역에 내리면 공기가 다릅니다. 제가사는곳은 8단지 인데 ... <b>강남도 구파발역에서 출발하는 지하철이 있어 맘만먹으면 100% 앉아서 출근합니다.</b>”</p>
+        <p class="who"><b>82cook · 닉네임 은뉴러버</b> · 2012.08.02 · 8단지 거주<sup><a href="#src">[4]</a></sup></p>
+      </div>
+      <div class="voice mix">
+        <p class="q"><span class="vtag mix">현재 거주 · 7단지</span>“저는 완젼 대로변 중간에 7단지 살아요. 교통 별로 안 좋아요. <b>그나마 교통이 8,9,10 단지가 젤로 좋아요.지하철 하고 가장 가깝거든요 그래서 아파트 가격도 8.9.10단지가 젤로 높고요.</b> ... 5단지가 산하고 가까워 조용하고 좋은데 교통이 젤로 안 좋아요.지하철하고 젤로 머니깐요.”</p>
+        <p class="who"><b>82cook · 닉네임 ..</b> · 2012.08.02 · 상림마을 7단지 거주<sup><a href="#src">[4]</a></sup></p>
+      </div>
+      <div class="voice pos">
+        <p class="q"><span class="vtag pos">현재 거주 · 9단지</span>“공기는 5단지가 가장 좋을거에요 북한산을 끼고있으면서 계곡도 있고 저희는 9단지인데 교통 주변환경 이모든것들은 8.9.10단지가 가장 나은것같아요 저희가족은 항상 말합니다 <b>살아본중 주거지역으로는 최고라고</b> 특히 아이 키우시는분들은”</p>
+        <p class="who"><b>82cook · 닉네임 뉴타운주민</b> · 2012.08.02<sup><a href="#src">[4]</a></sup></p>
+      </div>
+      <div class="voice neg">
+        <p class="q"><span class="vtag neg">현재 거주</span>“새로 생긴곳이라 학교는 이제 자리잡아가고 있는 중입니다. 초등학교는 왠만큼 괜찮구요. 학원은 아직 별로없어요. ... 유해환경 전혀없는 동네라 저는 무척 만족하며 삽니다 <b>집은 복불복이라 간혹 결로로 고생하시는 분들 있습니다. 구하시게 되면 곰팡이 신경써서 잘 보세요.</b>”</p>
+        <p class="who"><b>82cook · 닉네임 ..</b> · 2012.08.02<sup><a href="#src">[4]</a></sup></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>단지별 후기 (집품, 본문 약 100자에서 잘림)</h3>
+      <p>집품은 후기 본문을 100자 안팎에서 잘라 보여주고 작성일을 공개하지 않습니다. 대신 “현재 거주” 여부와 단지가 명시돼 있어 어느 블록의 이야기인지 알 수 있어요.<sup><a href="#src">[8]</a></sup></p>
+    </div>
+
+    <div class="vgrid">
+      <div class="voice pos">
+        <p class="q"><span class="vtag pos">마고정3 · 14년 거주 후 이주</span>“초등학교,중학교가 근처에 있고 조용하고 깨끗한 동네라 편안합니다…” / “단점이랄게 딱히 없고 <b>14년동안 살면서 매우 만족했습니다.</b> 다만, 화장실…”</p>
+        <p class="who"><b>집품 · 은평뉴타운마고정3단지</b><sup><a href="#src">[8]</a></sup></p>
+      </div>
+      <div class="voice pos">
+        <p class="q"><span class="vtag pos">마고정3 · 현재 거주</span>“걸어서 1분거리에 롯데마트, 주변에 도서관도 있고 버스도 원래 광화문 가…” / “<b>구파발 역까지 걸어서 20분정도 걸린다는거</b> 외에는 딱히 단점은 없음…”</p>
+        <p class="who"><b>집품 · 은평뉴타운마고정3단지</b><sup><a href="#src">[8]</a></sup></p>
+      </div>
+      <div class="voice mix">
+        <p class="q"><span class="vtag mix">박석고개1 · 현재 거주</span>“생활하기에 너무 편해서 좋아요 걸어서 10분 롯데몰과 구파발역…” / “<b>집이 조금씩 오래되어 수리를 해야합니자. 자동차 교통이 너무 안좋아요 통…</b>”</p>
+        <p class="who"><b>집품 · 박석고개1단지힐스테이트</b><sup><a href="#src">[8]</a></sup></p>
+      </div>
+      <div class="voice mix">
+        <p class="q"><span class="vtag mix">박석고개1 · 현재 거주</span>“동네가 깨끗하고 치안이 좋음 교통은 중앙 라인 버스 탈 거면 좋아요…” / “<b>지하철역까지 너무 멀고, 단지가 작아서 관리가 그렇게 잘 되지는 않음…</b>” (112~115동 추정, 역 703m)</p>
+        <p class="who"><b>집품 · 박석고개1단지힐스테이트</b><sup><a href="#src">[8]</a></sup></p>
+      </div>
+      <div class="voice mix">
+        <p class="q"><span class="vtag mix">상림6 · 거주 후 이주</span>“은평뉴타운 단지라서 깔끔하고 깨끗하고 안전하고 관리도 잘되고 풀 나무도…” / “<b>구파발역 가려면 무조건 마을버스 타야하는게 최대 단점…</b> 교통이 아무래…”</p>
+        <p class="who"><b>집품 · 상림마을6단지푸르지오</b><sup><a href="#src">[8]</a></sup></p>
+      </div>
+      <div class="voice mix">
+        <p class="q"><span class="vtag mix">상림7 · 현재 거주</span>“주위에 산책할수 있어서 좋아요, 북한산이랑 가까워서 경치도 좋고 동네가…” / “<b>단점은 대중교통 이용하는게 불편해요</b>, 버스정류장이 단지마다 있어서 좋긴한…”</p>
+        <p class="who"><b>집품 · 상림마을7단지아이파크</b><sup><a href="#src">[8]</a></sup></p>
+      </div>
+      <div class="voice mix">
+        <p class="q"><span class="vtag mix">상림8 · 거주 후 이주</span>“일단 동네 자체가 조용하고 나무가 많아서 공기가 너무 좋아요 원래 비염…” / “제가 살 당시에는 <b>집 바로 주변에는 상가가 많은 편은 아니었던</b> 거 같아요…”</p>
+        <p class="who"><b>집품 · 상림마을8단지롯데캐슬</b><sup><a href="#src">[8]</a></sup></p>
+      </div>
+      <div class="voice mix">
+        <p class="q"><span class="vtag mix">우물골2 · 현재 거주</span>“위치가 일단 너무 좋음 연신내 구파발 의정부방향 가기 너무 좋고 학군 빠…” / “<b>단지 관리가 살짝 안되는거 같고</b> 아무래도 뒤에 산이 있다보니 좀 추운거…”</p>
+        <p class="who"><b>집품 · 은평뉴타운우물골2단지</b><sup><a href="#src">[8]</a></sup></p>
+      </div>
+      <div class="voice neg">
+        <p class="q"><span class="vtag neg">구파발역 인근 · 단지 미상</span>“<b>지하철역은 가깝지만 3호선밖에 없는 점이 단점입니다. 차를 타는 경우에는 통일로가 많이 막힙니다.</b>” / 다른 후기: “대로변에 있고 은평성모병원이 바로 앞에있어서 사이렌소리와 차소리가 많이 난다는겁니다”</p>
+        <p class="who"><b>집품 · 솔하임 페이지의 인근 단지 후기</b> · 단지 귀속 불가<sup><a href="#src">[8]</a></sup></p>
+      </div>
+      <div class="voice mix">
+        <p class="q"><span class="vtag mix">신축 소형 단지</span>기자촌11단지 “<b>북한산 바로 밑이라 여름에 시원해요. 공기도 정말 맑음</b>” 단점은 교통 불편과 경사진 지형. 스카이뷰자이 “롯데몰이 코앞이라 장 볼 때 진짜 좋아요” 단점은 여름 채광 과다와 버스 소음. 엘크루 단점은 층간소음과 높은 관리비(20~30만원). 꿈에그린 “주변환경이 사기입니다. 지하철과 마트가 도보 5분 내” 단점은 엘리베이터 느림.</p>
+        <p class="who"><b>집품 블로그 “진관동 아파트 전세/월세 살기 좋은 곳은? (2026)”</b> · 후기 발췌<sup><a href="#src">[8]</a></sup></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>블라인드 직장인들의 출퇴근 평가</h3>
+      <p>2024년 2월 “삼송역, 구파발역 쪽에서 강남 출퇴근 어떨까?”라는 글에 LG화학 재직자는 구파발 출발 열차를 타면 “잘하면 앉아갈수잇어요”라고 답했고, 삼성SDS 재직자는 3호선이 구파발행과 대화행으로 나뉘어 불편하다고 적었습니다. 세무사는 강남 3호선 라인 회사면 괜찮다고 봤어요.<sup><a href="#src">[6]</a></sup>
+      2021년 7월 “은평구는 왜 주목을 못 받아?”라는 글에서 추천 11개를 받은 한화 재직자는 구파발 인근 은평뉴타운은 비싼 편이고 구 은평구와 거리가 있으며, 연신내가 GTX로 오를 예정이지만 인근에 아파트 단지가 없어 폭등은 어렵다고 분석했습니다.<sup><a href="#src">[7]</a></sup> 두 글 모두 원문 접근이 요약 형태로만 가능해 발언을 그대로 옮기지 못했습니다.</p>
+    </div>
+  </section>
+
+  <section id="price" class="section">
+    <h2>실거래가</h2>
+    <p class="sec-lede">국토교통부 실거래를 재배포하는 아파트미에서 20개 블록의 매매 3,556건과 전월세 4,000건을 수집했습니다(2026.10.01).<sup><a href="#src">[1]</a></sup> 취소 거래(77건)와 직거래(41건)는 통계에서 뺐고, 호가는 어디에도 쓰지 않았습니다.</p>
+
+    <div class="card">
+      <h3>전용 84㎡(33평 전후) 블록별 시세</h3>
+      <p>2026년 중위값 순서입니다. 같은 단지라도 동 묶음(블록)에 따라 역 거리가 다르고 실거래 신고도 블록 단위로 되기 때문에 블록으로 나눴어요. “고점”은 2021~2022년 최고가, “저점”은 2023년 최저가입니다.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>블록</th><th>묶음</th><th class="num">2026 중위(건수)</th><th>최근 거래</th><th class="num">2021~22 고점</th><th class="num">2023 저점</th><th class="num">2026 최고</th><th>고점 대비</th></tr></thead>
+        <tbody>
+          <tr class="hl"><td>박석고개1단지 116~131동</td><td>역세권</td><td class="num">12.07억 (4)</td><td>09.08 13.25억 12층 <span class="st 확정">신고가</span></td><td class="num">11.95억</td><td class="num">7.9억</td><td class="num">13.25억</td><td>+11%</td></tr>
+          <tr class="hl"><td>박석고개1단지 101~111동</td><td>역세권</td><td class="num">11.8억 (7)</td><td>07.17 11.65억 7층</td><td class="num">11.7억</td><td class="num">7.8억</td><td class="num">12.0억</td><td>+3%</td></tr>
+          <tr class="hl"><td>은평스카이뷰자이 (2019)</td><td>역세권</td><td class="num">11.72억 (16)</td><td>08.12 11.9억 20층</td><td class="num">12.93억</td><td class="num">9.0억</td><td class="num">12.5억</td><td>-3%</td></tr>
+          <tr><td>마고정3단지 310~322동</td><td>중간</td><td class="num">10.3억 (5)</td><td>08.18 10.5억 4층</td><td class="num">10.75억</td><td class="num">8.0억</td><td class="num">10.5억</td><td>-2%</td></tr>
+          <tr class="hl"><td>마고정3단지 323~335동</td><td>역세권</td><td class="num">10.1억 (1)</td><td>08.12 10.1억 5층 <span class="st 확정">신고가</span></td><td class="num">10.0억</td><td class="num">9.1억</td><td class="num">10.1억</td><td>+1%</td></tr>
+          <tr><td>구파발9단지래미안</td><td>중간</td><td class="num">9.47억 (12)</td><td>08.18 9.78억 6층</td><td class="num">10.4억</td><td class="num">8.4억</td><td class="num">10.5억</td><td>+1%</td></tr>
+          <tr><td>구파발10단지어울림</td><td>중간</td><td class="num">9.31억 (8)</td><td>08.22 9.5억 2층 <span class="st 확정">신고가</span></td><td class="num">9.7억</td><td class="num">7.5억</td><td class="num">9.5억</td><td>-2%</td></tr>
+          <tr><td>상림마을8단지롯데캐슬 810~820동</td><td>중간</td><td class="num">8.8억 (3)</td><td>05.06 7.7억 1층</td><td class="num">9.8억</td><td class="num">7.9억</td><td class="num">9.4억</td><td>-4%</td></tr>
+          <tr><td>제각말 푸르지오 5-1단지</td><td>외곽</td><td class="num">8.79억 (2)</td><td>08.10 8.88억 6층</td><td class="num">10.5억</td><td class="num">7.85억</td><td class="num">8.88억</td><td>-15%</td></tr>
+          <tr><td>제각말 푸르지오 5-4단지</td><td>외곽</td><td class="num">8.75억 (11)</td><td>08.09 9.64억 13층 <span class="st 확정">신고가</span></td><td class="num">10.4억</td><td class="num">7.0억</td><td class="num">9.64억</td><td>-7%</td></tr>
+          <tr><td>우물골2단지 209~222동</td><td>외곽</td><td class="num">8.66억 (12)</td><td>08.14 8.55억 8층</td><td class="num">10.4억</td><td class="num">7.9억*</td><td class="num">9.0억</td><td>-13%</td></tr>
+          <tr><td>기자촌11단지 (2015)</td><td>외곽</td><td class="num">8.3억 (15)</td><td>09.06 9.4억 7층</td><td class="num">9.6억</td><td class="num">7.3억</td><td class="num">9.87억</td><td>+3%</td></tr>
+          <tr><td>상림마을7단지아이파크 730~742동</td><td>외곽</td><td class="num">8.05억 (1)</td><td>05.24 8.05억 4층</td><td class="num">8.0억</td><td class="num">-</td><td class="num">8.05억</td><td>+1%</td></tr>
+          <tr><td>상림마을6단지푸르지오 606~614동</td><td>외곽</td><td class="num">7.7억 (5)</td><td>09.06 8.05억 7층</td><td class="num">8.4억</td><td class="num">7.0억</td><td class="num">8.05억</td><td>-4%</td></tr>
+          <tr><td>우물골2단지 223~244동</td><td>중간</td><td class="num">2026 거래 없음</td><td>2025.10.03 8.7억 8층</td><td class="num">10.65억</td><td class="num">8.68억</td><td class="num">-</td><td>-</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">고점 대비는 2026년 최고가 기준. 우물골 209~222동의 2023년 실거래는 5.6억 1건뿐이라 이상치로 보고 2024년 중위값(7.9억)을 저점으로 적었습니다. 폭포동4단지와 박석고개 112~115동은 84㎡ 평형이 없어 제외했습니다. 마고정 323~335동은 2026년 2월 38평 11.9억, 5월 32평 10.1억 계약이 취소됐다가 8월에 32평 10.1억이 다시 체결됐어요. 2026년 취소는 표본 236건 중 6건(2.5%), 직거래는 7건이고 직거래 대부분이 제각말과 상림7단지에서 시세보다 2~3억 낮은 가격으로 신고돼 통계에서 제외했습니다.<sup><a href="#src">[1]</a></sup></p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>소형 (59㎡, 24평 전후)</h3>
+        <ul>
+          <li>박석고개1단지 116~131동 24평: 2026 중위 <b>9.3억</b> (9건), 최고 10.4억</li>
+          <li>박석고개1단지 101~111동 24평: 9.1억 (5건), 최고 9.7억</li>
+          <li>마고정3단지 310~322동 22평: 8.07억 (2건)</li>
+          <li>기자촌11단지 24평: 7.55억 (5건), 최고 8.0억</li>
+          <li>꿈에그린 27평: 7.49억 (12건) / 엘크루 25평: 7.42억 (10건), 최고 8.5억</li>
+        </ul>
+        <p class="note">박석고개 24평 9.3억은 84㎡ 12.07억의 77%입니다. 소형 수요가 강한 동네예요. 2030 생애최초 매수 비중이 서울 1위(2026.7, 11.1%)인 은평구의 흐름과 맞습니다.<sup><a href="#src">[1][11]</a></sup></p>
+      </div>
+      <div class="card">
+        <h3>대형 (101㎡ 이상), 단가가 눈에 띄게 쌉니다</h3>
+        <ul>
+          <li>박석고개1단지 40평: <b>12.38억</b> (6건), 최고 13.6억</li>
+          <li>구파발9단지 49평: 12.1억 (3건), 61평: 11.9억 (4건, 최고 13.3억)</li>
+          <li>우물골2단지 223~244동 49평: 12.1억 (4건), 61평: 10.6억 (2건)</li>
+          <li>마고정3단지 63평: 14.18억 (4건), 최고 15.5억</li>
+          <li>폭포동4단지 38평: 10.25억 (5건), 62평: 10.9억 (2건, 최고 12.3억)</li>
+          <li>상림7단지 63평: 10.0억 (2건), 상림8단지 50평: 10.72억 (2건)</li>
+        </ul>
+        <p class="note">63평 14억이면 평당 2,250만원이고 33평 12억은 평당 3,650만원입니다. 은평뉴타운은 대형 비중이 유난히 높고 대형일수록 평당가가 낮아요. 실거주 면적을 넓게 쓰려는 사람에게는 서울에서 보기 드문 선택지이지만, 환금성은 소형과 반대입니다.<sup><a href="#src">[1]</a></sup></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="trend" class="section">
+    <h2>가격 추이: 역 앞만 2021년을 넘었다</h2>
+    <p class="sec-lede">2008~2010년 입주 12개 블록의 84㎡ 실거래를 분기별 중위값으로 묶었습니다(취소, 직거래 제외).<sup><a href="#src">[1]</a></sup></p>
+
+    <div class="card">
+      <h3>구축 12개 블록 84㎡ 분기 중위값 (2019Q3 ~ 2026Q3)</h3>
+      <div class="chart-wrap"><svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Apple SD Gothic Neo,sans-serif">
+<line x1="48" y1="256.0" x2="864" y2="256.0" stroke="#e5e8eb" stroke-width="1"/>
+<text x="42" y="260.0" font-size="11" fill="#8b95a1" text-anchor="end">6억</text>
+<line x1="48" y1="208.4" x2="864" y2="208.4" stroke="#e5e8eb" stroke-width="1"/>
+<text x="42" y="212.4" font-size="11" fill="#8b95a1" text-anchor="end">7억</text>
+<line x1="48" y1="160.8" x2="864" y2="160.8" stroke="#e5e8eb" stroke-width="1"/>
+<text x="42" y="164.8" font-size="11" fill="#8b95a1" text-anchor="end">8억</text>
+<line x1="48" y1="113.2" x2="864" y2="113.2" stroke="#e5e8eb" stroke-width="1"/>
+<text x="42" y="117.2" font-size="11" fill="#8b95a1" text-anchor="end">9억</text>
+<line x1="48" y1="65.6" x2="864" y2="65.6" stroke="#e5e8eb" stroke-width="1"/>
+<text x="42" y="69.6" font-size="11" fill="#8b95a1" text-anchor="end">10억</text>
+<line x1="48" y1="18.0" x2="864" y2="18.0" stroke="#e5e8eb" stroke-width="1"/>
+<text x="42" y="22.0" font-size="11" fill="#8b95a1" text-anchor="end">11억</text>
+<polyline points="48.0,208.4 77.1,203.6 106.3,191.7 135.4,186.0 164.6,156.0 193.7,125.1 222.9,108.4 252.0,103.7 281.1,55.1 310.3,76.1 339.4,84.6 368.6,97.0 397.7,132.2 426.9,222.7 456.0,141.8 485.1,165.6 514.3,141.8 543.4,125.1 572.6,160.8 601.7,150.3 630.9,118.0 660.0,125.1 689.1,122.7 718.3,127.5 747.4,127.5 776.6,118.0 805.7,102.3 834.9,108.4 864.0,89.4" fill="none" stroke="#1b64da" stroke-width="2.5" stroke-linejoin="round"/>
+<circle cx="48.0" cy="208.4" r="2.5" fill="#1b64da"/>
+<text x="48.0" y="274" font-size="11" fill="#6b7684" text-anchor="middle">2019</text>
+<circle cx="77.1" cy="203.6" r="2.5" fill="#1b64da"/>
+<circle cx="106.3" cy="191.7" r="2.5" fill="#1b64da"/>
+<text x="106.3" y="182.7" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">7.35<tspan font-size="9" fill="#8b95a1"> (48)</tspan></text>
+<text x="106.3" y="274" font-size="11" fill="#6b7684" text-anchor="middle">2020</text>
+<line x1="106.3" y1="18" x2="106.3" y2="256" stroke="#e5e8eb" stroke-dasharray="3 3"/>
+<circle cx="135.4" cy="186.0" r="2.5" fill="#1b64da"/>
+<circle cx="164.6" cy="156.0" r="2.5" fill="#1b64da"/>
+<circle cx="193.7" cy="125.1" r="2.5" fill="#1b64da"/>
+<circle cx="222.9" cy="108.4" r="2.5" fill="#1b64da"/>
+<text x="222.9" y="99.4" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">9.1<tspan font-size="9" fill="#8b95a1"> (14)</tspan></text>
+<text x="222.9" y="274" font-size="11" fill="#6b7684" text-anchor="middle">2021</text>
+<line x1="222.9" y1="18" x2="222.9" y2="256" stroke="#e5e8eb" stroke-dasharray="3 3"/>
+<circle cx="252.0" cy="103.7" r="2.5" fill="#1b64da"/>
+<circle cx="281.1" cy="55.1" r="4" fill="#c22b2b"/>
+<text x="281.1" y="46.1" font-size="10.5" fill="#c22b2b" text-anchor="middle" font-weight="700">10.22<tspan font-size="9" fill="#8b95a1"> (20)</tspan></text>
+<circle cx="310.3" cy="76.1" r="2.5" fill="#1b64da"/>
+<circle cx="339.4" cy="84.6" r="2.5" fill="#1b64da"/>
+<text x="339.4" y="75.6" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">9.6<tspan font-size="9" fill="#8b95a1"> (1)</tspan></text>
+<text x="339.4" y="274" font-size="11" fill="#6b7684" text-anchor="middle">2022</text>
+<line x1="339.4" y1="18" x2="339.4" y2="256" stroke="#e5e8eb" stroke-dasharray="3 3"/>
+<circle cx="368.6" cy="97.0" r="2.5" fill="#1b64da"/>
+<circle cx="397.7" cy="132.2" r="2.5" fill="#1b64da"/>
+<circle cx="426.9" cy="222.7" r="2.5" fill="#1b64da"/>
+<circle cx="456.0" cy="141.8" r="2.5" fill="#1b64da"/>
+<text x="456.0" y="132.8" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">8.4<tspan font-size="9" fill="#8b95a1"> (7)</tspan></text>
+<text x="456.0" y="274" font-size="11" fill="#6b7684" text-anchor="middle">2023</text>
+<line x1="456.0" y1="18" x2="456.0" y2="256" stroke="#e5e8eb" stroke-dasharray="3 3"/>
+<circle cx="485.1" cy="165.6" r="4" fill="#c22b2b"/>
+<text x="485.1" y="156.6" font-size="10.5" fill="#c22b2b" text-anchor="middle" font-weight="700">7.9<tspan font-size="9" fill="#8b95a1"> (15)</tspan></text>
+<circle cx="514.3" cy="141.8" r="2.5" fill="#1b64da"/>
+<circle cx="543.4" cy="125.1" r="2.5" fill="#1b64da"/>
+<circle cx="572.6" cy="160.8" r="2.5" fill="#1b64da"/>
+<text x="572.6" y="151.8" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">8.0<tspan font-size="9" fill="#8b95a1"> (12)</tspan></text>
+<text x="572.6" y="274" font-size="11" fill="#6b7684" text-anchor="middle">2024</text>
+<line x1="572.6" y1="18" x2="572.6" y2="256" stroke="#e5e8eb" stroke-dasharray="3 3"/>
+<circle cx="601.7" cy="150.3" r="2.5" fill="#1b64da"/>
+<circle cx="630.9" cy="118.0" r="2.5" fill="#1b64da"/>
+<circle cx="660.0" cy="125.1" r="2.5" fill="#1b64da"/>
+<circle cx="689.1" cy="122.7" r="2.5" fill="#1b64da"/>
+<text x="689.1" y="113.7" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">8.8<tspan font-size="9" fill="#8b95a1"> (14)</tspan></text>
+<text x="689.1" y="274" font-size="11" fill="#6b7684" text-anchor="middle">2025</text>
+<line x1="689.1" y1="18" x2="689.1" y2="256" stroke="#e5e8eb" stroke-dasharray="3 3"/>
+<circle cx="718.3" cy="127.5" r="2.5" fill="#1b64da"/>
+<circle cx="747.4" cy="127.5" r="2.5" fill="#1b64da"/>
+<circle cx="776.6" cy="118.0" r="2.5" fill="#1b64da"/>
+<circle cx="805.7" cy="102.3" r="2.5" fill="#1b64da"/>
+<text x="805.7" y="93.3" font-size="10.5" fill="#6b7684" text-anchor="middle" font-weight="400">9.23<tspan font-size="9" fill="#8b95a1"> (22)</tspan></text>
+<text x="805.7" y="274" font-size="11" fill="#6b7684" text-anchor="middle">2026</text>
+<line x1="805.7" y1="18" x2="805.7" y2="256" stroke="#e5e8eb" stroke-dasharray="3 3"/>
+<circle cx="834.9" cy="108.4" r="2.5" fill="#1b64da"/>
+<circle cx="864.0" cy="89.4" r="4" fill="#c22b2b"/>
+<text x="864.0" y="80.4" font-size="10.5" fill="#c22b2b" text-anchor="middle" font-weight="700">9.5<tspan font-size="9" fill="#8b95a1"> (19)</tspan></text>
+<text x="281.1" y="290" font-size="11" fill="#c22b2b" text-anchor="middle">고점 10.22억</text>
+<text x="485.1" y="290" font-size="11" fill="#c22b2b" text-anchor="middle">저점 7.9억 (-23%)</text>
+<text x="854.0" y="290" font-size="11" fill="#c22b2b" text-anchor="end">2026Q3 9.5억 (고점 -7%)</text>
+</svg></div>
+      <p class="chart-cap">단위 억원. 점 위 숫자는 거래 건수. 2022년은 분기당 1~2건뿐이라 선이 흔들립니다.</p>
+      <p>2019년 7억에서 2021년 3분기 10.2억까지 오른 뒤 2023년 2분기 7.9억으로 23% 빠졌고, 2026년 3분기 9.5억입니다. <b>전체로 보면 아직 2021년 고점보다 7% 낮아요.</b> 서울 아파트가 84주 연속 오르고 은평구가 서울 평균을 웃돌던 2026년 여름에도 은평뉴타운 구축 평균은 고점을 못 넘은 겁니다.<sup><a href="#src">[10][14]</a></sup></p>
+    </div>
+
+    <div class="card">
+      <h3>묶음별로 갈라 보면 답이 나옵니다</h3>
+      <div class="hbar">
+        <div class="row me"><span class="nm">역세권 4블록 <small>2026 · 28건</small></span><span><span class="bar" style="width:100%"></span></span><span class="val">11.78억</span></div>
+        <div class="row"><span class="nm">역세권 2021 <small>25건</small></span><span><span class="bar" style="width:99%;opacity:.4"></span></span><span class="val">11.7억</span></div>
+        <div class="row me"><span class="nm">중간 5블록 <small>2026 · 28건</small></span><span><span class="bar" style="width:80%"></span></span><span class="val">9.46억</span></div>
+        <div class="row"><span class="nm">중간 2021 <small>17건</small></span><span><span class="bar" style="width:81%;opacity:.4"></span></span><span class="val">9.5억</span></div>
+        <div class="row me"><span class="nm">외곽 8블록 <small>2026 · 45건</small></span><span><span class="bar" style="width:73%"></span></span><span class="val">8.65억</span></div>
+        <div class="row"><span class="nm">외곽 2021 <small>36건</small></span><span><span class="bar" style="width:76%;opacity:.4"></span></span><span class="val">9.0억</span></div>
+      </div>
+      <ul>
+        <li><b>역세권</b>(박석고개 두 블록, 스카이뷰자이, 마고정 323~335동): 2021 11.7억 → 2023 9.2억 → 2026 11.78억. 2023년 저점 대비 +28%, 2021년을 넘어섰습니다.</li>
+        <li><b>중간</b>(구파발 9·10단지, 마고정 310~322동, 우물골 223~244동, 상림 8단지): 9.5억 → 8.71억 → 9.46억. 저점 대비 +9%, 2021년과 같은 자리예요.</li>
+        <li><b>외곽</b>(우물골 209~222동, 폭포동, 상림 6·7단지, 기자촌, 제각말): 9.0억 → 7.86억 → 8.65억. 저점 대비 +10%, 2021년보다 4% 낮습니다.</li>
+      </ul>
+      <p>2021년에는 세 묶음 격차가 2.7억이었는데 2026년에는 3.1억으로 벌어졌습니다. GTX-A 연신내 개통(2024.12) 이후 “역까지 얼마나 빨리 가는가”가 가격을 갈랐어요. 마을버스를 타고 구파발역까지 가는 블록은 GTX 수혜를 가격으로 받지 못했습니다.<sup><a href="#src">[1][17]</a></sup></p>
+    </div>
+
+    <div class="card">
+      <h3>2026년 월별 거래량과 신고가 비중</h3>
+      <div class="chart-wrap"><svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Apple SD Gothic Neo,sans-serif">
+<line x1="40" y1="200.0" x2="864" y2="200.0" stroke="#e5e8eb"/>
+<text x="34" y="204.0" font-size="11" fill="#8b95a1" text-anchor="end">0</text>
+<line x1="40" y1="162.2" x2="864" y2="162.2" stroke="#e5e8eb"/>
+<text x="34" y="166.2" font-size="11" fill="#8b95a1" text-anchor="end">10</text>
+<line x1="40" y1="124.4" x2="864" y2="124.4" stroke="#e5e8eb"/>
+<text x="34" y="128.4" font-size="11" fill="#8b95a1" text-anchor="end">20</text>
+<line x1="40" y1="86.7" x2="864" y2="86.7" stroke="#e5e8eb"/>
+<text x="34" y="90.7" font-size="11" fill="#8b95a1" text-anchor="end">30</text>
+<line x1="40" y1="48.9" x2="864" y2="48.9" stroke="#e5e8eb"/>
+<text x="34" y="52.9" font-size="11" fill="#8b95a1" text-anchor="end">40</text>
+<rect x="58.8" y="128.2" width="54" height="71.8" rx="6" fill="#1b64da" opacity=".35"/>
+<rect x="58.8" y="184.9" width="54" height="15.1" rx="6" fill="#c22b2b" opacity=".9"/>
+<text x="85.8" y="122.2" font-size="11.5" fill="#191f28" text-anchor="middle" font-weight="700">19건</text>
+<text x="85.8" y="216" font-size="11.5" fill="#6b7684" text-anchor="middle">1월</text>
+<text x="85.8" y="231" font-size="11" fill="#c22b2b" text-anchor="middle" font-weight="700">21%</text>
+<rect x="150.3" y="48.9" width="54" height="151.1" rx="6" fill="#1b64da" opacity=".35"/>
+<rect x="150.3" y="181.1" width="54" height="18.9" rx="6" fill="#c22b2b" opacity=".9"/>
+<text x="177.3" y="42.9" font-size="11.5" fill="#191f28" text-anchor="middle" font-weight="700">40건</text>
+<text x="177.3" y="216" font-size="11.5" fill="#6b7684" text-anchor="middle">2월</text>
+<text x="177.3" y="231" font-size="11" fill="#c22b2b" text-anchor="middle" font-weight="700">12%</text>
+<rect x="241.9" y="101.8" width="54" height="98.2" rx="6" fill="#1b64da" opacity=".35"/>
+<rect x="241.9" y="192.4" width="54" height="7.6" rx="6" fill="#c22b2b" opacity=".9"/>
+<text x="268.9" y="95.8" font-size="11.5" fill="#191f28" text-anchor="middle" font-weight="700">26건</text>
+<text x="268.9" y="216" font-size="11.5" fill="#6b7684" text-anchor="middle">3월</text>
+<text x="268.9" y="231" font-size="11" fill="#c22b2b" text-anchor="middle" font-weight="700">8%</text>
+<rect x="333.4" y="98.0" width="54" height="102.0" rx="6" fill="#1b64da" opacity=".35"/>
+<rect x="333.4" y="188.7" width="54" height="11.3" rx="6" fill="#c22b2b" opacity=".9"/>
+<text x="360.4" y="92.0" font-size="11.5" fill="#191f28" text-anchor="middle" font-weight="700">27건</text>
+<text x="360.4" y="216" font-size="11.5" fill="#6b7684" text-anchor="middle">4월</text>
+<text x="360.4" y="231" font-size="11" fill="#c22b2b" text-anchor="middle" font-weight="700">11%</text>
+<rect x="425.0" y="41.3" width="54" height="158.7" rx="6" fill="#1b64da" opacity=".35"/>
+<rect x="425.0" y="188.7" width="54" height="11.3" rx="6" fill="#c22b2b" opacity=".9"/>
+<text x="452.0" y="35.3" font-size="11.5" fill="#191f28" text-anchor="middle" font-weight="700">42건</text>
+<text x="452.0" y="216" font-size="11.5" fill="#6b7684" text-anchor="middle">5월</text>
+<text x="452.0" y="231" font-size="11" fill="#c22b2b" text-anchor="middle" font-weight="700">7%</text>
+<rect x="516.6" y="101.8" width="54" height="98.2" rx="6" fill="#1b64da" opacity=".35"/>
+<rect x="516.6" y="177.3" width="54" height="22.7" rx="6" fill="#c22b2b" opacity=".9"/>
+<text x="543.6" y="95.8" font-size="11.5" fill="#191f28" text-anchor="middle" font-weight="700">26건</text>
+<text x="543.6" y="216" font-size="11.5" fill="#6b7684" text-anchor="middle">6월</text>
+<text x="543.6" y="231" font-size="11" fill="#c22b2b" text-anchor="middle" font-weight="700">23%</text>
+<rect x="608.1" y="120.7" width="54" height="79.3" rx="6" fill="#1b64da" opacity=".35"/>
+<rect x="608.1" y="173.6" width="54" height="26.4" rx="6" fill="#c22b2b" opacity=".9"/>
+<text x="635.1" y="114.7" font-size="11.5" fill="#191f28" text-anchor="middle" font-weight="700">21건</text>
+<text x="635.1" y="216" font-size="11.5" fill="#6b7684" text-anchor="middle">7월</text>
+<text x="635.1" y="231" font-size="11" fill="#c22b2b" text-anchor="middle" font-weight="700">33%</text>
+<rect x="699.7" y="128.2" width="54" height="71.8" rx="6" fill="#1b64da" opacity=".35"/>
+<rect x="699.7" y="166.0" width="54" height="34.0" rx="6" fill="#c22b2b" opacity=".9"/>
+<text x="726.7" y="122.2" font-size="11.5" fill="#191f28" text-anchor="middle" font-weight="700">19건</text>
+<text x="726.7" y="216" font-size="11.5" fill="#6b7684" text-anchor="middle">8월</text>
+<text x="726.7" y="231" font-size="11" fill="#c22b2b" text-anchor="middle" font-weight="700">47%</text>
+<rect x="791.2" y="184.9" width="54" height="15.1" rx="6" fill="#1b64da" opacity=".35"/>
+<rect x="791.2" y="196.2" width="54" height="3.8" rx="6" fill="#c22b2b" opacity=".9"/>
+<text x="818.2" y="178.9" font-size="11.5" fill="#191f28" text-anchor="middle" font-weight="700">4건</text>
+<text x="818.2" y="216" font-size="11.5" fill="#6b7684" text-anchor="middle">9월</text>
+<text x="818.2" y="231" font-size="11" fill="#c22b2b" text-anchor="middle" font-weight="700">25%</text>
+<rect x="634" y="6" width="12" height="12" rx="3" fill="#1b64da" opacity=".35"/><text x="651" y="17" font-size="11" fill="#6b7684">거래 건수</text>
+<rect x="724" y="6" width="12" height="12" rx="3" fill="#c22b2b" opacity=".9"/><text x="741" y="17" font-size="11" fill="#6b7684">그중 신고가 (아래 % = 비중)</text>
+</svg></div>
+      <p class="chart-cap">20개 블록 전 평형, 취소와 직거래 제외. 9월은 신고 기한이 남아 집계 중입니다.</p>
+      <p>5월 42건을 정점으로 거래량은 줄었는데 신고가 비중은 6월 23%, 7월 33%, 8월 47%로 뛰었습니다. 거래가 줄면서 오른다는 것은 매도자가 물건을 거두고 신고가에만 팔린다는 뜻이에요. 직방이 집계한 은평구 전체 신고가 비중(4월 18.1% → 7월 28.7%)보다 은평뉴타운 표본이 더 가파릅니다.<sup><a href="#src">[1][10]</a></sup>
+      헤럴드경제는 주택담보대출 한도 6억원이 적용되는 15억원 이하 아파트로 수요가 몰리며 그 밑에서 거래되던 아파트값이 밀려 올라간다고 분석했고, 은평구에서는 힐스테이트녹번이 2026년 7월 15.3억으로 15억을 넘겼습니다.<sup><a href="#src">[13]</a></sup> 은평뉴타운 84㎡ 최고가 13.25억은 그 문턱 아래에 있어요.</p>
+      <p class="note">한국부동산원 주간 기준 은평구 상승률은 7월 27일 0.38%(서울 0.23%)에서 9월 21일 0.22%(서울 0.13%)로 둔화됐지만 여전히 서울 평균의 1.7배입니다. 같은 주 강남구는 -0.42%, 서초구는 -0.37%였습니다.<sup><a href="#src">[14][15]</a></sup></p>
+    </div>
+  </section>
+
+  <section id="jeonse" class="section">
+    <h2>전세와 갭</h2>
+    <p class="sec-lede">2026년 신규 전세 계약(갱신 제외) 84㎡ 중위값과 같은 해 매매 중위값을 비교했습니다.<sup><a href="#src">[1]</a></sup></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>블록</th><th class="num">2026 전세 중위(건수)</th><th class="num">2025 전세 중위</th><th class="num">2026 매매 중위</th><th class="num">전세가율</th><th class="num">갭</th></tr></thead>
+        <tbody>
+          <tr><td>박석고개1단지 116~131동</td><td class="num">7.5억 (3)</td><td class="num">6.4억</td><td class="num">12.07억</td><td class="num">62%</td><td class="num">4.6억</td></tr>
+          <tr><td>박석고개1단지 101~111동</td><td class="num">7.0억 (3)</td><td class="num">6.1억</td><td class="num">11.8억</td><td class="num">59%</td><td class="num">4.8억</td></tr>
+          <tr><td>은평스카이뷰자이</td><td class="num">7.8억 (11)</td><td class="num">7.0억</td><td class="num">11.72억</td><td class="num">67%</td><td class="num">3.9억</td></tr>
+          <tr><td>마고정3단지 310~322동</td><td class="num">5.5억 (5)</td><td class="num">5.6억</td><td class="num">10.3억</td><td class="num">53%</td><td class="num">4.8억</td></tr>
+          <tr><td>구파발10단지어울림</td><td class="num">6.8억 (9)</td><td class="num">7.0억</td><td class="num">9.31억</td><td class="num">73%</td><td class="num">2.5억</td></tr>
+          <tr><td>구파발9단지래미안</td><td class="num">6.3억 (1)</td><td class="num">5.9억</td><td class="num">9.47억</td><td class="num">67%</td><td class="num">3.2억</td></tr>
+          <tr><td>우물골2단지 209~222동</td><td class="num">5.62억 (8)</td><td class="num">5.1억</td><td class="num">8.66억</td><td class="num">65%</td><td class="num">3.0억</td></tr>
+          <tr><td>제각말 푸르지오 5-4단지</td><td class="num">6.0억 (5)</td><td class="num">5.25억</td><td class="num">8.75억</td><td class="num">69%</td><td class="num">2.8억</td></tr>
+          <tr><td>기자촌11단지</td><td class="num">5.85억 (9)</td><td class="num">5.3억</td><td class="num">8.3억</td><td class="num">70%</td><td class="num">2.5억</td></tr>
+          <tr><td>상림마을8단지롯데캐슬 810~820동</td><td class="num">5.63억 (3)</td><td class="num">5.8억</td><td class="num">8.8억</td><td class="num">64%</td><td class="num">3.2억</td></tr>
+          <tr><td>상림마을6단지푸르지오 606~614동</td><td class="num">5.2억 (5)</td><td class="num">5.4억</td><td class="num">7.7억</td><td class="num">68%</td><td class="num">2.5억</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <p>전세가율이 53~73%로 서울 구축치고 높은 편입니다. 실거주 수요가 가격을 받치고 있다는 뜻이에요. 다만 두 가지를 봐야 합니다.</p>
+      <ul>
+        <li><b>역세권 전세가 1년 새 1억 올랐습니다.</b> 박석고개 116~131동 6.4억 → 7.5억, 스카이뷰자이 7.0억 → 7.8억. 서울 전셋값이 2026년 누적 8% 오른 흐름 위에 있어요.<sup><a href="#src">[15]</a></sup> 외곽(마고정 310~322동, 상림 6·8단지)은 전세가 제자리거나 내렸습니다.</li>
+        <li><b>마고정 323~335동에는 4억 3,914만원짜리 전세가 반복됩니다.</b> 2025년 10월과 2026년 7월에 같은 금액이 여러 건 신고됐는데, 임대 세대(193세대)의 공공 전세 계약으로 보입니다. 이 블록의 전세가율을 시장 전세로 읽으면 안 돼요.</li>
+      </ul>
+      <p>갭 2.5억(구파발10단지, 기자촌, 상림6)에서 4.8억(박석고개 101~111동, 마고정)입니다. 갭이 작은 곳은 외곽이고 2021년 고점을 못 넘은 곳이에요. 갭 투자는 이 동네에서 “살기 좋다”는 평판을 사는 것이지 “오른다”는 기록을 사는 것이 아닙니다.</p>
+    </div>
+  </section>
+
+  <section id="transit" class="section">
+    <h2>교통: 문제의 절반은 풀렸고, 절반은 그대로다</h2>
+    <p class="sec-lede">주민 발언 28건 중 16건이 교통 불만입니다. 무엇이 바뀌었고 무엇이 안 바뀌었는지 사업별로 정리했습니다.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>바뀐 것: GTX-A 연신내역 (2024.12.28 개통)</h3>
+        <p>운정중앙~서울역 구간이 개통돼 연신내에서 서울역까지 5분 30초, 출퇴근 시간대 6분 간격입니다. 개통 60일 만에 219만 명, 일평균 3.7만 명이 탔어요.<sup><a href="#src">[17]</a></sup> 삼성역 연결은 2027~2028년 전후로 예상됩니다.<sup><a href="#src">[12]</a></sup>
+        문제는 은평뉴타운에서 연신내역까지 가는 구간입니다. 구파발역에서 3호선 한 정거장이거나 통일로 버스인데, 주민들이 “교통지옥”이라고 부르는 바로 그 구간이에요.</p>
+      </div>
+      <div class="card">
+        <h3>안 바뀐 것: 3호선 하나, 통일로 하나</h3>
+        <p>구파발역은 3호선 단일 노선이고, 도심으로 나가는 도로는 통일로가 사실상 유일합니다. 2023년 예타 당시 언론은 통일로가 중앙버스전용차로를 빼면 왕복 4차로뿐이라고 지적했어요.<sup><a href="#src">[18]</a></sup>
+        2026년 5월 조선비즈는 삼송·지축 신축 입주로 3호선 혼잡이 커졌다며, 고양시가 “구파발역 기준 구파발행과 대화행 비율이 약 3대 1”이라고 주장하고 서울교통공사는 “종점 기준 대화행 3, 구파발행 2로 대화행이 더 많다”고 반박한 논쟁을 전했습니다.<sup><a href="#src">[16]</a></sup> 은평뉴타운 입장에서 구파발 출발 열차는 “앉아서 출근”의 근거이고, 고양 입장에서는 줄이고 싶은 배차예요. 창릉 입주 후 이 줄다리기는 더 세집니다.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>추진 중인 사업들의 실제 단계</h3>
+      <ul class="tl">
+        <li class="done"><span class="tl-t">GTX-A 연신내역 개통</span><span class="tl-d">2024.12.28</span><br>서울역 5.5분. 삼성역 직결은 2027~28년 전후 예상.<sup><a href="#src">[12][17]</a></sup></li>
+        <li class="now"><span class="tl-t">통일로 우회도로 (진관동 30-6 ~ 지축동 1051, 1.99km, 왕복 4차로)</span><span class="tl-d">공사 2025.05.30 ~ 2026.11.30</span><br>지축교 방향 차량을 분산해 은평지구 내부 정체를 줄이는 목적. 고양신문은 2026년 “늑장 공사” 논란과 “준공일 지켜질 것”이라는 답변을 함께 전했습니다. 개통 여부는 확인 필요.<sup><a href="#src">[19]</a></sup> <span class="st 확인">확인 필요</span></li>
+        <li class="now"><span class="tl-t">세검정구파발터널 (옛 은평새길, 불광동~부암동 5.78km 전 구간 지하)</span><span class="tl-d">2026.01 실시협약 협상 중</span><br>서울시가 GS컨소시엄과 실무협상 중이나 종로구 주민 반대로 지연. 2025년 착공 계획은 무산됐습니다.<sup><a href="#src">[20]</a></sup> <span class="st 추정">지연</span></li>
+        <li><span class="tl-t">신분당선 서북부 연장 (용산~삼송 19.38km, 은평뉴타운 통과)</span><span class="tl-d">2023.08.23 예타 탈락</span><br>B/C 0.36, AHP 0.325로 탈락. GTX-A와 3호선 중복이 이유. 서울시가 대안 노선 용역을 하겠다고 했으나 2026년 10월 현재 새 노선이 국가철도망계획에 반영됐다는 보도는 찾지 못했습니다.<sup><a href="#src">[18]</a></sup> <span class="st 확인">사실상 무산</span></li>
+        <li><span class="tl-t">고양은평선 (새절역~창릉~고양시청 15km)</span><span class="tl-d">2027.01 착공, 2031.12 개통 목표</span><br>창릉신도시 광역교통 대책. 새절역(6호선)이 기점이라 은평뉴타운을 지나지 않습니다. 직접 수혜 없음.<sup><a href="#src">[21]</a></sup></li>
+      </ul>
+      <div class="term"><span class="chip">정리</span><div>주민이 14년째 기다린 노선은 신분당선이었고 그것은 탈락했습니다. 대신 온 것은 GTX-A인데 연신내까지 가야 탈 수 있어요. 이 리포트가 역세권 블록과 외곽 블록을 굳이 가르는 이유가 여기 있습니다. <b>구파발역 도보 거리가 곧 GTX 접근성</b>입니다.</div></div>
+    </div>
+  </section>
+
+  <section id="edu" class="section">
+    <h2>교육</h2>
+    <p class="sec-lede">“초등까지는 좋고 중등 이후는 애매하다”가 주민들의 공통 평가입니다. 숫자로 확인해 봤습니다.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>초등과 중등</h3>
+        <ul>
+          <li>초등학교 5곳(북한산초, 신도초, 은빛초, 은진초, 진관초)이 모두 뉴타운 안에 있고, 표본 20개 블록 중 16곳이 배정 초등학교까지 도보 6분 이내입니다. 박석고개 116~131동은 은진초 63m, 구파발9단지는 은빛초 41m예요.<sup><a href="#src">[25][27]</a></sup></li>
+          <li>중학교는 진관중과 신도중 2곳(서부1학교군). 아파트미가 표기한 학업성취도 A등급 비율은 신도중 55.9%, 진관중 41.8%로 은평구 상위이고, 리치고는 진관중을 전국 상위 18%, 서울 상위 65%(1.7등급)로 매깁니다.<sup><a href="#src">[26][27]</a></sup> 서울 안에서 보면 중간이라는 뜻이에요.</li>
+          <li>학원가는 뉴타운 안에 없습니다. 연신내역 주변과 대조동 연서로에 형성돼 있고, 2012년 입주 초기 주민이 “학원은 아직 별로없어요”라고 했던 구조가 크게 달라지지 않았습니다.<sup><a href="#src">[4][12]</a></sup></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>고등: 하나고가 있지만 내 아이가 가는 학교는 아닐 수 있다</h3>
+        <ul>
+          <li>하나고는 서울 유일 전국단위 자사고로 리치고 기준 전국 상위 3%(1.1등급)입니다. 다만 전국 모집이라 동네 배정과 무관해요.<sup><a href="#src">[9][26]</a></sup></li>
+          <li>일반고인 진관고는 리치고 4등급, 전국 상위 77%, 서울 상위 54%입니다. 신도고, 은평메디텍고(특성화)가 더 있습니다.<sup><a href="#src">[25][26]</a></sup></li>
+          <li>82cook 거주자의 “중등 이후로는 학군이 좋다고 말하긴 어렵죠”와 “대학과는 거리가 있어서 졸업후 나가는 곳”이라는 평가는 이 숫자와 맞아떨어집니다.<sup><a href="#src">[3]</a></sup></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="life" class="section">
+    <h2>생활 인프라</h2>
+    <p class="sec-lede">2016년 롯데몰 은평, 2017년 스타필드 고양과 이케아 고양, 2019년 은평성모병원이 차례로 열리며 “원정 쇼핑”의 시대가 끝났습니다.<sup><a href="#src">[25]</a></sup></p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>주민이 반복해서 꼽는 것</h3>
+        <ul>
+          <li><b>북한산과 이말산, 둘레길</b>: 28건 중 17건이 언급. “단지를 휙돌면 산챗길”, “거실 통창에 북한산”.</li>
+          <li><b>은평성모병원</b>: 대학병원과 호스피스가 도보권. 50대 이상 거주자 발언에서 빠지지 않습니다.</li>
+          <li><b>롯데몰 은평(구파발역 직결)</b>과 <b>스타필드 고양, 트레이더스, 하나로마트</b>: “골라서 장보고”.</li>
+          <li><b>창릉천 자전거길</b>: 행주산성, 한강까지 이어집니다.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>주민이 반복해서 아쉬워하는 것</h3>
+        <ul>
+          <li><b>먹을 데가 적다</b>: “음식점이 많지 않다”, “집 바로 주변에는 상가가 많은 편은 아니었다”. 2017년 기사도 상업시설 공급이 필요 면적의 10% 수준이라고 썼습니다.<sup><a href="#src">[8][30]</a></sup></li>
+          <li><b>자족 기능 없음</b>: 매일경제는 은평뉴타운이 “베드타운을 형성했다”고 표현했습니다. 직장이 동네 안에 없어요.<sup><a href="#src">[12]</a></sup></li>
+          <li><b>구축의 시간</b>: “단지 10년 넘으면 집이 낡아요”, “집이 조금씩 오래되어 수리를 해야합니다”. 2008~2010년 입주라 2026년 기준 16~18년차입니다. 리모델링이나 재건축 논의는 아직 기사화된 것이 없습니다.</li>
+          <li><b>결로, 벌레, 추위</b>: 산자락 저층 단지 특유의 문제. “복층은 추워요”, “뒤에 산이 있다보니 좀 추운거”.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="supply" class="section">
+    <h2>공급과 경쟁: 2027년부터 옆 동네가 바뀐다</h2>
+    <p class="sec-lede">은평뉴타운 자체에는 신규 공급이 거의 없지만, 반경 5km 안에 대규모 신축이 세 방향에서 옵니다.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>사업</th><th class="num">규모</th><th>시기</th><th>은평뉴타운에 미치는 영향</th></tr></thead>
+        <tbody>
+          <tr class="hl"><td>고양 창릉신도시 (3기)</td><td class="num">38,073가구</td><td>첫 입주 2027.12 (A4), 2028.01 (S5·S6)</td><td>차로 10분 거리에 은평뉴타운의 1.8배 규모 신축. 고양은평선은 2031년 개통 목표라 4년간 “선입주 후교통”.<sup><a href="#src">[21][22]</a></sup></td></tr>
+          <tr><td>갈현1구역 (북한산시그니처캐슬)</td><td class="num">4,467가구</td><td>2025년 말 착공</td><td>연신내역 도보권 신축. GTX-A 역세권을 직접 품습니다.<sup><a href="#src">[10][11]</a></sup></td></tr>
+          <tr><td>대조1구역 (힐스테이트메디알레)</td><td class="num">2,451가구</td><td>2026.10 입주</td><td>불광역 인근. 이달 입주로 은평구 신축 전세 물량이 늘어납니다.<sup><a href="#src">[10]</a></sup></td></tr>
+          <tr><td>불광5구역 (북한산자이더프레스티지)</td><td class="num">2,425가구</td><td>이주율 90%, 2027년 착공 목표</td><td>세 구역 합쳐 1만 가구 이상. “불대갈” 신축 타운이 은평구 대장을 가져갑니다.<sup><a href="#src">[10][12]</a></sup></td></tr>
+          <tr><td>디에트르 더 퍼스트 (진관동)</td><td class="num">452가구</td><td>2025.06 입주</td><td>공공지원 민간임대. 뉴타운 안 마지막 대형 필지.<sup><a href="#src">[28]</a></sup></td></tr>
+          <tr><td>서울혁신파크 부지 (녹번동, 약 11만㎡)</td><td class="num">60층 랜드마크, 주거 800세대 계획</td><td>2025년 착공 계획이었으나 2026.04 현재 공터</td><td>개발 방향 미확정. 호재로 계산하면 안 됩니다.<sup><a href="#src">[23]</a></sup> <span class="st 확인">미확정</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <p>매경이코노미는 은평구를 두고 “GTX A노선 수혜지역이나 상암동 접근성이 좋은 단지와 그렇지 않은 지역 간 양극화가 점점 심해질 수 있다”고 썼습니다.<sup><a href="#src">[11]</a></sup> 은평뉴타운은 이 문장에서 후자 쪽에 가깝습니다. 은평구에서 15억을 넘긴 단지는 녹번동 신축(힐스테이트녹번, 녹번역e편한세상캐슬)이고, 수색증산뉴타운 DMC파인시티자이는 84㎡ 16.2억입니다.<sup><a href="#src">[11][13]</a></sup> 같은 구 안에서 은평뉴타운 구축 12억은 “가성비”로 읽히지만, 2027년 이후 신축 1만 가구가 연신내와 불광에 들어서면 그 가성비의 비교 대상이 바뀝니다.</p>
+      <p class="note">은평광역자원순환센터(진관동 76-40, 11,535㎡)는 은평뉴타운과 삼송·지축 주민이 행정소송까지 간 시설입니다. 2026년 3월에는 마포구가 소유권 이전 소송을 냈어요. 기피시설 이슈가 살아 있다는 점만 기억하면 됩니다.<sup><a href="#src">[24]</a></sup></p>
+    </div>
+  </section>
+
+  <section id="risk" class="section">
+    <h2>리스크</h2>
+    <p class="sec-lede">가능성과 파급을 함께 보고 등급을 매겼습니다.</p>
+    <div class="risk high"><div class="t"><span class="sev">HIGH</span>창릉 3.8만 가구 입주 (2027.12~)와 3호선 배차 경쟁</div><p>은평뉴타운 가격의 근거인 “구파발 출발 열차”가 창릉 입주 후 고양 쪽 압력으로 줄어들 수 있습니다. 동시에 창릉 신축이 전세 수요를 빨아들이면 외곽 블록 전세가율(65~70%)이 먼저 흔들립니다. 2026년 5월 조선비즈 기사에서 이 갈등은 이미 시작됐어요.<sup><a href="#src">[16][21]</a></sup></p></div>
+    <div class="risk high"><div class="t"><span class="sev">HIGH</span>거래량 감소 속 신고가 (2026.08 신고가 비중 47%, 거래 19건)</div><p>2026년 5월 42건에서 8월 19건으로 거래가 반토막 난 상태에서 신고가가 찍히고 있습니다. 소수 거래가 시세를 끌어올리는 국면이라, 지금 사면 그 신고가가 내 매입가가 됩니다. 취소 6건, 직거래 7건이 같은 해에 섞여 있으니 특정 실거래 하나를 시세로 믿지 마세요.<sup><a href="#src">[1]</a></sup></p></div>
+    <div class="risk mid"><div class="t"><span class="sev">MID</span>외곽 블록의 구조적 저평가 고착</div><p>상림마을, 제각말, 우물골 209~222동은 GTX 개통 후에도 2021년 고점을 못 넘었습니다. “마을버스 타야 역에 간다”는 단점은 도로나 노선이 새로 생기지 않는 한 사라지지 않고, 통일로 우회도로는 차량 분산이 목적이지 역 접근을 바꾸지는 않습니다.<sup><a href="#src">[1][19]</a></sup></p></div>
+    <div class="risk mid"><div class="t"><span class="sev">MID</span>임대 세대 비율과 관리 품질</div><p>박석고개 101~111동 54%, 상림 8단지 810~820동 57%, 마고정 323~335동 44%가 임대입니다. 소셜믹스 자체는 문제가 아니지만, 후기에서 “단지가 작아서 관리가 그렇게 잘 되지는 않음”, “단지 관리가 살짝 안되는 것 같다”는 말이 나옵니다. 관리비, 장기수선충당금 적립, 입주자대표회의 구성을 블록별로 봐야 합니다.<sup><a href="#src">[8][27]</a></sup></p></div>
+    <div class="risk mid"><div class="t"><span class="sev">MID</span>16~18년차 구축의 수선 비용</div><p>2008~2010년 입주 단지는 배관, 엘리베이터, 결로 보수 시기입니다. 매수 전 장기수선계획과 최근 3년 수선 이력, 그리고 그 집의 겨울 결로 흔적을 확인하세요. 리모델링 추진 소식은 없습니다.<sup><a href="#src">[2][8]</a></sup></p></div>
+    <div class="risk low"><div class="t"><span class="sev">LOW</span>신분당선 재추진 기대감에 기댄 호가</div><p>2023년 예타 탈락 후 대안 노선은 아직 국가계획에 없습니다. 중개업소가 신분당선을 언급하면 근거 문서를 요구하세요.<sup><a href="#src">[18]</a></sup></p></div>
+  </section>
+
+  <section id="bullbear" class="section">
+    <h2>사야 하는 이유 / 사면 안 되는 이유</h2>
+    <div class="bb">
+      <div class="card bull">
+        <h3>Bull</h3>
+        <ol>
+          <li>서울 안에서 12억 이하로 “살기 좋다”는 평판이 14년째 일관된 동네는 드뭅니다.<span class="basis">근거: 82cook, 집품, 블라인드 거주자 발언 28건 중 자연·조용함 언급 17건<sup><a href="#src">[2][3][4][5]</a></sup></span><span class="conf">확신 높음</span></li>
+          <li>역세권 블록은 GTX-A 개통 후 2021년 고점을 회복했고, 2026년 9월 박석고개가 13.25억 신고가를 썼습니다.<span class="basis">근거: 역세권 4블록 84㎡ 중위 2023 9.2억 → 2026 11.78억<sup><a href="#src">[1]</a></sup></span><span class="conf">확신 높음</span></li>
+          <li>전세가율 60~73%로 실수요가 받칩니다. 2030 생애최초 매수가 서울에서 가장 몰리는 구예요.<span class="basis">근거: 2026년 신규 전세 중위 / 매매 중위, 은평구 생애최초 비중 11.1%(2026.7)<sup><a href="#src">[1][11]</a></sup></span><span class="conf">확신 중간</span></li>
+          <li>은평구 30년 이상 노후 아파트 비중이 10%로 서울에서 두 번째로 낮고, 구 전체가 신축 타운으로 바뀌는 흐름 안에 있습니다.<span class="basis">근거: 부동산114, 매경이코노미 2026.09<sup><a href="#src">[11]</a></sup></span><span class="conf">확신 중간</span></li>
+          <li>대형 평형 평당가가 소형의 60% 수준이라 넓게 살 사람에게는 서울에서 보기 드문 선택지입니다.<span class="basis">근거: 마고정 63평 14.18억 vs 박석고개 33평 12.07억<sup><a href="#src">[1]</a></sup></span><span class="conf">확신 높음</span></li>
+        </ol>
+      </div>
+      <div class="card bear">
+        <h3>Bear</h3>
+        <ol>
+          <li>구축 전체 84㎡ 중위는 아직 2021년보다 7% 낮고, 외곽 8블록은 4% 낮습니다. 은평구 상승장에서 은평뉴타운 대부분은 소외돼 있어요.<span class="basis">근거: 구축 12블록 분기 중위 2021Q3 10.22억 vs 2026Q3 9.5억<sup><a href="#src">[1]</a></sup></span><span class="conf">확신 높음</span></li>
+          <li>교통의 근본 문제(3호선 하나, 통일로 하나)는 어떤 확정 사업으로도 풀리지 않습니다. 신분당선은 탈락했고 터널은 협상 중이에요.<span class="basis">근거: 예타 B/C 0.36, 세검정구파발터널 2026.01 협상 지연<sup><a href="#src">[18][20]</a></sup></span><span class="conf">확신 높음</span></li>
+          <li>2027년 12월부터 창릉 38,073가구가 들어오고 철도는 2031년입니다. 3호선 구파발행 배차를 두고 고양시와 서울교통공사가 이미 다투고 있어요.<span class="basis">근거: 조선비즈 2026.05, LH 2026.09<sup><a href="#src">[16][21]</a></sup></span><span class="conf">확신 높음</span></li>
+          <li>같은 구에서 1만 가구 신축(불대갈)이 GTX 역세권에 들어서면 “은평구 가성비”의 비교 대상이 은평뉴타운에서 신축으로 옮겨갑니다.<span class="basis">근거: 갈현1 4,467, 대조1 2,451, 불광5 2,425가구<sup><a href="#src">[10][12]</a></sup></span><span class="conf">확신 중간</span></li>
+          <li>거래가 줄면서 신고가가 찍히는 국면입니다. 8월 19건 중 9건이 신고가예요. 이 가격에 사면 다음 매수자를 찾는 데 시간이 걸립니다.<span class="basis">근거: 2026년 월별 거래·신고가 집계<sup><a href="#src">[1]</a></sup></span><span class="conf">확신 중간</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="verdict" class="section">
+    <h2>최종 판단</h2>
+    <div class="verdict-box">
+      <div class="verdict-chips">
+        <span class="vchip">적극 매수</span><span class="vchip on">조건부 매수</span><span class="vchip">관망</span><span class="vchip">회피</span>
+      </div>
+      <p><b>실거주 목적이고 출퇴근이 3호선 도심 방향(광화문, 종로, 을지로)이거나 재택 비중이 높다면, 구파발역 도보 10분 안쪽 블록에 한해 매수를 검토할 만합니다.</b> 그 밖의 조합, 특히 강남 출퇴근이나 시세차익 목적으로 외곽 블록을 사는 것은 권하지 않습니다.</p>
+      <ol class="reasons">
+        <li><b>블록을 고르는 기준은 구파발역 도보 거리 하나입니다.</b> 박석고개 116~131동, 101~111동, 마고정 323~335동, 스카이뷰자이가 GTX 이후 유일하게 2021년을 넘어선 곳이고, 전세도 1년에 1억씩 올랐어요. 마을버스권은 살기에는 더 조용하지만 가격은 5년째 제자리입니다.</li>
+        <li><b>시점은 급하지 않습니다.</b> 거래는 줄고 신고가만 찍히는 8월 이후 국면에서 매도자 우위가 오래가기 어렵고, 2027년 대조1구역 입주와 창릉 첫 입주가 전세 시장을 먼저 흔듭니다. 신고가가 아닌 2026년 중위값(역세권 11.8억, 중간 9.5억) 근처의 물건을 기다릴 여유가 있어요.</li>
+        <li><b>임대 비율이 낮은 블록을 우선하세요.</b> 같은 박석고개라도 116~131동(임대 36%)과 101~111동(임대 54%)은 관리 환경이 다를 수 있습니다. 관리비 고지서와 장기수선충당금 잔액을 블록별로 비교하세요.</li>
+        <li><b>이 동네를 사는 이유가 “북한산, 조용함, 성모병원”이라면 그 판단은 옳습니다.</b> 28건의 거주자 발언이 14년에 걸쳐 같은 말을 했고, 7년 살고 나간 사람도 다시 가고 싶다고 했어요. 다만 그 이유는 가격에 이미 들어 있고, 앞으로 더 들어갈 이유는 아닙니다.</li>
+        <li><b>사면 안 되는 사람</b>: 강남 출퇴근(구파발행 배차가 줄면 “앉아서 출근”이 사라집니다), 중학생 이상 자녀의 학군을 기대하는 가구, 5년 안에 팔 계획인 매수자. 이 세 경우는 은평구 안에서라면 녹번역이나 연신내 신축을 보는 편이 낫습니다.</li>
+      </ol>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>현장 임장 체크리스트</h3>
+      <ul class="check">
+        <li><label><input type="checkbox"> <span><span class="hot">평일 오전 7시 30분에 구파발역에서 3호선을 직접 타고</span> 구파발 출발 열차 대기 시간과 착석 여부를 확인한다. 같은 시간 통일로 버스로 연신내역까지 걸리는 시간도 잰다.</span></label></li>
+        <li><label><input type="checkbox"> <span>후보 블록에서 구파발역까지 실제 도보 시간을 잰다. 아파트미 도보 시간은 평지 기준이고 박석고개, 폭포동은 경사가 있다.</span></label></li>
+        <li><label><input type="checkbox"> <span><span class="hot">관리사무소에서 임대 세대 수, 관리비 평균, 장기수선충당금 잔액, 최근 3년 수선 이력</span>을 받는다.</span></label></li>
+        <li><label><input type="checkbox"> <span>저층이나 산 쪽 동이면 겨울 결로와 곰팡이 흔적(베란다 벽 모서리, 창틀)을 본다. 복층은 난방비를 묻는다.</span></label></li>
+        <li><label><input type="checkbox"> <span>등기부에서 근저당 비율을 본다. 은평구는 2026년 7월 집합건물 대출지수가 서울 1위(60.17)였다.<sup><a href="#src">[11]</a></sup></span></label></li>
+        <li><label><input type="checkbox"> <span><span class="hot">중개업소가 제시하는 시세가 실거래인지 호가인지</span> 아파트미나 국토부 공개시스템에서 계약일과 층까지 대조한다. 2026년에 취소된 6건과 직거래 7건이 시세처럼 인용될 수 있다.</span></label></li>
+        <li><label><input type="checkbox"> <span>배정 중학교(진관중, 신도중)와 학원 이동 경로(연신내, 대조동 연서로)를 아이 기준으로 확인한다.</span></label></li>
+        <li><label><input type="checkbox"> <span>통일로 우회도로 개통 여부를 은평구청에 확인한다(공사 기간 2026.11.30까지).</span></label></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="src" class="section">
+    <h2>출처와 조사 한계</h2>
+    <p class="sec-lede">출처 등급은 A(정부 원자료), B(정부 자료 재배포, 주요 언론), C(커뮤니티 원문), D(위키), E(미확인)입니다.</p>
+    <ol class="src-list">
+      <li><span class="gr b">B</span>국토교통부 실거래가를 재배포하는 아파트미(apt2.me). 진관동 20개 블록 매매 3,556건, 전월세 4,000건. AptReal.jsp, RentReal.jsp. 2026.10.01 수집. 블록당 최근 200건까지만 제공되며 취소(badge-cancel)와 직거래(badge-direct) 표시를 그대로 반영해 통계에서 제외했습니다.</li>
+      <li><span class="gr c">C</span>82cook 자유게시판 “은평뉴타운에 살고싶어요”, 2023.06.03, 댓글 29개. 82cook.com/entiz/read.php?num=3655359</li>
+      <li><span class="gr c">C</span>82cook 자유게시판 “은평구 구파발역 부근 어떤가요?”, 2023.05.22, 댓글 26개. num=3649932</li>
+      <li><span class="gr c">C</span>82cook 자유게시판 “은평뉴타운 사시는 분들 계신가요?”, 2012.08.02, 댓글 10개. num=1323945. 입주 초기 발언이라 상가와 학교 상황은 현재와 다릅니다.</li>
+      <li><span class="gr c">C</span>82cook 자유게시판 “노후에 살기 좋은 곳”, 2020.06.04, 댓글 31번. num=3019160</li>
+      <li><span class="gr c">C</span>블라인드 “삼송역, 구파발역 쪽에서 강남 출퇴근 어떨까?”, 2024.02.04, 댓글 7개. 요약 형태로만 열람.</li>
+      <li><span class="gr c">C</span>블라인드 “은평구는 왜 주목을 못 받아?”, 2021.07.25, 댓글 21개. 요약 형태로만 열람.</li>
+      <li><span class="gr c">C</span>집품(zippoom.com) 단지 페이지의 거주 후기(마고정3, 박석고개1, 상림6·7·8, 우물골2, 솔하임 인근)와 블로그 “진관동 아파트 전세/월세 살기 좋은 곳은? (2026)”. 후기 본문은 약 100자에서 잘리고 작성일이 없습니다. 인근 단지 후기는 단지에 귀속시키지 않았습니다.</li>
+      <li><span class="gr b">B</span>서울경제 “은평뉴타운 ‘숲세권’에서 ‘GTX 교통요지’로…투자·실거주 가치 재평가”, 백주연, 2026.07.18. sedaily.com/article/20068760</li>
+      <li><span class="gr b">B</span>한국일보 “서울 집값 상승 최고 기록 앞둔 지금…‘재개발 호재’ 은평구 수요 늘어”, 2026.09.20 (네이트 재배포). 직방 신고가 비중, 아실 매매가격지수, 갈현1·대조1·불광5 현황.</li>
+      <li><span class="gr b">B</span>매경이코노미 제2375호 “내집마련 나선 2030…왜 은평구인가 [감평사의 부동산 현장진단]”, 강승태, 2026.09.02. 생애최초 매수 비중, 대출지수, 양극화 전망.</li>
+      <li><span class="gr b">B</span>매일경제 “‘삼성역 30분 신축 아파트 선점할까’…임장러 몰리는 ‘불대갈’ 투자지도 [부동산 손품노트]”, 2026.06.05 및 후속 2026.06.07. 은평뉴타운 “베드타운” 표현, 학원가 위치, GTX-A 삼성역 연결 시점.</li>
+      <li><span class="gr b">B</span>헤럴드경제 “은평도 국평 15억 시대…‘주담대 6억 한도’ 주택 사라진다”, 2026.07.07.</li>
+      <li><span class="gr b">B</span>은평시민신문 “은평구 아파트값 상승세 지속…서울 평균 뛰어넘어”, 2026.08.11. 한국부동산원 7월 27일 기준 주간 동향.</li>
+      <li><span class="gr b">B</span>파이낸셜뉴스 “서울 집값 상승폭 4주째 둔화…강남 -0.42%·서초 -0.37%”, 2026.09.24. 한국부동산원 9월 21일 기준.</li>
+      <li><span class="gr b">B</span>조선비즈 “‘구파발행 지옥철’에 고양 주민들 분통… 3호선 배차 그대로인데 신축만 쏟아져”, 이경탁, 2026.05.07 (다음 재배포).</li>
+      <li><span class="gr b">B</span>철도경제신문 “GTX-A 운정-서울역, 12월 28일 개통”, 2024.12 및 전국매일 “GTX-A 연신내역, 28일 개통…서울역까지 5분 30초”. 이용객 통계는 국토교통부 개통 60일 집계.</li>
+      <li><span class="gr b">B</span>뉴시스 “은평·삼송 부동산, 신분당선 서북부 연장 좌초에 ‘냉기류’”, 2023.08.23 및 은평시민신문 “예타 넘지 못한 신분당선 서북부 연장”. B/C 0.36, AHP 0.325.</li>
+      <li><span class="gr b">B</span>문화일보 “GTX 뚫리면 연신내~서울역 4분…‘통일로 우회도로’는 2026년 개통”, 2022.08.02 및 고양신문 “지축~은평 신설교량 ‘늑장공사 답답’ vs ‘준공날짜 지켜질 것’” (공사기간 2025.05.30~2026.11.30).</li>
+      <li><span class="gr b">B</span>LG헬로비전 “세검정구파발터널 (은평새길) 사업 또 지연”, 2026.01.30.</li>
+      <li><span class="gr b">B</span>글로벌이코노믹 “LH, 3기 신도시 고양창릉 교통망 확충…고양은평선 2031년 개통 목표”, 2026.09.30 및 뉴데일리 “입주는 내년·철도는 4년 뒤”, 2026.09.30.</li>
+      <li><span class="gr b">B</span>고양신문 “내년 3월·6월 창릉신도시 3881가구 본청약”. 계획 가구 38,073.</li>
+      <li><span class="gr b">B</span>오마이뉴스 “코엑스급 복합시설 만든다더니...서울시장 바뀌고 사라진 공동체”, 2026 (혁신파크 부지 2026.04 현황) 및 서울시 미디어허브 2022.12 계획 발표.</li>
+      <li><span class="gr b">B</span>이데일리 “법정으로 간 은평광역자원순환센터 건립사업…최종 승자는?” 및 경기뉴스1 2026.03 마포구 소유권 소송 보도.</li>
+      <li><span class="gr d">D</span>나무위키 “은평뉴타운”, “은평뉴타운/주거시설”. 면적, 세대수(21,513, 2026.1), 인구(53,807), 지구별 마을과 입주 시기, 학교 목록, 롯데몰·성모병원 개장 연도.</li>
+      <li><span class="gr c">C</span>리치고(richgo.ai) 진관중학교, 진관고등학교, 하나고등학교 학군 페이지. 등급과 전국·서울 상위 비율.</li>
+      <li><span class="gr b">B</span>아파트미 단지 정보: 세대수, 임대 세대(“기타임대”), 주차 대수, 용적률, 구파발역 도보 시간과 거리, 배정 초등학교, 중학교 A등급 비율, 단지 좌표(JSON-LD). 2026.10.01 열람.</li>
+      <li><span class="gr b">B</span>파이낸셜뉴스 “대방건설, ‘은평뉴타운 디에트르 더 퍼스트’ 분양 시작”, 2022.04 및 분양24 모집공고 2024.11. 452가구, 공공지원 민간임대.</li>
+      <li><span class="gr d">D</span>위키백과 “구파발역” 좌표(37.6368, 126.9188). 아파트미 단지 좌표와의 직선거리를 하버사인 공식으로 계산.</li>
+      <li><span class="gr b">B</span>아시아경제 “상업시설 절대부족.. 은평뉴타운 내 프리미엄 상가 어디”, 2017.08.17.</li>
+    </ol>
+
+    <div class="card" style="margin-top:18px">
+      <h3>조사 한계</h3>
+      <ul>
+        <li><b>호가를 전혀 수집하지 못했습니다.</b> 네이버부동산과 호갱노노는 접근이 막혀 있고, 아파트미 매물 페이지는 로그인이 필요합니다. 이 리포트의 모든 가격은 실거래입니다.</li>
+        <li><b>블록당 최근 200건까지만 수집돼</b> 거래가 많은 박석고개 116~131동은 2019년 7월 이후만 포함됩니다. 2021년 고점은 그 범위 안에 있어 추이 분석에는 문제가 없습니다.</li>
+        <li><b>3호선 구파발역에서 도심까지의 소요 시간은 공식 수치를 확인하지 못해</b> 적지 않았습니다. 경복궁역까지 7개 역이라는 사실만 확인했습니다.</li>
+        <li><b>네이버 카페와 블로그는 접근이 막혀</b> 맘카페 발언을 넣지 못했습니다. 주민 발언은 82cook, 블라인드, 집품에서만 모았고 블라인드 두 건은 요약 형태로만 읽을 수 있었습니다.</li>
+        <li><b>임대 세대 수는 아파트미 표기 기준</b>이라 장기전세, 국민임대, 재개발임대 구분이 없습니다. 관리사무소에서 확인이 필요합니다.</li>
+        <li>통일로 우회도로의 2026년 10월 현재 개통 여부, 서울혁신파크 개발 방향, 신분당선 대안 노선은 확인되지 않은 채로 남았습니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="foot">
+    <p>온라인 임장 리포트 · 조사 기준일 2026년 10월 1일 · 대상 서울 은평구 진관동 은평뉴타운 3개 지구</p>
+    <p style="margin-top:6px">이 문서는 공개된 자료를 정리한 사전조사이며 투자 권유가 아닙니다. 모든 수치는 조사 기준일 시점이고, 실거래와 호가를 혼용하지 않았습니다. 계약 전 등기부, 건축물대장, 관리사무소 자료, 교육지원청 통학구역을 직접 확인하세요.</p>
+  </div>
+
+</div>
+
+</body>
+</html>
