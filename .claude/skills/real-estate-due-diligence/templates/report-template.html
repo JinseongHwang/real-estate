@@ -7,7 +7,10 @@
   - 본문 각주는 <sup><a href="#src-N">[N]</a></sup>, 출처는 하단 목록의 id="src-N"과 연결한다.
   - 색상/컴포넌트 클래스: 상태 배지 .st.확정/.st.신뢰/.st.참고/.st.추정/.st.확인,
     출처 등급 .gr.a ~ .gr.e, 카드 .card, 지표 .kpi, 위험 .risk.high/.mid/.low,
-    타임라인 .tl, 용어 .term, 체크리스트 .check, 최종판단 .verdict-box
+    타임라인 .tl, 용어 .term, 체크리스트 .check, 최종판단 .verdict-box,
+    단지별 보기 .cx-nav(칩) / .cx(단지 카드, id="cx-N") / .cx-kpis / .cx-pc(장단점 2열)
+  - 단지 카드는 대표 단지(워크플로 args.complexes)마다 하나씩. 칩의 data-cx = 카드의 id = 카드의 data-cx (JS가 id로 카드를 찾는다).
+  - 단지 카드의 모든 숫자에 기준일과 출처 각주를 단다. 영역 섹션의 같은 단지 숫자와 일치해야 한다.
 -->
 <html lang="ko">
 <head>
@@ -171,6 +174,48 @@
   .verdict-box .reasons{padding-left:20px}
   .verdict-box .reasons li{margin-bottom:8px;font-size:15px}
 
+  /* ── 단지별 보기 ───────────────────────── */
+  .cx-nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+  .cx-nav a{font-size:13px;font-weight:700;color:var(--sub);padding:6px 13px;border-radius:999px;background:var(--card);
+            border:1px solid var(--line)}
+  .cx-nav a:hover{text-decoration:none;border-color:var(--ink);color:var(--ink)}
+  .cx-nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .cx{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:0;margin-bottom:18px;overflow:hidden;
+      scroll-margin-top:64px}
+  .cx.hide{display:none}
+  .cx-head{padding:20px 24px 16px;border-bottom:1px solid var(--line);background:#fbfcfd}
+  .cx-head h3{font-size:20px;font-weight:800;margin:0 0 2px}
+  .cx-head h3 small{font-size:13px;font-weight:500;color:var(--sub);margin-left:8px}
+  .cx-head .one{font-size:15px;font-weight:600;margin-top:8px}
+  .cx-body{padding:18px 24px 22px}
+  .cx-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+  .cx-kpis .k{background:var(--gray-bg);border-radius:10px;padding:10px 12px}
+  .cx-kpis .k .l{font-size:11.5px;color:var(--sub)}
+  .cx-kpis .k .v{font-size:18px;font-weight:800;line-height:1.3}
+  .cx-kpis .k .v small{font-size:12px;font-weight:600;color:var(--sub)}
+  .cx-kpis .k .s{font-size:11px;color:var(--faint)}
+  .cx-body h4{font-size:14px;font-weight:800;color:var(--sub);margin:16px 0 8px;letter-spacing:.02em}
+  .cx-body h4:first-child{margin-top:0}
+  .cx-spec{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;font-size:14px}
+  .cx-spec div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line)}
+  .cx-spec dt{color:var(--sub);flex:0 0 auto}
+  .cx-spec dd{text-align:right;margin:0}
+  .cx-pc{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .cx-pc ul{padding-left:18px;font-size:14px;margin:0}
+  .cx-pc li{margin-bottom:6px}
+  .cx-pc .pros{border-left:3px solid var(--green);padding-left:12px}
+  .cx-pc .cons{border-left:3px solid var(--red);padding-left:12px}
+  .cx-pc .pros h5{color:var(--green)} .cx-pc .cons h5{color:var(--red)}
+  .cx-pc h5{font-size:13px;font-weight:800;margin-bottom:6px}
+  .cx-body table{min-width:0}
+  .cx-finds{list-style:none;padding:0;font-size:14px}
+  .cx-finds li{padding:6px 0;border-bottom:1px dashed var(--line)}
+  .cx-finds .dom{font-size:11.5px;font-weight:700;color:var(--blue);background:var(--blue-bg);border-radius:6px;padding:1px 7px;margin-right:6px}
+  .cx-foot{display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:14px}
+  .cx-foot .card{margin:0;padding:14px 16px}
+  .cx-foot .card h5{font-size:13px;font-weight:800;margin-bottom:6px}
+  .cx-foot ul{padding-left:18px;margin:0} .cx-foot li{margin-bottom:4px}
+
   /* ── 출처 ──────────────────────────────── */
   .src-list{list-style:none;padding-left:0;counter-reset:src}
   .src-list li{counter-increment:src;font-size:13.5px;color:var(--sub);padding:9px 0;border-bottom:1px solid var(--line);
@@ -185,14 +230,16 @@
   @media (max-width:680px){
     .cover h1{font-size:30px}
     .cover h1 .loc{display:block;margin:4px 0 0}
-    .grid-2,.bb{grid-template-columns:1fr}
+    .grid-2,.bb,.cx-spec,.cx-pc,.cx-foot{grid-template-columns:1fr}
     .hbar .row{grid-template-columns:96px 1fr 76px}
     .kpi .v{font-size:20px}
+    .cx-head,.cx-body{padding-left:16px;padding-right:16px}
   }
   @media print{
-    .toc{display:none}
+    .toc,.cx-nav{display:none}
     body{background:#fff}
-    .card,.kpi,.risk,.verdict-box{break-inside:avoid;border-color:#ccc}
+    .card,.kpi,.risk,.verdict-box,.cx{break-inside:avoid;border-color:#ccc}
+    .cx.hide{display:block}
   }
 </style>
 </head>
@@ -230,7 +277,7 @@
 <nav class="toc"><div class="toc-row">
   <a href="#overview">한눈에</a><a href="#map">위치</a><a href="#transit">교통</a><a href="#infra">인프라</a>
   <a href="#edu">교육</a><a href="#housing">주거환경</a><a href="#price">실거래</a><a href="#trend">추이</a>
-  <a href="#jeonse">전월세</a><a href="#compare">비교</a><a href="#develop">개발/정비</a><a href="#pros">호재</a>
+  <a href="#jeonse">전월세</a><a href="#compare">비교</a><a href="#complexes">단지별</a><a href="#develop">개발/정비</a><a href="#pros">호재</a>
   <a href="#cons">악재</a><a href="#risks">리스크</a><a href="#bullbear">Bull/Bear</a><a href="#beginner">놓치기 쉬운 점</a>
   <a href="#checklist">현장 체크</a><a href="#verdict">최종 판단</a><a href="#sources">출처</a><a href="#limits">한계</a>
 </div></nav>
@@ -404,15 +451,15 @@
   <!-- 13. 주변 단지 비교 -->
   <section id="compare" class="section">
     <h2>주변 단지 비교</h2>
-    <p class="sec-lede">"왜 가격 차이가 나는가"까지 설명해야 비교다. 조사 대상 행은 강조 표시한다.</p>
+    <p class="sec-lede">"왜 가격 차이가 나는가"까지 설명해야 비교다. 조사 대상 행은 강조 표시하고, 단지명은 아래 단지 카드로 연결한다.</p>
     <div class="card">
       <div class="table-wrap"><table>
         <thead><tr><th>단지</th><th class="num">최근 실거래</th><th class="num">평당가</th><th class="num">연식</th><th class="num">세대</th><th class="num">역 도보</th><th class="num">전세가율</th></tr></thead>
         <tbody>
-          <tr class="hl"><td>조사 대상 OO</td><td class="num">00.0억</td><td class="num">0,000만</td><td class="num">00년</td><td class="num">0,000</td><td class="num">00분</td><td class="num">00%</td></tr>
-          <tr><td>비교 A</td><td class="num">00.0억</td><td class="num">0,000만</td><td class="num">00년</td><td class="num">0,000</td><td class="num">00분</td><td class="num">00%</td></tr>
-          <tr><td>비교 B</td><td class="num">00.0억</td><td class="num">0,000만</td><td class="num">00년</td><td class="num">0,000</td><td class="num">00분</td><td class="num">00%</td></tr>
-          <tr><td>비교 C</td><td class="num">00.0억</td><td class="num">0,000만</td><td class="num">00년</td><td class="num">0,000</td><td class="num">00분</td><td class="num">00%</td></tr>
+          <tr class="hl"><td><a href="#cx-1">조사 대상 OO</a></td><td class="num">00.0억</td><td class="num">0,000만</td><td class="num">00년</td><td class="num">0,000</td><td class="num">00분</td><td class="num">00%</td></tr>
+          <tr><td><a href="#cx-2">비교 A</a></td><td class="num">00.0억</td><td class="num">0,000만</td><td class="num">00년</td><td class="num">0,000</td><td class="num">00분</td><td class="num">00%</td></tr>
+          <tr><td><a href="#cx-3">비교 B</a></td><td class="num">00.0억</td><td class="num">0,000만</td><td class="num">00년</td><td class="num">0,000</td><td class="num">00분</td><td class="num">00%</td></tr>
+          <tr><td><a href="#cx-4">비교 C</a></td><td class="num">00.0억</td><td class="num">0,000만</td><td class="num">00년</td><td class="num">0,000</td><td class="num">00분</td><td class="num">00%</td></tr>
         </tbody>
       </table></div>
       <div class="hbar" aria-label="평당가 비교">
@@ -427,7 +474,137 @@
     </div>
   </section>
 
-  <!-- 14. 개발/정비사업 -->
+  <!-- 14. 단지별 보기 ─ 대표 단지(args.complexes)마다 카드 하나. 모든 모드 필수.
+       수치는 profiles에서, 장단점/적합한 사람은 complexVerdicts에서, 영역 조사 발견은 byComplex에서 가져온다.
+       카드 숫자는 실거래/전세/비교 섹션의 같은 단지 숫자와 반드시 일치해야 한다. -->
+  <section id="complexes" class="section">
+    <h2>단지별 보기</h2>
+    <p class="sec-lede">단지를 고르면 그 단지의 가격, 입지, 상품성, 장단점이 한 곳에 모인다. 위 영역별 분석을 단지 단위로 다시 읽은 것이다.</p>
+
+    <nav class="cx-nav" aria-label="단지 선택">
+      <a href="#complexes" data-cx="all" class="on">전체</a>
+      <a href="#cx-1" data-cx="cx-1">조사 대상 OO</a>
+      <a href="#cx-2" data-cx="cx-2">비교 A</a>
+      <a href="#cx-3" data-cx="cx-3">비교 B</a>
+      <a href="#cx-4" data-cx="cx-4">비교 C</a>
+    </nav>
+
+    <!-- 목적별로 먼저 볼 단지 (complexVerdicts.pick_by_purpose) -->
+    <div class="card">
+      <h3>목적별로 먼저 볼 단지</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>목적</th><th>단지</th><th>이유</th></tr></thead>
+        <tbody>
+          <tr><td>역세권 실거주</td><td><a href="#cx-1">조사 대상 OO</a></td><td>예시. 역 도보 0분, 84㎡ 최근 실거래 00억(2026-00)으로 역세권 중 가장 낮다 <sup><a href="#src-1">[1]</a></sup></td></tr>
+          <tr><td>예산 우선 (0억 이하)</td><td><a href="#cx-3">비교 B</a></td><td>예시. 84㎡ 최근 실거래 00억(2026-00)으로 대표 단지 중 가장 낮고 전세 실거래 00억(2026-00) <sup><a href="#src-1">[1]</a></sup></td></tr>
+          <tr><td>자녀 초등 통학</td><td><a href="#cx-2">비교 A</a></td><td>예시. OO초 배정(학구도 공식 확인), 통학로에 대로 횡단 없음 <sup><a href="#src-3">[3]</a></sup></td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">점수가 아니라 이유로 고른다. 목적이 다르면 답도 다르다.</p>
+    </div>
+
+    <!-- 단지 카드 1 (전체 구성 예시) -->
+    <article class="cx" id="cx-1" data-cx="cx-1">
+      <div class="cx-head">
+        <h3>조사 대상 OO<small>101~111동 | 서울 서초구 방배동</small> <span class="st 신뢰">높은 신뢰</span></h3>
+        <p class="one">예시 한 줄 평 (complexVerdicts.one_line). 역세권 중 가장 저렴하지만 그만큼 연식과 주차가 약점이다.</p>
+      </div>
+      <div class="cx-body">
+        <div class="cx-kpis">
+          <div class="k"><div class="l">84㎡ 최근 실거래</div><div class="v">00.0<small>억</small></div><div class="s">2026-00 계약 <sup><a href="#src-1">[1]</a></sup></div></div>
+          <div class="k"><div class="l">최고가 대비</div><div class="v">-00<small>%</small></div><div class="s">최고 00억 (0000-00) <sup><a href="#src-1">[1]</a></sup></div></div>
+          <div class="k"><div class="l">전세가율</div><div class="v">00<small>%</small></div><div class="s">2026-00 기준, 추정 <sup><a href="#src-1">[1]</a></sup></div></div>
+          <div class="k"><div class="l">역 도보</div><div class="v">00<small>분</small></div><div class="s">0호선 00역, 실제 동선 <sup><a href="#src-2">[2]</a></sup></div></div>
+          <div class="k"><div class="l">준공</div><div class="v">0000<small>년</small></div><div class="s">00년차 <sup><a href="#src-4">[4]</a></sup></div></div>
+          <div class="k"><div class="l">세대수</div><div class="v">0,000<small>세대</small></div><div class="s">00개동 <sup><a href="#src-4">[4]</a></sup></div></div>
+        </div>
+
+        <h4>개요</h4>
+        <dl class="cx-spec">
+          <div><dt>평형 구성</dt><dd>59 / 84 / 114㎡ (주력 84) <sup><a href="#src-4">[4]</a></sup></dd></div>
+          <div><dt>용적률 / 건폐율</dt><dd>000% / 00% <sup><a href="#src-4">[4]</a></sup></dd></div>
+          <div><dt>세대당 주차</dt><dd>0.00대 <span class="st 참고">참고</span> <sup><a href="#src-4">[4]</a></sup></dd></div>
+          <div><dt>시공사</dt><dd>OO건설 <sup><a href="#src-4">[4]</a></sup></dd></div>
+          <div><dt>구조</dt><dd>계단식, 판상형, 개별난방 <sup><a href="#src-4">[4]</a></sup></dd></div>
+          <div><dt>배정 초등</dt><dd>OO초 (학구도 공식 확인) <sup><a href="#src-3">[3]</a></sup></dd></div>
+          <div><dt>정비사업</dt><dd>해당 없음</dd></div>
+          <div><dt>소재지</dt><dd>서울 서초구 방배동 000</dd></div>
+        </dl>
+
+        <h4>최근 실거래 (84㎡)</h4>
+        <div class="table-wrap"><table>
+          <thead><tr><th>계약</th><th class="num">층</th><th class="num">가격</th><th>구분</th><th>비고</th></tr></thead>
+          <tbody>
+            <tr><td>2026-00</td><td class="num">00</td><td class="num">00억 0,000만</td><td><span class="st 확정">실거래</span></td><td>신고가</td></tr>
+            <tr><td>2026-00</td><td class="num">0</td><td class="num">00억</td><td><span class="st 확정">실거래</span></td><td></td></tr>
+            <tr><td>2025-00</td><td class="num">00</td><td class="num">00억</td><td><span class="st 확정">실거래</span></td><td></td></tr>
+            <tr><td>2026-00-00 확인</td><td class="num">-</td><td class="num">00억~00억</td><td><span class="st 추정">호가</span></td><td>민간 매물 기준 <sup><a href="#src-6">[6]</a></sup></td></tr>
+          </tbody>
+        </table></div>
+        <p class="note">전세: 84㎡ 최근 전세 실거래 00억 (2026-00), 전세가율 약 00% <span class="st 추정">추정</span> <sup><a href="#src-1">[1]</a></sup></p>
+
+        <h4>장점 / 단점</h4>
+        <div class="cx-pc">
+          <div class="pros"><h5>이 단지만의 장점</h5><ul>
+            <li>예시. 역까지 평지 도보 0분 <sup><a href="#src-2">[2]</a></sup>, 역세권 단지 중 84㎡ 실거래(2026-00)가 가장 낮다 <sup><a href="#src-1">[1]</a></sup></li>
+            <li>예시. 114㎡ 비중이 00%로 높아 같은 예산으로 넓게 산다 <sup><a href="#src-4">[4]</a></sup></li>
+          </ul></div>
+          <div class="cons"><h5>이 단지만의 단점</h5><ul>
+            <li>예시. 세대당 주차 0.00대로 대표 단지 중 가장 낮다 <sup><a href="#src-4">[4]</a></sup> (체감은 현장 확인)</li>
+            <li>예시. 00년차로 배관/샷시 교체 여부가 세대마다 다르다 <sup><a href="#src-4">[4]</a></sup></li>
+          </ul></div>
+        </div>
+
+        <h4>영역 조사에서 이 단지에 대해 찾은 것</h4>
+        <ul class="cx-finds">
+          <li><span class="dom">리스크</span>예시. 2022년 집중호우 때 지하주차장 침수 이력 <span class="st 신뢰">높은 신뢰</span> <sup><a href="#src-2">[2]</a></sup></li>
+          <li><span class="dom">교육</span>예시. 통학로에 왕복 0차선 횡단 1회 <span class="st 참고">참고</span></li>
+        </ul>
+
+        <h4>판단 재료</h4>
+        <div class="cx-foot">
+          <div class="card"><h5>가격 보는 법 <span class="st 추정">추정</span></h5>
+            <p>예시 (price_view). 최고가 대비 -00% (2026-00 실거래 기준 <sup><a href="#src-1">[1]</a></sup>)로 역세권 단지 중 회복이 가장 느리다. 연식 차이로 설명되는 범위이며 저평가라 단정하기 어렵다.</p></div>
+          <div class="card"><h5>어떤 사람에게 맞는가</h5>
+            <p>예시 (who_fits). 역세권 실거주를 예산 안에서 원하는 사람에게 맞고, 신축 상품성이나 주차 편의를 중시하면 맞지 않는다.</p></div>
+          <div class="card"><h5>현장에서 볼 것</h5><ul>
+            <li>예시 (watch_out). 저녁 8시 이후 주차 상태</li>
+            <li>예시. 지하주차장 침수 흔적과 차수판 설치 여부</li>
+          </ul></div>
+          <div class="card"><h5>확인 못 한 것</h5><ul>
+            <li>예시 (data_gaps / unresolved). 관리비 수준 <span class="st 확인">확인 필요</span></li>
+          </ul></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 단지 카드 2 (데이터가 적은 단지 예시: 머리 + 확인 못 한 것만. 지표를 억지로 채우지 않고, 카드를 빼지도 않는다) -->
+    <article class="cx" id="cx-2" data-cx="cx-2">
+      <div class="cx-head">
+        <h3>비교 A<small>서울 서초구 방배동</small> <span class="st 확인">확인 필요</span></h3>
+        <p class="one">예시. 84㎡ 실거래가 최근 1년간 없어(마지막 거래 2025-00, 00억 <sup><a href="#src-1">[1]</a></sup>) 가격 판단을 보류한 단지.</p>
+      </div>
+      <div class="cx-body">
+        <h4>확인 못 한 것</h4>
+        <ul>
+          <li>예시. 최근 1년 실거래 없음. 전세가율, 최고가 대비 수준 산출 불가 <span class="st 확인">확인 필요</span></li>
+          <li>예시. 건축물대장 열람 실패로 용적률, 주차대수 미확인 <span class="st 확인">확인 필요</span></li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- 단지 카드 3, 4 ... 카드 1과 같은 전체 구조로 반복한다. 아래는 앵커 유지용 최소 골격이다. -->
+    <article class="cx" id="cx-3" data-cx="cx-3">
+      <div class="cx-head"><h3>비교 B<small>소재지</small> <span class="st 참고">참고</span></h3><p class="one">예시 한 줄 평.</p></div>
+      <div class="cx-body"><p class="note">카드 1과 같은 구성(지표, 개요, 실거래, 장단점, 영역 발견, 판단 재료)으로 채운다.</p></div>
+    </article>
+    <article class="cx" id="cx-4" data-cx="cx-4">
+      <div class="cx-head"><h3>비교 C<small>소재지</small> <span class="st 참고">참고</span></h3><p class="one">예시 한 줄 평.</p></div>
+      <div class="cx-body"><p class="note">카드 1과 같은 구성으로 채운다.</p></div>
+    </article>
+  </section>
+
+  <!-- 15. 개발/정비사업 -->
   <section id="develop" class="section">
     <h2>개발 / 정비사업</h2>
     <p class="sec-lede">"예정"이라는 말만으로는 호재가 아니다. 단계와 공식 근거를 확인한 것만 싣는다.</p>
@@ -449,7 +626,7 @@
     </div>
   </section>
 
-  <!-- 15. 호재 -->
+  <!-- 16. 호재 -->
   <section id="pros" class="section">
     <h2>호재</h2>
     <div class="card"><ul>
@@ -458,7 +635,7 @@
     </ul></div>
   </section>
 
-  <!-- 16. 악재 -->
+  <!-- 17. 악재 -->
   <section id="cons" class="section">
     <h2>악재</h2>
     <div class="card"><ul>
@@ -467,7 +644,7 @@
     </ul></div>
   </section>
 
-  <!-- 17. 리스크 -->
+  <!-- 18. 리스크 -->
   <section id="risks" class="section">
     <h2>리스크</h2>
     <p class="sec-lede">심각도 순으로 정렬한다.</p>
@@ -479,7 +656,7 @@
       <p>내용 예시.</p></div>
   </section>
 
-  <!-- 18~19. Bull / Bear ─ 동일 비중 -->
+  <!-- 19~20. Bull / Bear ─ 동일 비중 -->
   <section id="bullbear" class="section">
     <h2>Bull Case / Bear Case</h2>
     <p class="sec-lede">같은 비중으로 다룬다. 어느 한쪽이 빈약하면 조사가 덜 된 것이다.</p>
@@ -503,7 +680,7 @@
     </div>
   </section>
 
-  <!-- 20. 초보자가 놓치기 쉬운 부분 -->
+  <!-- 21. 초보자가 놓치기 쉬운 부분 -->
   <section id="beginner" class="section">
     <h2>초보자가 놓치기 쉬운 부분</h2>
     <div class="card"><ul>
@@ -513,7 +690,7 @@
     </ul></div>
   </section>
 
-  <!-- 21. 현장 방문 체크리스트 -->
+  <!-- 22. 현장 방문 체크리스트 -->
   <section id="checklist" class="section">
     <h2>현장 방문 체크리스트</h2>
     <p class="sec-lede">온라인으로 확인 못 한 것들이다. 빨간 항목이 이번 조사 기준 최우선 확인 사항이다.</p>
@@ -533,7 +710,7 @@
     </div>
   </section>
 
-  <!-- 22. 최종 판단 -->
+  <!-- 23. 최종 판단 -->
   <section id="verdict" class="section">
     <h2>최종 판단</h2>
     <div class="verdict-box">
@@ -552,10 +729,13 @@
       <h3 style="margin-top:16px">협상 관점 <span class="st 추정">추정</span></h3>
       <p>예시. 최근 실거래와 현재 호가를 고려하면 00억~00억 수준에서 협상 가능성을 검토할 수 있으나,
       실제 협상 가능 가격은 매도자의 상황에 따라 달라질 수 있다.</p>
+      <h3 style="margin-top:16px">먼저 볼 단지</h3>
+      <p>예시 (judge.complex_pick). 역세권 실거주가 목적이면 <a href="#cx-1">조사 대상 OO</a>를 먼저 보고,
+      예산이 우선이면 <a href="#cx-3">비교 B</a>가 대안이다. 단지별 상세는 <a href="#complexes">단지별 보기</a>.</p>
     </div>
   </section>
 
-  <!-- 23. 출처 -->
+  <!-- 24. 출처 -->
   <section id="sources" class="section">
     <h2>조사에 사용한 출처</h2>
     <p class="sec-lede">형식: 기관명 | 자료명 | 기준일. 등급: <span class="gr a">A</span>공공 원문
@@ -567,11 +747,12 @@
         <li id="src-3"><span><span class="gr a">A</span>학구도안내서비스 | OO초 통학구역 | 2026-00 열람 | <a href="#" target="_blank" rel="noopener">example</a></span></li>
         <li id="src-4"><span><span class="gr a">A</span>건축물대장 | OO아파트 | 2026-00 열람 | <a href="#" target="_blank" rel="noopener">example</a></span></li>
         <li id="src-5"><span><span class="gr a">A</span>정비사업 정보몽땅 | OO구역 사업 현황 | 2026-00 열람 | <a href="https://cleanup.seoul.go.kr" target="_blank" rel="noopener">cleanup.seoul.go.kr</a></span></li>
+        <li id="src-6"><span><span class="gr d">D</span>네이버 부동산 | OO아파트 84㎡ 매물 호가 | 2026-00-00 확인 | <a href="#" target="_blank" rel="noopener">example</a></span></li>
       </ol>
     </div>
   </section>
 
-  <!-- 24. 한계 -->
+  <!-- 25. 한계 -->
   <section id="limits" class="section">
     <h2>데이터 기준일 / 한계</h2>
     <div class="card">
@@ -590,5 +771,26 @@
   </footer>
 
 </main>
+
+<!-- 단지별 보기 칩 필터. JS가 없으면 모든 카드가 펼쳐진 채 칩은 앵커로만 동작한다. -->
+<script>
+(function(){
+  var nav=document.querySelector('.cx-nav'); if(!nav) return;
+  var chips=nav.querySelectorAll('a[data-cx]'), cards=document.querySelectorAll('.cx[data-cx]');
+  function show(id){
+    chips.forEach(function(c){c.classList.toggle('on',c.getAttribute('data-cx')===id)});
+    cards.forEach(function(k){k.classList.toggle('hide',id!=='all'&&k.getAttribute('data-cx')!==id)});
+  }
+  chips.forEach(function(c){c.addEventListener('click',function(e){
+    var id=c.getAttribute('data-cx'); show(id);
+    if(id!=='all'){e.preventDefault(); var el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});}
+  })});
+  // 비교표나 최종 판단 등 다른 곳에서 #cx-N 링크로 들어오면 전체 보기로 풀어 해당 카드가 보이게 한다.
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a[href^="#cx-"]'); if(!a||nav.contains(a)) return; show('all');
+  });
+  if(/^#cx-/.test(location.hash)) show('all');
+})();
+</script>
 </body>
 </html>
