@@ -1,0 +1,1478 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>안양 비산동 온라인 임장 — 주민 의견 중심 · 2026-10-15</title>
+<style>
+  :root{
+    --ink:#191f28; --sub:#6b7684; --faint:#8b95a1; --line:#e5e8eb;
+    --bg:#f7f8fa; --card:#ffffff;
+    --blue:#1b64da; --blue-bg:#eef4fd;
+    --green:#0a7d43; --green-bg:#e8f7ee;
+    --red:#c22b2b; --red-bg:#fdeeee;
+    --amber:#b45309; --amber-bg:#fdf3e3;
+    --gray-bg:#f2f4f6;
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",Pretendard,"Noto Sans KR","Malgun Gothic",sans-serif;
+    color:var(--ink); background:var(--bg); line-height:1.65;
+    -webkit-text-size-adjust:100%; word-break:keep-all;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+  sup a{font-size:11px;color:var(--faint)}
+
+  /* ── Cover ─────────────────────────────── */
+  .cover{background:var(--card);border-bottom:1px solid var(--line);padding:56px 0 36px}
+  .cover-kicker{font-size:14px;font-weight:700;color:var(--blue);letter-spacing:.06em}
+  .cover h1{font-size:40px;line-height:1.2;margin:10px 0 6px;font-weight:800}
+  .cover h1 .loc{font-size:20px;color:var(--sub);font-weight:500;margin-left:8px}
+  .cover-meta{color:var(--sub);font-size:14px}
+  .cover-meta b{color:var(--ink)}
+
+  /* 한 줄 결론 */
+  .conclusion{margin:26px 0 0;padding:22px 24px;background:var(--blue-bg);border:1px solid #d5e4fb;border-radius:var(--radius)}
+  .conclusion .label{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px}
+  .conclusion p{font-size:19px;font-weight:700;line-height:1.55}
+
+  /* ── 목차 ──────────────────────────────── */
+  .toc{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);
+       border-bottom:1px solid var(--line)}
+  .toc-row{display:flex;gap:6px;overflow-x:auto;padding:10px 20px;scrollbar-width:none}
+  .toc-row::-webkit-scrollbar{display:none}
+  .toc a{flex:0 0 auto;font-size:13px;color:var(--sub);padding:6px 12px;border-radius:999px;background:var(--gray-bg)}
+  .toc a:hover{color:var(--ink);text-decoration:none;background:var(--line)}
+
+  /* ── 공통 섹션/카드 ────────────────────── */
+  .section{padding:40px 0 8px;scroll-margin-top:64px}
+  .section h2{font-size:24px;font-weight:800;margin-bottom:4px}
+  .sec-lede{color:var(--sub);font-size:15px;margin-bottom:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;margin-bottom:16px}
+  .card h3{font-size:17px;font-weight:700;margin-bottom:10px}
+  .card p{font-size:15px;margin-bottom:10px}
+  .card p:last-child{margin-bottom:0}
+  .card ul,.card ol{padding-left:20px;font-size:15px}
+  .card li{margin-bottom:6px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .note{font-size:13px;color:var(--faint)}
+  .asof{font-size:12px;color:var(--faint)}
+
+  /* ── KPI 카드 ──────────────────────────── */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+  .kpi .l{font-size:12px;color:var(--sub);margin-bottom:4px}
+  .kpi .v{font-size:24px;font-weight:800;line-height:1.25}
+  .kpi .v small{font-size:14px;font-weight:600;color:var(--sub)}
+  .kpi .s{font-size:12px;color:var(--faint);margin-top:4px}
+  .kpi .up{color:var(--red)} .kpi .down{color:var(--blue)}
+
+  /* ── 배지 ──────────────────────────────── */
+  .st{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;vertical-align:1px;white-space:nowrap}
+  .st.확정{background:var(--green-bg);color:var(--green)}
+  .st.신뢰{background:var(--blue-bg);color:var(--blue)}
+  .st.참고{background:var(--gray-bg);color:var(--sub)}
+  .st.추정{background:var(--amber-bg);color:var(--amber)}
+  .st.확인{background:var(--red-bg);color:var(--red)}
+  .gr{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;
+      font-size:12px;font-weight:800;vertical-align:-3px;margin-right:6px}
+  .gr.a{background:#123c73;color:#fff}
+  .gr.b{background:#1b64da;color:#fff}
+  .gr.c{background:#5f6b7a;color:#fff}
+  .gr.d{background:#a08acb;color:#fff}
+  .gr.e{background:#d7dce2;color:#57606a}
+
+  /* ── 표 ────────────────────────────────── */
+  .table-wrap{overflow-x:auto;margin:6px 0 4px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+  th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{background:var(--gray-bg);font-size:13px;color:var(--sub);font-weight:700}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.hl td{background:var(--blue-bg);font-weight:700}
+
+  /* ── 차트 ──────────────────────────────── */
+  .chart-wrap{overflow-x:auto;padding:8px 0}
+  .chart-wrap svg{display:block;min-width:560px;width:100%;height:auto}
+  .chart-cap{font-size:12px;color:var(--faint);margin-top:6px}
+  .hbar{margin:8px 0}
+  .hbar .row{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:10px;margin-bottom:8px;font-size:14px}
+  .hbar .bar{height:14px;border-radius:7px;background:var(--blue);opacity:.85}
+  .hbar .row.me .bar{background:var(--green)}
+  .hbar .row.me .nm{font-weight:800}
+  .hbar .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--sub);font-size:13px}
+
+  /* ── 타임라인 (정비사업 단계) ──────────── */
+  .tl{list-style:none;padding-left:0;margin:8px 0}
+  .tl li{position:relative;padding:0 0 16px 26px;font-size:14px}
+  .tl li::before{content:"";position:absolute;left:6px;top:7px;width:9px;height:9px;border-radius:50%;
+                 background:var(--line);border:2px solid var(--faint)}
+  .tl li::after{content:"";position:absolute;left:10px;top:20px;bottom:-2px;width:1.5px;background:var(--line)}
+  .tl li:last-child::after{display:none}
+  .tl li.done::before{background:var(--green);border-color:var(--green)}
+  .tl li.now::before{background:#fff;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+  .tl li.now .tl-t{color:var(--blue);font-weight:800}
+  .tl .tl-t{font-weight:700}
+  .tl .tl-d{color:var(--faint);font-size:12px;margin-left:6px}
+
+  /* ── 리스크 카드 ───────────────────────── */
+  .risk{border-left:4px solid var(--line);padding:14px 18px;background:var(--card);border-radius:0 12px 12px 0;
+        border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:12px}
+  .risk .t{font-weight:700;font-size:15px;margin-bottom:4px}
+  .risk p{font-size:14px;color:var(--sub);margin:0}
+  .risk.high{border-left-color:var(--red)} .risk.high .sev{color:var(--red)}
+  .risk.mid{border-left-color:var(--amber)} .risk.mid .sev{color:var(--amber)}
+  .risk.low{border-left-color:var(--faint)} .risk.low .sev{color:var(--faint)}
+  .risk .sev{font-size:12px;font-weight:800;margin-right:6px}
+
+  /* ── Bull / Bear ───────────────────────── */
+  .bb{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .bb .card{margin-bottom:0}
+  .bull{border-top:4px solid var(--green)}
+  .bear{border-top:4px solid var(--red)}
+  .bull h3{color:var(--green)} .bear h3{color:var(--red)}
+  .bb ol{padding-left:18px}
+  .bb li{margin-bottom:10px;font-size:15px}
+  .bb .basis{display:block;font-size:12.5px;color:var(--faint);margin-top:2px}
+  .conf{font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--gray-bg);color:var(--sub);margin-left:6px;vertical-align:1px}
+
+  /* ── 용어 박스 ─────────────────────────── */
+  .term{display:flex;gap:10px;background:var(--gray-bg);border-radius:10px;padding:12px 14px;margin:10px 0;font-size:13.5px;color:var(--sub)}
+  .term .chip{flex:0 0 auto;font-size:11px;font-weight:800;color:var(--blue);background:var(--blue-bg);
+              border-radius:6px;padding:2px 7px;height:fit-content;margin-top:2px}
+  .term b{color:var(--ink)}
+
+  /* ── 체크리스트 ────────────────────────── */
+  .check{list-style:none;padding-left:0}
+  .check li{margin-bottom:8px;font-size:15px}
+  .check label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+  .check input{margin-top:5px;width:15px;height:15px;accent-color:var(--blue)}
+  .check .hot{color:var(--red);font-weight:700}
+
+  /* ── 최종 판단 ─────────────────────────── */
+  .verdict-box{background:var(--card);border:2px solid var(--ink);border-radius:var(--radius);padding:26px 28px}
+  .verdict-chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
+  .vchip{font-size:14px;font-weight:700;padding:7px 16px;border-radius:999px;background:var(--gray-bg);color:var(--faint)}
+  .vchip.on{background:var(--ink);color:#fff}
+  .verdict-box .reasons{padding-left:20px}
+  .verdict-box .reasons li{margin-bottom:8px;font-size:15px}
+
+  /* ── 단지별 보기 ───────────────────────── */
+  .cx-nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+  .cx-nav a{font-size:13px;font-weight:700;color:var(--sub);padding:6px 13px;border-radius:999px;background:var(--card);
+            border:1px solid var(--line)}
+  .cx-nav a:hover{text-decoration:none;border-color:var(--ink);color:var(--ink)}
+  .cx-nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .cx{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:0;margin-bottom:18px;overflow:hidden;
+      scroll-margin-top:64px}
+  .cx.hide{display:none}
+  .cx-head{padding:20px 24px 16px;border-bottom:1px solid var(--line);background:#fbfcfd}
+  .cx-head h3{font-size:20px;font-weight:800;margin:0 0 2px}
+  .cx-head h3 small{font-size:13px;font-weight:500;color:var(--sub);margin-left:8px}
+  .cx-head .one{font-size:15px;font-weight:600;margin-top:8px}
+  .cx-body{padding:18px 24px 22px}
+  .cx-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+  .cx-kpis .k{background:var(--gray-bg);border-radius:10px;padding:10px 12px}
+  .cx-kpis .k .l{font-size:11.5px;color:var(--sub)}
+  .cx-kpis .k .v{font-size:18px;font-weight:800;line-height:1.3}
+  .cx-kpis .k .v small{font-size:12px;font-weight:600;color:var(--sub)}
+  .cx-kpis .k .s{font-size:11px;color:var(--faint)}
+  .cx-body h4{font-size:14px;font-weight:800;color:var(--sub);margin:16px 0 8px;letter-spacing:.02em}
+  .cx-body h4:first-child{margin-top:0}
+  .cx-spec{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;font-size:14px}
+  .cx-spec div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line)}
+  .cx-spec dt{color:var(--sub);flex:0 0 auto}
+  .cx-spec dd{text-align:right;margin:0}
+  .cx-pc{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .cx-pc ul{padding-left:18px;font-size:14px;margin:0}
+  .cx-pc li{margin-bottom:6px}
+  .cx-pc .pros{border-left:3px solid var(--green);padding-left:12px}
+  .cx-pc .cons{border-left:3px solid var(--red);padding-left:12px}
+  .cx-pc .pros h5{color:var(--green)} .cx-pc .cons h5{color:var(--red)}
+  .cx-pc h5{font-size:13px;font-weight:800;margin-bottom:6px}
+  .cx-body table{min-width:0}
+  .cx-finds{list-style:none;padding:0;font-size:14px}
+  .cx-finds li{padding:6px 0;border-bottom:1px dashed var(--line)}
+  .cx-finds .dom{font-size:11.5px;font-weight:700;color:var(--blue);background:var(--blue-bg);border-radius:6px;padding:1px 7px;margin-right:6px}
+  .cx-foot{display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:14px}
+  .cx-foot .card{margin:0;padding:14px 16px}
+  .cx-foot .card h5{font-size:13px;font-weight:800;margin-bottom:6px}
+  .cx-foot ul{padding-left:18px;margin:0} .cx-foot li{margin-bottom:4px}
+
+  /* ── 출처 ──────────────────────────────── */
+  .src-list{list-style:none;padding-left:0;counter-reset:src}
+  .src-list li{counter-increment:src;font-size:13.5px;color:var(--sub);padding:9px 0;border-bottom:1px solid var(--line);
+               display:flex;gap:10px;align-items:baseline}
+  .src-list li::before{content:"["counter(src)"]";color:var(--faint);font-variant-numeric:tabular-nums;flex:0 0 auto}
+  .src-list li:last-child{border-bottom:none}
+
+  /* ── 푸터 ──────────────────────────────── */
+  .foot{margin:48px 0 0;padding:28px 0 44px;border-top:1px solid var(--line);color:var(--faint);font-size:12.5px}
+
+  /* ── 반응형/인쇄 ───────────────────────── */
+  @media (max-width:680px){
+    .cover h1{font-size:30px}
+    .cover h1 .loc{display:block;margin:4px 0 0}
+    .grid-2,.bb,.cx-spec,.cx-pc,.cx-foot{grid-template-columns:1fr}
+    .hbar .row{grid-template-columns:96px 1fr 76px}
+    .kpi .v{font-size:20px}
+    .cx-head,.cx-body{padding-left:16px;padding-right:16px}
+  }
+  @media print{
+    .toc,.cx-nav{display:none}
+    body{background:#fff}
+    .card,.kpi,.risk,.verdict-box,.cx{break-inside:avoid;border-color:#ccc}
+    .cx.hide{display:block}
+  }
+.intro{margin-top:18px;color:var(--sub)}td{white-space:normal;vertical-align:top;min-width:110px}table{min-width:640px}.cx-body table{min-width:480px}td:first-child{font-weight:600}p{margin:10px 0}h4{margin-top:14px}textarea{display:block;width:100%;min-height:130px;padding:12px;font:inherit;border:1px solid var(--line);border-radius:10px;margin:12px 0}svg{width:100%;height:auto}a{overflow-wrap:anywhere}.note,.asof,.chart-cap,.foot,.cx-kpis .k .s{color:#667481}sup a{color:#52677d}@media(max-width:680px){.wrap{padding:0 16px}.card{padding:18px}.cover{padding-top:32px}.section{padding-top:30px}.cx-kpis{grid-template-columns:1fr}.cover h1{font-size:30px}}</style>
+</head>
+<body>
+<header class="cover">
+<div class="wrap">
+<p class="cover-kicker">현장에 가져가는 주민 의견 중심 리포트</p>
+<h1>안양 비산동<span class="loc">비산사거리 · 샘모루초 · 임곡공원 일대</span>
+</h1>
+<p class="cover-meta">조사 기준일 <b>2026-10-15</b> · 지역 조사 간략형 · 단일 세션 작성</p>
+<div class="conclusion">
+<div class="label">먼저 읽을 결론 · 분석</div>
+<p>생활 편의와 산책 환경은 매력적이다. 오늘은 후보 동에서 정류장·학교까지 직접 걸으며 경사, 소음, 주차 동선을 비교하자.</p>
+</div>
+<p class="intro">첨부 지도 주변의 입주 단지 4곳을 추렸다. 주민 경험을 중심으로 살펴보고, 가격은 참고 표본만 제시한다. 매수 판단은 <b>관망</b>: 현재 매물 조건과 공식 거래를 대조하기 전에는 가격의 합리성을 확정하기 어렵다.</p>
+</div>
+</header>
+<nav class="toc">
+<div class="wrap toc-row">
+<a href="#voices">주민 의견</a>
+<a href="#compare">단지 비교</a>
+<a href="#complexes">단지별 보기</a>
+<a href="#route">오늘 동선</a>
+<a href="#price">가격</a>
+<a href="#risk">판단·리스크</a>
+<a href="#sources">출처</a>
+</div>
+</nav>
+<main class="wrap">
+<section id="scope" class="section">
+<h2>오늘 볼 생활권</h2>
+<p class="sec-lede">
+</p>
+<div class="card">
+<h3>범위와 조사 방법</h3>
+<p>경기도 안양시 동안구 비산동 중 첨부 이미지에 보이는 <b>비산삼성래미안–샘모루초–임곡공원–평촌엘프라우드</b>와 관악대로 남측 <b>비산롯데캐슬·평촌래미안푸르지오</b>를 중심으로 한다. 비산동 전체나 평촌 학원가 전체를 대표하는 분석은 아니다.<sup>
+<a href="#src-25">[25]</a>
+</sup>
+</p>
+<p>사진에 일부 보이는 평촌자이퍼스니티 등 입주 전 단지는 실제 거주 후기 비교에서 제외했다. 지도에서 이름이 가려진 가격 핀은 단지명을 추측해 연결하지 않았다.</p>
+<p>
+<b>후기 읽는 원칙:</b> 거주기간 표시와 생활 경험이 구체적인 글을 우선했다. 지역 인증은 해당 아파트 거주 인증과 다르다. 작성자의 소유·임차 여부, 현재 거주 여부는 독립 검증하지 못했다. 같은 글이 여러 페이지에 노출된 경우 한 의견으로 취급했다.</p>
+<p>아래의 <b>주민 경험</b>은 의견의 존재를 확인했다는 뜻이다. 단지 전체의 객관적 성능이나 불만 비율을 뜻하지 않는다. 공식 확인 없이 소문을 사실로 바꾸지 않았다.</p>
+</div>
+</section>
+<section id="voices" class="section">
+<h2>주민들이 실제로 부딪히는 문제</h2>
+<p class="sec-lede">대표적인 경험을 짧게 재서술했다. 설문조사나 전체 주민 의견의 통계가 아니다.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>단지</th>
+<th>작성자·시점</th>
+<th>공개 경험 요약 — 모두 참고 의견</th>
+<th>오늘 확인할 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>삼성래미안</td>
+<td>똑띠 · 5년 이상 표시<br>2026-09-07</td>
+<td>마트·학교 접근에 만족하면서 전철이 바로 연결되지 않는 점은 아쉽다고 평가.<sup>
+<a href="#src-1">[1]</a>
+</sup>
+</td>
+<td>버스 편의와 지하철 보행 편의를 구별할 것.</td>
+</tr>
+<tr>
+<td>삼성래미안</td>
+<td>마미 · 3~5년 표시<br>상대일만 확인</td>
+<td>학교·버스·상가 접근은 좋지만 대로를 향한 방에서 차량 소음·매연을 경험.<sup>
+<a href="#src-2">[2]</a>
+</sup>
+</td>
+<td>도로변 후보 집에서 창문 개방·폐쇄 비교.</td>
+</tr>
+<tr>
+<td>삼성래미안</td>
+<td>세븐세븐 · 5년 이상 표시<br>2026-05-13</td>
+<td>자신이 사는 쪽 주차는 좋지만 다른 동은 복잡하다고 서술.<sup>
+<a href="#src-3">[3]</a>
+</sup>
+</td>
+<td>전체 주차 대수보다 귀가 시각의 후보 동 진입로 확인.</td>
+</tr>
+<tr>
+<td>삼성래미안</td>
+<td>콩콩할매 · 5년 이상 표시<br>2025-12-03</td>
+<td>중간 위치에서는 걸을 만하나 위쪽은 언덕 부담이 있다는 경험.<sup>
+<a href="#src-1">[1]</a>
+</sup>
+</td>
+<td>정문만 보지 말고 후보 동까지 올라가기.</td>
+</tr>
+<tr>
+<td>엘프라우드</td>
+<td>키움히어로즈 · 1~3년 표시<br>상대일만 확인</td>
+<td>산 주변 환경과 주차에 만족하나 편의시설·교통 선택지는 아쉽다고 평가.<sup>
+<a href="#src-7">[7]</a>
+</sup>
+</td>
+<td>자차 사용자와 대중교통 사용자 판단을 분리.</td>
+</tr>
+<tr>
+<td>엘프라우드</td>
+<td>숭숭 · 1~3년 표시<br>2026-09-04</td>
+<td>커뮤니티는 만족. 특정 동 앞 지하층 만차, 경기 소음, 창가 곰팡이를 경험했다고 서술.<sup>
+<a href="#src-8">[8]</a>
+</sup>
+</td>
+<td>단일 세대 사례다. 주차·창가 상태를 해당 동에서 확인하고 원인은 단정하지 말 것.</td>
+</tr>
+<tr>
+<td>엘프라우드</td>
+<td>봉봉바리 · 1~3년 표시<br>2026-08-31</td>
+<td>평소 주거 만족과 경기일 소음, 인근 공사·상가 부족을 함께 언급.<sup>
+<a href="#src-7">[7]</a>
+</sup>
+</td>
+<td>평일 낮 방문만으로 경기일·공사 시간대 소음을 판단하지 말 것.</td>
+</tr>
+<tr>
+<td>래미안푸르지오</td>
+<td>카우전 · 3~5년 표시<br>2026-08-18</td>
+<td>마트·버스·어린이 관련 시설과 조경 관리를 긍정적으로 평가.<sup>
+<a href="#src-11">[11]</a>
+</sup>
+</td>
+<td>병원 접근은 장점 후보. 실제 진료시간·예약 편의는 별도 확인.</td>
+</tr>
+<tr>
+<td>래미안푸르지오</td>
+<td>겨울나라 · 3~5년 표시<br>2026-07-12</td>
+<td>신축 만족과 엘리베이터 한 대 사용의 불편을 함께 언급.<sup>
+<a href="#src-14">[14]</a>
+</sup>
+</td>
+<td>단지 전체 사양으로 확대하지 말고 후보 라인 대기시간 측정.</td>
+</tr>
+<tr>
+<td>래미안푸르지오</td>
+<td>쩍 / Soig · 거주 자술<br>절대 작성일 미확인</td>
+<td>통학 지하 통로에 만족한 경험과 범계역까지 직접 걷는다는 경험이 있음.<sup>
+<a href="#src-12">[12]</a>
+</sup>
+</td>
+<td>단지 출입구부터 역 앞까지의 시간은 집에서 승강장까지 시간이 아니다.</td>
+</tr>
+<tr>
+<td>롯데캐슬</td>
+<td>스카이 · 1~3년 표시<br>2026-07-27</td>
+<td>교통·상가·마트에 만족하지만 간선도로 소음이 있다고 평가.<sup>
+<a href="#src-15">[15]</a>
+</sup>
+</td>
+<td>편의시설과 가까운 동일수록 창 방향 확인.</td>
+</tr>
+<tr>
+<td>롯데캐슬</td>
+<td>비봉산폭격기 · 5년 이상 표시<br>2026-07-07</td>
+<td>평지와 생활 편의를 높게 평가. 주차 공간 배분은 아쉽다고 서술.<sup>
+<a href="#src-15">[15]</a>
+</sup>
+</td>
+<td>주차 총량과 집 가까운 주차면은 별개.</td>
+</tr>
+<tr>
+<td>롯데캐슬</td>
+<td>몽실이 · 1~3년 표시<br>2026-07-24</td>
+<td>층간소음에 강한 불만을 표시. 조용하다는 다른 후기와 상반됨.<sup>
+<a href="#src-15">[15]</a>
+</sup>
+</td>
+<td>개별 호실·이웃 변수로 남겨 매물 방문 시 확인.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<div class="card">
+<h3>후기가 갈리는 이유를 읽자</h3>
+<p>
+<b>교통:</b> 삼성·롯데·평래푸의 버스 만족과 전철 접근 부담은 동시에 성립한다. 엘프라우드에서는 교통 선택지 부족을 지적하는 경험이 확인된다.<sup>
+<a href="#src-1">[1]</a>
+<a href="#src-7">[7]</a>
+<a href="#src-11">[11]</a>
+<a href="#src-15">[15]</a>
+</sup>
+</p>
+<p>
+<b>주차:</b> 엘프라우드도 동 앞 선호 구역에는 자리가 부족할 수 있다는 경험이 있다. “넉넉하다”를 “내 동 엘리베이터 옆에 항상 댄다”로 읽으면 안 된다.<sup>
+<a href="#src-8">[8]</a>
+</sup>
+</p>
+<p>
+<b>통학:</b> 지하 통로를 차량과 분리돼 좋다고 보는 시각이 있다. 반면 걷는 시간·밝기·계단은 직접 확인해야 한다. 커뮤니티의 학교 배정 확률이나 학교 서열 주장은 채택하지 않았다.<sup>
+<a href="#src-12">[12]</a>
+<a href="#src-13">[13]</a>
+</sup>
+</p>
+</div>
+<section id="compare" class="section">
+<h2>단지 비교 · 목적별 먼저 볼 곳</h2>
+<p class="sec-lede">기본정보는 민간 서비스 표기, 2026-10-15 열람. 학교 가깝다는 표시는 공식 배정 확인을 대신하지 않는다.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>단지</th>
+<th>사용승인 표기 / 세대수</th>
+<th>먼저 볼 이유 · 분석</th>
+<th>우선 확인</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="#cx-1">비산삼성래미안</a>
+</td>
+<td>2003-12-24 / 3,806세대<sup>
+<a href="#src-1">[1]</a>
+</sup>
+</td>
+<td>학교·상가 생활권을 누리되, 앞동과 상부동을 별개 후보처럼 보자.</td>
+<td>상부동 경사·대로변 소음</td>
+</tr>
+<tr>
+<td>
+<a href="#cx-2">평촌엘프라우드</a>
+</td>
+<td>2024-06-19 / 2,739세대<sup>
+<a href="#src-6">[6]</a>
+</sup>
+</td>
+<td>단지 내부 만족과 외부 교통·상권 불편을 따로 평가할 곳.</td>
+<td>현행 버스·블록별 차이</td>
+</tr>
+<tr>
+<td>
+<a href="#cx-3">평촌래미안푸르지오</a>
+</td>
+<td>2022-03-02* / 1,199세대<sup>
+<a href="#src-10">[10]</a>
+</sup>
+</td>
+<td>육아·마트·하천 이용을 함께 보되, 통학로와 엘리베이터를 직접 경험하자.</td>
+<td>통학 경로·승강기</td>
+</tr>
+<tr>
+<td>
+<a href="#cx-4">비산롯데캐슬</a>
+</td>
+<td>2003-09-27 / 955세대<sup>
+<a href="#src-15">[15]</a>
+</sup>
+</td>
+<td>평지와 상권 접근을 확인하고, 소음·노후 설비를 호실별로 점검할 곳.</td>
+<td>도로 소음·수선 상태</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="complexes" class="section">
+<h2>단지별 보기</h2>
+<p class="sec-lede">
+</p>
+<div class="cx-nav">
+<a href="#complexes" data-cx="all" class="on">전체</a>
+<a href="#cx-1" data-cx="cx-1">비산삼성래미안</a>
+<a href="#cx-2" data-cx="cx-2">평촌엘프라우드</a>
+<a href="#cx-3" data-cx="cx-3">평촌래미안푸르지오</a>
+<a href="#cx-4" data-cx="cx-4">비산롯데캐슬</a>
+</div>
+<article class="cx" id="cx-1" data-cx="cx-1">
+<header class="cx-head">
+<h3>비산삼성래미안</h3>
+<p class="note">실거래 신고 표기: 삼성래미안 · 비산동 425</p>
+<span class="st 참고">기본정보 참고 / 주민 경험</span>
+<p class="one">학교·상가 생활권을 누리되, 앞동과 상부동을 별개 후보처럼 보자.</p>
+</header>
+<div class="cx-body">
+<div class="cx-kpis">
+<div class="k">
+<div class="l">사용승인</div>
+<div class="v">2003-12-24</div>
+<div class="s">민간 표기 · 2026-10-15 열람<sup>
+<a href="#src-1">[1]</a>
+</sup>
+</div>
+</div>
+<div class="k">
+<div class="l">세대수</div>
+<div class="v">3,806</div>
+<div class="s">민간 표기 · 2026-10-15 열람<sup>
+<a href="#src-1">[1]</a>
+</sup>
+</div>
+</div>
+<div class="k">
+<div class="l">총 주차</div>
+<div class="v">4,790대</div>
+<div class="s">민간 표기 · 2026-10-15 열람<sup>
+<a href="#src-1">[1]</a>
+</sup>
+</div>
+</div>
+</div>
+<p>샘모루초 — 민간 배정 표기<sup>
+<a href="#src-1">[1]</a>
+</sup>
+</p>
+<h4>가격 표본 · 최신가나 적정가가 아님</h4>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>계약일</th>
+<th>전용 / 층</th>
+<th>금액</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>실거래 재게시·참고</td>
+<td>2026-04-03</td>
+<td>84.9㎡ (원문 반올림) / 7층</td>
+<td>8.45억<sup>
+<a href="#src-18">[18]</a>
+</sup>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cx-pc">
+<div class="pros">
+<h5>장점으로 검토할 경험</h5>
+<ul>
+<li>학교·마트·도서관 이용에 대한 장기 거주자 만족.<sup>
+<a href="#src-1">[1]</a>
+</sup>
+</li>
+<li>산책 접근과 버스 이용의 편리함이 함께 언급됨.<sup>
+<a href="#src-1">[1]</a>
+<a href="#src-4">[4]</a>
+</sup>
+</li>
+</ul>
+</div>
+<div class="cons">
+<h5>불편·반대 경험</h5>
+<ul>
+<li>대로변 소음·상부 경사로 동별 체감이 다름.<sup>
+<a href="#src-1">[1]</a>
+<a href="#src-2">[2]</a>
+</sup>
+</li>
+<li>주차 불편과 동별 차이에 대한 경험이 있음.<sup>
+<a href="#src-3">[3]</a>
+<a href="#src-4">[4]</a>
+</sup>
+</li>
+</ul>
+</div>
+</div>
+<h4>맞는 가구 · 분석</h4>
+<p>초등 통학과 일상 장보기를 우선하고, 후보 동의 경사를 감당할 수 있는 가구.</p>
+<h4>현장에서 확인</h4>
+<p>정류장→후보 동을 장보기 짐이 있다고 생각하고 걷기. 주차장 연결층과 창문 방향 확인. 누수·동파 수선 이력은 관리사무소 기록으로 확인.</p>
+<h4>가격 보는 법 · 분석</h4>
+<p>오래된 거래 표본이다. 지도 핀이나 검색에 나온 최근 금액과 평균을 내지 말고 같은 면적·동 조건의 최근 계약을 추가 확보할 것.</p>
+<h4>확인 못 한 것</h4>
+<p>용적률·장기수선 비용·배관 상태의 공식 대조, 최신 매매·전세 표본 미확보. 겨울 배관 문제는 단일 후기와 반론이 있어 단지 공통 하자로 보지 않음.</p>
+</div>
+</article>
+<article class="cx" id="cx-2" data-cx="cx-2">
+<header class="cx-head">
+<h3>평촌엘프라우드</h3>
+<p class="note">매곡로 23 · 지도 북측, 임곡공원 주변</p>
+<span class="st 참고">기본정보 참고 / 주민 경험</span>
+<p class="one">단지 내부 만족과 외부 교통·상권 불편을 따로 평가할 곳.</p>
+</header>
+<div class="cx-body">
+<div class="cx-kpis">
+<div class="k">
+<div class="l">사용승인</div>
+<div class="v">2024-06-19</div>
+<div class="s">민간 표기 · 2026-10-15 열람<sup>
+<a href="#src-6">[6]</a>
+</sup>
+</div>
+</div>
+<div class="k">
+<div class="l">세대수</div>
+<div class="v">2,739</div>
+<div class="s">민간 표기 · 2026-10-15 열람<sup>
+<a href="#src-6">[6]</a>
+</sup>
+</div>
+</div>
+<div class="k">
+<div class="l">총 주차</div>
+<div class="v">4,089대</div>
+<div class="s">민간 표기 · 2026-10-15 열람<sup>
+<a href="#src-6">[6]</a>
+</sup>
+</div>
+</div>
+</div>
+<p>비산초 — 민간 배정 표기<sup>
+<a href="#src-6">[6]</a>
+</sup>
+</p>
+<h4>가격 표본 · 최신가나 적정가가 아님</h4>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>계약일</th>
+<th>전용 / 층</th>
+<th>금액</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>실거래 재게시·참고</td>
+<td>2026-08-10</td>
+<td>84.97㎡ (표시값) / 25층</td>
+<td>13.0억<sup>
+<a href="#src-19">[19]</a>
+</sup>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cx-pc">
+<div class="pros">
+<h5>장점으로 검토할 경험</h5>
+<ul>
+<li>산 주변 환경·산책에 대한 만족 경험.<sup>
+<a href="#src-7">[7]</a>
+</sup>
+</li>
+<li>커뮤니티와 넓은 주차장에 대한 긍정 의견.<sup>
+<a href="#src-6">[6]</a>
+<a href="#src-8">[8]</a>
+</sup>
+</li>
+</ul>
+</div>
+<div class="cons">
+<h5>불편·반대 경험</h5>
+<ul>
+<li>대중교통과 편의시설 선택지에 대한 아쉬움.<sup>
+<a href="#src-7">[7]</a>
+<a href="#src-9">[9]</a>
+</sup>
+</li>
+<li>경기·공사 소음 및 특정 동 주차·창가 상태 확인 필요.<sup>
+<a href="#src-7">[7]</a>
+<a href="#src-8">[8]</a>
+</sup>
+</li>
+</ul>
+</div>
+</div>
+<h4>맞는 가구 · 분석</h4>
+<p>자차 활용도가 높고 단지 내 시설·산책을 중시하는 가구. 무차량 가구는 실제 출근편 검증을 먼저.</p>
+<h4>현장에서 확인</h4>
+<p>1단지와 다른 블록의 출입구·상가를 따로 보기. 평일 귀가 시각 주차, 운동장 방향 창, 공사 차량 동선, 창틀·벽 모서리 확인.</p>
+<h4>가격 보는 법 · 분석</h4>
+<p>고층 한 건으로 전체 적정가를 판단할 수 없다. 다른 블록·층·향과 구분하고 교통 개선 기대를 현재 편의로 계산하지 말 것.</p>
+<h4>확인 못 한 것</h4>
+<p>블록별 버스 현행 노선·배차, 개별 세대 하자 원인과 보수 완료 여부 미확인. 주변 상권 개선은 보장되지 않음.</p>
+</div>
+</article>
+<article class="cx" id="cx-3" data-cx="cx-3">
+<header class="cx-head">
+<h3>평촌래미안푸르지오</h3>
+<p class="note">경수대로898번길 14 · 하천과 비산사거리 사이</p>
+<span class="st 참고">기본정보 참고 / 주민 경험</span>
+<p class="one">육아·마트·하천 이용을 함께 보되, 통학로와 엘리베이터를 직접 경험하자.</p>
+</header>
+<div class="cx-body">
+<div class="cx-kpis">
+<div class="k">
+<div class="l">사용승인</div>
+<div class="v">2022-03-02*</div>
+<div class="s">민간 표기 · 2026-10-15 열람<sup>
+<a href="#src-10">[10]</a>
+</sup>
+</div>
+</div>
+<div class="k">
+<div class="l">세대수</div>
+<div class="v">1,199</div>
+<div class="s">민간 표기 · 2026-10-15 열람<sup>
+<a href="#src-10">[10]</a>
+</sup>
+</div>
+</div>
+<div class="k">
+<div class="l">총 주차</div>
+<div class="v">1,607대</div>
+<div class="s">민간 표기 · 2026-10-15 열람<sup>
+<a href="#src-10">[10]</a>
+</sup>
+</div>
+</div>
+</div>
+<p>안양중앙초 — 민간 배정 표기<sup>
+<a href="#src-10">[10]</a>
+</sup>
+</p>
+<h4>가격 표본 · 최신가나 적정가가 아님</h4>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>계약일</th>
+<th>전용 / 층</th>
+<th>금액</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>실거래 재게시·참고</td>
+<td>2026-07-14</td>
+<td>85.0㎡ (원문 반올림) / 7층</td>
+<td>13.8억<sup>
+<a href="#src-21">[21]</a>
+</sup>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cx-pc">
+<div class="pros">
+<h5>장점으로 검토할 경험</h5>
+<ul>
+<li>마트·버스·어린이 관련 시설 이용에 긍정 경험.<sup>
+<a href="#src-11">[11]</a>
+<a href="#src-12">[12]</a>
+</sup>
+</li>
+<li>하천 산책과 단지 조경에 대한 만족.<sup>
+<a href="#src-11">[11]</a>
+<a href="#src-12">[12]</a>
+</sup>
+</li>
+</ul>
+</div>
+<div class="cons">
+<h5>불편·반대 경험</h5>
+<ul>
+<li>범계역 도보를 편하게 보는 의견과 멀다고 보는 의견이 갈림.<sup>
+<a href="#src-13">[13]</a>
+</sup>
+</li>
+<li>일부 라인의 엘리베이터 대기에 대한 불편 경험.<sup>
+<a href="#src-14">[14]</a>
+</sup>
+</li>
+</ul>
+</div>
+</div>
+<h4>맞는 가구 · 분석</h4>
+<p>하천 산책과 영유아 생활시설을 자주 이용하고 버스 환승을 받아들일 수 있는 가구.</p>
+<h4>현장에서 확인</h4>
+<p>단지 출입구에서 안양중앙초 정문까지 실제 경로 걷기. 지하 통로 밝기·계단·우회로 확인. 후보 라인의 출근 시각 승강기 대기 확인.</p>
+<h4>가격 보는 법 · 분석</h4>
+<p>전용 59㎡대와 84㎡대 가격을 섞지 말 것. 신축 편의에 지불할 금액은 구축 수선비와 생활 차이를 함께 비교해 결정.</p>
+<h4>확인 못 한 것</h4>
+<p>*당근 사용승인 표기는 2022-03, 리치고 입주 표기는 2021-11. 서로 다른 항목일 수 있어 건축물대장 대조 필요. 배정은 교육지원청 확정 자료 미확인.</p>
+</div>
+</article>
+<article class="cx" id="cx-4" data-cx="cx-4">
+<header class="cx-head">
+<h3>비산롯데캐슬</h3>
+<p class="note">관악대로106번길 29 · 비산사거리 남측</p>
+<span class="st 참고">기본정보 참고 / 주민 경험</span>
+<p class="one">평지와 상권 접근을 확인하고, 소음·노후 설비를 호실별로 점검할 곳.</p>
+</header>
+<div class="cx-body">
+<div class="cx-kpis">
+<div class="k">
+<div class="l">사용승인</div>
+<div class="v">2003-09-27</div>
+<div class="s">민간 표기 · 2026-10-15 열람<sup>
+<a href="#src-15">[15]</a>
+</sup>
+</div>
+</div>
+<div class="k">
+<div class="l">세대수</div>
+<div class="v">955</div>
+<div class="s">민간 표기 · 2026-10-15 열람<sup>
+<a href="#src-15">[15]</a>
+</sup>
+</div>
+</div>
+<div class="k">
+<div class="l">총 주차</div>
+<div class="v">1,008대</div>
+<div class="s">민간 표기 · 2026-10-15 열람<sup>
+<a href="#src-15">[15]</a>
+</sup>
+</div>
+</div>
+</div>
+<p>안양중앙초 — 민간 인근 학교 표기<sup>
+<a href="#src-15">[15]</a>
+</sup>
+</p>
+<h4>가격 표본 · 최신가나 적정가가 아님</h4>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>계약일</th>
+<th>전용 / 층</th>
+<th>금액</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>실거래 재게시·참고</td>
+<td>2026-07-07</td>
+<td>82.245㎡ / 18층</td>
+<td>8.1억<sup>
+<a href="#src-22">[22]</a>
+</sup>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cx-pc">
+<div class="pros">
+<h5>장점으로 검토할 경험</h5>
+<ul>
+<li>평지 보행·마트·상가 접근에 긍정 의견.<sup>
+<a href="#src-15">[15]</a>
+</sup>
+</li>
+<li>버스 이용과 산책 생활에 대한 만족.<sup>
+<a href="#src-15">[15]</a>
+</sup>
+</li>
+</ul>
+</div>
+<div class="cons">
+<h5>불편·반대 경험</h5>
+<ul>
+<li>간선도로 소음·층간소음 불만 경험도 있음.<sup>
+<a href="#src-15">[15]</a>
+<a href="#src-16">[16]</a>
+</sup>
+</li>
+<li>주차 공간 배분과 구형 평면의 아쉬움이 제기됨.<sup>
+<a href="#src-15">[15]</a>
+</sup>
+</li>
+</ul>
+</div>
+</div>
+<h4>맞는 가구 · 분석</h4>
+<p>평지 생활을 우선하고 신축 시설보다 실제 사용할 면적·수선 상태를 중시하는 가구.</p>
+<h4>현장에서 확인</h4>
+<p>대로변과 내부 동의 창문 소리 비교. 지하주차장에서 집까지 이동하고 욕실·수압·배관·수선 내역 확인.</p>
+<h4>가격 보는 법 · 분석</h4>
+<p>다른 단지의 84㎡와 면적이 다르고 연식·계약월도 다르다. 낮은 표본 가격만으로 저평가라고 판단하지 말 것.</p>
+<h4>확인 못 한 것</h4>
+<p>주차 체감은 의견이 갈림. 단지 평균 관리비는 포함 항목이 불명확해 제외. 최신 동·향별 거래 대조 필요.</p>
+</div>
+</article>
+</section>
+<section id="route" class="section">
+<h2>오늘 걸어볼 순서</h2>
+<p class="sec-lede">
+</p>
+<div class="card">
+<h3>제안 코스 · 약 2~3시간 예산</h3>
+<p>
+<b>비산사거리 → 비산롯데캐슬 → 평촌래미안푸르지오·통학로 → 삼성래미안·샘모루초 → 임곡공원 → 엘프라우드</b>
+</p>
+<p>시간은 이동·관찰에 배분한 제안이며 실측 소요시간이 아니다. 처음에는 상권·평지를 보고, 뒤로 갈수록 경사와 외부 접근성을 비교한다. 공원 연결길·단지 출입 가능 여부는 현장에서 확인하고 필요하면 공공 보행로로 우회한다.</p>
+</div>
+<div class="card">
+<svg viewBox="0 0 760 260" role="img" aria-label="비산사거리에서 엘프라우드까지의 임장 관찰 순서">
+<path d="M60 65H695V190H60" fill="none" stroke="#bfd1d8" stroke-width="5" stroke-dasharray="8 6"/>
+<g fill="#eef4fd" stroke="#93b5d7">
+<rect x="10" y="25" width="215" height="80" rx="12"/>
+<rect x="270" y="25" width="215" height="80" rx="12"/>
+<rect x="530" y="25" width="215" height="80" rx="12"/>
+<rect x="530" y="145" width="215" height="80" rx="12"/>
+<rect x="270" y="145" width="215" height="80" rx="12"/>
+<rect x="10" y="145" width="215" height="80" rx="12"/>
+</g>
+<g text-anchor="middle" fill="#191f28" font-size="17" font-family="sans-serif">
+<text x="118" y="58">① 비산사거리</text>
+<text x="118" y="84" font-size="13">정류장 · 횡단 대기</text>
+<text x="378" y="58">② 비산롯데캐슬</text>
+<text x="378" y="84" font-size="13">평지 · 도로변 소음</text>
+<text x="638" y="58">③ 래미안푸르지오</text>
+<text x="638" y="84" font-size="13">하천 · 실제 통학로</text>
+<text x="638" y="178">④ 삼성래미안</text>
+<text x="638" y="204" font-size="13">샘모루초 · 상부 경사</text>
+<text x="378" y="178">⑤ 임곡공원</text>
+<text x="378" y="204" font-size="13">산책길 · 야간 동선</text>
+<text x="118" y="178">⑥ 평촌엘프라우드</text>
+<text x="118" y="204" font-size="13">블록별 상가 · 정류장</text>
+</g>
+</svg>
+<p class="note">관찰 순서 개념도. 방위·거리·출입구를 나타내는 지도가 아니며 실제 길찾기를 대신하지 않는다.</p>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>구간</th>
+<th>오늘 할 일</th>
+<th>남길 기록</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>비산사거리</td>
+<td>본인 출근 목적지로 가는 정류장과 반대편 귀가 정류장 모두 보기</td>
+<td>횡단 대기 / 실제 도착정보 / 서 있는 공간</td>
+</tr>
+<tr>
+<td>롯데·평래푸</td>
+<td>도로변과 안쪽 동 비교, 학교까지 실제 공공 보행로 걷기</td>
+<td>창문 개방 소음 / 통로 밝기 / 계단·우회</td>
+</tr>
+<tr>
+<td>삼성래미안</td>
+<td>정문→후보 동→샘모루초→장보기 동선</td>
+<td>오르막 체감 / 유모차 동선 / 주차 연결층</td>
+</tr>
+<tr>
+<td>임곡공원·엘프라우드</td>
+<td>공원 출입로와 각 블록의 상가·정류장 비교</td>
+<td>귀갓길 조명 / 공사차량 / 버스 선택지</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="note">실제 로드뷰·길찾기 측정은 실시하지 않았다. 방문 예정 단지의 거주자 전용 공간은 관리 절차에 따라 확인한다.</p>
+</section>
+<div class="card">
+<h3>현장 체크리스트 · 이 기기에 저장</h3>
+<ul class="check">
+<li>
+<label>
+<input type="checkbox" data-save="check-0">
+<span>후보 동 현관부터 정류장까지 직접 걸어 시간 기록 — 횡단 대기 포함</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" data-save="check-1">
+<span>집에서 직장까지 필요한 환승·대기·막차를 본인 시간대로 확인</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" data-save="check-2">
+<span>정문과 상부동을 모두 걸어 비·눈 오는 날 이동을 상상해 보기</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" data-save="check-3">
+<span>아이 동선으로 학교 정문까지 걷고 지하 통로·계단·차량 출입구 확인</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" data-save="check-4">
+<span>매물 방문 때 창문을 열고 닫아 도로·공사·운동장 소리를 비교</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" data-save="check-5">
+<span>후보 동 가까운 주차면과 엘리베이터 연결 경로 확인; 야간 상황은 재방문 또는 질문</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" data-save="check-6">
+<span>창틀·벽 모서리·천장 흔적을 보고 누수·결로 수선 기록 요청</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" data-save="check-7">
+<span>해당 라인의 엘리베이터 수·대기·점검 시 대체 경로 확인</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" data-save="check-8">
+<span>관리비 고지서의 공용·개별사용료·장기수선충당금 구분 확인</span>
+</label>
+</li>
+<li>
+<label>
+<input type="checkbox" data-save="check-9">
+<span>동·층·향·수리상태가 비슷한 매매 및 전세 최근 계약을 중개사에게 요청</span>
+</label>
+</li>
+</ul>
+<label for="field-note">
+<b>오늘 본 후보 동·호실 / 가장 불편했던 점</b>
+</label>
+<textarea id="field-note" data-save="note" placeholder="예: ○동 — 버스정류장까지 실제 ○분, 오르막 체감, 창문 소음, 주차 위치">
+</textarea>
+<p class="note">저장은 브라우저 로컬 저장소를 사용한다. 파일·브라우저 환경에 따라 저장되지 않을 수 있으니 중요한 메모는 따로 복사해 둔다.</p>
+</div>
+<div class="card">
+<h3>주민에게 짧게 물어볼 질문</h3>
+<ul>
+<li>평일 퇴근 후에는 보통 어느 층에 주차하시나요? 집까지 얼마나 걸리나요?</li>
+<li>버스는 자주 오는데도 타기 어려운 시간이나 방향이 있나요?</li>
+<li>아이가 학교에 갈 때 실제로 어느 문과 통로를 쓰나요?</li>
+<li>살아보니 가장 불편한 것 한 가지와 이사하지 않는 이유 한 가지는 무엇인가요?</li>
+<li>비 오는 날, 겨울, 경기 있는 날에 평소와 달라지는 점이 있나요?</li>
+</ul>
+</div>
+<section id="price" class="section">
+<h2>가격은 참고 표본까지만</h2>
+<p class="sec-lede">
+</p>
+<div class="term">
+<span class="chip">용어</span>
+<span>
+<b>실거래</b>는 계약·신고 가격, <b>호가</b>는 매도 희망 가격이다. <b>전용면적</b>은 세대 내부 면적이며 지도에 보이는 평형과 기준이 다를 수 있다.</span>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>단지</th>
+<th>계약일</th>
+<th>전용면적</th>
+<th>층</th>
+<th>금액</th>
+<th>자료 성격</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="#cx-1">비산삼성래미안</a>
+</td>
+<td>2026-04-03</td>
+<td>84.9㎡ (원문 반올림)</td>
+<td>7층</td>
+<td>8.45억</td>
+<td>실거래 재게시·참고<sup>
+<a href="#src-18">[18]</a>
+</sup>
+</td>
+</tr>
+<tr>
+<td>
+<a href="#cx-2">평촌엘프라우드</a>
+</td>
+<td>2026-08-10</td>
+<td>84.97㎡ (표시값)</td>
+<td>25층</td>
+<td>13.0억</td>
+<td>실거래 재게시·참고<sup>
+<a href="#src-19">[19]</a>
+</sup>
+</td>
+</tr>
+<tr>
+<td>
+<a href="#cx-3">평촌래미안푸르지오</a>
+</td>
+<td>2026-07-14</td>
+<td>85.0㎡ (원문 반올림)</td>
+<td>7층</td>
+<td>13.8억</td>
+<td>실거래 재게시·참고<sup>
+<a href="#src-21">[21]</a>
+</sup>
+</td>
+</tr>
+<tr>
+<td>
+<a href="#cx-4">비산롯데캐슬</a>
+</td>
+<td>2026-07-07</td>
+<td>82.245㎡</td>
+<td>18층</td>
+<td>8.1억</td>
+<td>실거래 재게시·참고<sup>
+<a href="#src-22">[22]</a>
+</sup>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="card">
+<h3>이 표로 싸고 비쌈을 확정하지 않는 이유</h3>
+<p>서로 다른 시점·면적·층의 일부 거래다. 국토교통부 원문에서 취소·정정 여부를 직접 대조하지 못했으며, 오늘의 최신 거래를 모두 수집한 표도 아니다. 엘프라우드 표본은 두 민간 재게시 자료에서 일치했지만 같은 원자료를 쓸 수 있다.<sup>
+<a href="#src-19">[19]</a>
+<a href="#src-20">[20]</a>
+</sup>
+</p>
+<p>평래푸의 별도 <b>전용 59.96㎡</b> 표본은 2026-08-14·20층 <b>10.89억 실거래 재게시</b>, 2026-10-14 표기 최저 매물은 <b>10.5억 호가</b>다. 같은 매물이라는 뜻이 아니며 조건 차이를 확인해야 한다. 84㎡대 가격과 비교해 상승·하락을 계산하면 안 된다.<sup>
+<a href="#src-23">[23]</a>
+</sup>
+</p>
+<p>첨부 이미지의 삼성래미안 32평 9.7억, 엘프라우드 33평 12.9억, 평래푸 25평 10.9억은 <b>촬영일과 핀 집계 방식 미확인 표시값</b>이다. 호가나 현재 실거래로 단정하지 않았다.<sup>
+<a href="#src-25">[25]</a>
+</sup>
+</p>
+<p>전세는 동일 면적·계약 시점·신규/갱신 조건을 맞춘 표본이 부족해 전세가율과 매수 적정가를 계산하지 않았다. 현재 가격 판단은 보류한다.</p>
+</div>
+</section>
+<section id="aftercare" class="section">
+<h2>매수 후에도 남는 비용·임대 수요를 보자</h2>
+<p class="sec-lede">호가나 단지 평점으로는 드러나지 않는 운영비와 전세 표본을 추가했다. 가공 서비스의 K-apt·실거래 재게시 수치이며, 한 달 또는 최근 1년 집계라서 개별 세대 고지서·계약 조건을 대체하지 않는다.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인된 공개 표본</th>
+<th>매수 판단에 쓰는 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>비산삼성래미안<br>관리비</td>
+<td>2026년 5월 부과면적 기준 합계 2,173원/㎡, 장기수선충당금 245원/㎡. 지역난방·위탁관리 표기.<sup><a href="#src-28">[28]</a></sup></td>
+<td>84㎡ 전용과 부과면적은 다르므로 월 고지서를 역산하지 않는다. 같은 계절의 최근 12개월 고지서와 장기수선 사용 내역을 관리사무소에서 대조.</td>
+</tr>
+<tr>
+<td>비산롯데캐슬<br>관리비·적립</td>
+<td>2026년 7월 부과면적 기준 합계 2,484원/㎡, 장기수선충당금 353원/㎡. 공개 잔액은 약 18.15억원, 해당 월 사용액은 약 55만원으로 표기.<sup><a href="#src-29">[29]</a></sup></td>
+<td>삼성 표본과 월·면적 기준이 달라 단가 우열을 확정하지 않는다. 구축 매수에서는 잔액보다 장기수선계획, 최근 공사·입찰, 향후 분담 가능성을 함께 확인.</td>
+</tr>
+<tr>
+<td>평촌래미안푸르지오<br>전세 표본</td>
+<td>가공된 최근 1년 집계에서 전용 84.9㎡ 평균 전세보증금 7.10억원, 85.0㎡ 6.68억원으로 표시. 2026-10-06의 84.93㎡·13층 7.035억원은 갱신권 사용 표기.<sup><a href="#src-30">[30]</a></sup></td>
+<td>갱신·신규, 층·향·하자 조건이 다른 계약을 섞으면 안 된다. 현금 계획에는 동일 동·면적의 신규 전세 3건 이상과 등기부 선순위 채권을 따로 확보.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="card">
+<h3>계약 직전에는 이렇게 좁힌다</h3>
+<p><b>실거주:</b> 후보 호실의 관리비 고지서 12개월, 장기수선충당금 부과·사용 내역, 누수·결로·승강기 고장 접수 이력을 요청한다. <b>투자:</b> 등기부의 소유권·근저당·가압류, 전세 계약이면 확정일자·전입세대 열람 범위와 선순위 보증금, 매매면 잔금일·대출 조건을 법무사·중개사와 문서로 대조한다. 이 항목들은 이번 웹 조사에서 개별 매물별로 확인하지 않았다.</p>
+</div>
+</section>
+<section id="risk" class="section">
+<h2>개발 기대와 현재 생활을 분리</h2>
+<p class="sec-lede">
+</p>
+<div class="card">
+<h3>월곶~판교선 · 역 위치와 공정은 확인, 개통일은 미확정</h3>
+<p>국가철도공단은 월곶~판교 사업을 <b>2015~2030년</b>, <b>노반 공사 계속</b>, <b>2026년 6월 기준 공정률 18.0%</b>으로 공개한다.<sup>
+<a href="#src-26">[26]</a>
+</sup> 공단의 안양운동장 지하역사 설계공모 자료에는 대상 위치가 <b>안양시 동안구 비산동 일원</b>으로 명시됐다.<sup>
+<a href="#src-27">[27]</a>
+</sup>
+</p>
+<p>
+<b>해석:</b> 비산동 일원의 역 계획 자체는 확인됐지만 출입구·개통시점·후보 동에서의 실제 접근시간은 이번에 확정하지 못했다. 사업기간 종료연도는 개통 보장일이 아니다. 현재 이용 가능한 버스·보행으로 생활을 평가하고, 철도는 미래 변수로만 둔다.</p>
+</div>
+<div class="bb">
+<div class="card">
+<h3>Bull Case · 살고 싶어질 이유</h3>
+<ol>
+<li>생활시설과 학교 이용의 만족 경험이 구축에서도 확인된다.<sup>
+<a href="#src-1">[1]</a>
+<a href="#src-15">[15]</a>
+</sup>
+</li>
+<li>하천·산책과 단지 내부 시설이 실생활 장점이 될 수 있다.<sup>
+<a href="#src-7">[7]</a>
+<a href="#src-11">[11]</a>
+</sup>
+</li>
+<li>구축과 신축급 사이에서 평지·시설·면적의 우선순위를 선택할 여지가 있다.<sup>
+<a href="#src-1">[1]</a>
+<a href="#src-6">[6]</a>
+<a href="#src-10">[10]</a>
+<a href="#src-15">[15]</a>
+</sup>
+</li>
+</ol>
+</div>
+<div class="card">
+<h3>Bear Case · 망설일 이유</h3>
+<ol>
+<li>현재의 전철 접근과 버스 체감은 통근 목적지에 따라 달라진다.<sup>
+<a href="#src-4">[4]</a>
+<a href="#src-7">[7]</a>
+<a href="#src-13">[13]</a>
+</sup>
+</li>
+<li>같은 단지 안에서도 소음·경사·주차·창가 상태가 다를 수 있다.<sup>
+<a href="#src-2">[2]</a>
+<a href="#src-3">[3]</a>
+<a href="#src-8">[8]</a>
+<a href="#src-15">[15]</a>
+</sup>
+</li>
+<li>가격 표본이 불완전하고 철도 편익은 앞으로의 변수다. 신축 가격 차이가 본인의 효용보다 클 수 있다.<sup>
+<a href="#src-17">[17]</a>
+<a href="#src-18">[18]</a>
+<a href="#src-19">[19]</a>
+<a href="#src-21">[21]</a>
+<a href="#src-22">[22]</a>
+</sup>
+</li>
+</ol>
+</div>
+</div>
+<div class="card">
+<h3>가장 중요한 미확인 변수</h3>
+<p>
+<b>후보 동에서 본인 직장까지, 실제 출퇴근 시각의 이동을 매일 감당할 수 있는가?</b> 직장·예산·자녀 연령 정보가 없어 가구별 우선순위를 확정할 수 없다. 오늘의 후보 동 보행과 출퇴근 시간대 대중교통 확인이 다음 결정을 좌우한다.</p>
+</div>
+<div class="card">
+<h3>자연환경·학교·설비 확인</h3>
+<p>
+<b>확인 필요:</b> 하천과 산이 가깝다는 이유만으로 침수·산사태 위험이 높거나 낮다고 판단하지 않았다. 후보 주소의 재해 이력·배수·지하주차장 차수 대책은 이번에 공식 확인하지 못했다.</p>
+<p>초등학교 민간 표기와 주민 설명은 위치·통학 질문을 만드는 데만 썼다. 동·주소별 통학구역, 중학교 배정, 향후 변경은 교육지원청 자료로 별도 확인해야 한다. 신축의 곰팡이 경험 역시 하자 원인이나 전 단지 발생을 입증하지 않는다.</p>
+</div>
+</section>
+<section id="verdict" class="section">
+<h2>최종 판단</h2>
+<p class="sec-lede">
+</p>
+<div class="verdict-box">
+<div class="verdict-chips">
+<span class="vchip">매수 고려</span>
+<span class="vchip">적극 검토</span>
+<span class="vchip on">관망</span>
+<span class="vchip">비추천</span>
+</div>
+<p>
+<b>실거주 후보로는 현장에서 비교할 가치가 있다. 현재 가격에서의 매수 결정은 보류한다.</b>
+</p>
+<ol class="reasons">
+<li>생활 편의에 대한 구체적인 긍정 경험은 확인했다.</li>
+<li>주민 불만의 상당 부분은 후보 동·호실·귀가 시간에 따라 판단이 달라진다.</li>
+<li>개통 기대를 제외한 현재 출퇴근 동선을 아직 검증하지 못했다.</li>
+<li>최신 공식 거래와 전세·수선비를 같은 조건으로 대조하지 못했다.</li>
+</ol>
+<p>
+<b>오늘의 목표:</b> “어느 단지가 최고인가”보다 “내가 감당하기 어려운 불편이 있는 동은 어디인가”를 가려 후보를 줄이는 것.</p>
+</div>
+</section>
+<section id="sources" class="section">
+<h2>조사 출처와 열람 수준</h2>
+<p class="sec-lede">웹 자료 공통 열람일: 2026-10-15. A 공공기관 / B 공공데이터 가공 / D 민간 서비스 / E 주민 커뮤니티. 등급은 개별 의견의 진실성을 보증하지 않는다.</p>
+<ol class="src-list">
+<li id="src-1">
+<span>
+<b>당근부동산 | 삼성래미안 단지 정보·학군 후기</b> | D/E<br>2025~2026 작성글, 2026-10-15 열람 | <a href="https://realty.daangn.com/complexes/15080181/topics/school-district" target="_blank" rel="noopener noreferrer">원문</a>
+<br>본문 열람. 거주기간은 작성자 표시이며 독립 검증 아님.</span>
+</li>
+<li id="src-2">
+<span>
+<b>당근부동산 | 삼성래미안 마미 후기</b> | E<br>상대표기 18일 전, 절대 작성일 미확인 | <a href="https://realty.daangn.com/complexes/15080181/reviews/556388" target="_blank" rel="noopener noreferrer">원문</a>
+<br>본문 열람. 대로변 소음·매연 경험.</span>
+</li>
+<li id="src-3">
+<span>
+<b>당근부동산 | 삼성래미안 세븐세븐 후기</b> | E<br>2026-05-13 | <a href="https://realty.daangn.com/complexes/15080181/reviews/293208" target="_blank" rel="noopener noreferrer">원문</a>
+<br>본문 열람. 동에 따른 주차 차이.</span>
+</li>
+<li id="src-4">
+<span>
+<b>호갱노노 | 삼성래미안 장단점 / 효장</b> | E<br>상대표기 4달 전, 절대 작성일 미확인 | <a href="https://hogangnono.com/community/apts-7374115" target="_blank" rel="noopener noreferrer">원문</a>
+<br>검색에 공개된 본문 참고. 전철 접근·주차.</span>
+</li>
+<li id="src-5">
+<span>
+<b>호갱노노 | 삼성래미안 장기 거주 경험과 반론</b> | E<br>상대표기 2달 전, 절대 작성일 미확인 | <a href="https://hogangnono.com/community/apts-7507523" target="_blank" rel="noopener noreferrer">원문</a>
+<br>검색 본문만 확인; 직접 열람 실패. 배관·소음 주장 일반화 제외.</span>
+</li>
+<li id="src-6">
+<span>
+<b>당근부동산 | 평촌엘프라우드 단지 정보</b> | D/E<br>2026-10-15 열람 | <a href="https://realty.daangn.com/complexes/15080318" target="_blank" rel="noopener noreferrer">원문</a>
+<br>본문 열람. 기본정보와 공개 후기 목록.</span>
+</li>
+<li id="src-7">
+<span>
+<b>당근부동산 | 엘프라우드 키움히어로즈 후기 및 공개 댓글 목록</b> | E<br>상대표기 20일 전 및 2026-08~09 글 | <a href="https://realty.daangn.com/complexes/15080318/reviews/554272" target="_blank" rel="noopener noreferrer">원문</a>
+<br>본문 열람. 거주기간 1~3년 표시.</span>
+</li>
+<li id="src-8">
+<span>
+<b>당근부동산 | 엘프라우드 숭숭 후기</b> | E<br>2026-09-04 | <a href="https://realty.daangn.com/complexes/15080318/reviews/532297" target="_blank" rel="noopener noreferrer">원문</a>
+<br>본문 열람. 주차·경기 소음·창가 곰팡이 경험.</span>
+</li>
+<li id="src-9">
+<span>
+<b>호갱노노 | 엘프라우드 1단지 상가에 대한 상반된 평가</b> | E<br>상대표기 5달 전, 절대 작성일 미확인 | <a href="https://hogangnono.com/community/apts-7262104" target="_blank" rel="noopener noreferrer">원문</a>
+<br>검색 본문만 확인; 직접 열람 실패.</span>
+</li>
+<li id="src-10">
+<span>
+<b>당근부동산 | 평촌래미안푸르지오 단지 정보</b> | D<br>2026-10-15 검색 열람 | <a href="https://realty.daangn.com/complexes/15080184?entry_section=external" target="_blank" rel="noopener noreferrer">원문</a>
+<br>사용승인일·세대수·주차 표기.</span>
+</li>
+<li id="src-11">
+<span>
+<b>당근부동산 | 평촌래미안푸르지오 교통 후기</b> | E<br>2025-11~2026-08 작성글 | <a href="https://realty.daangn.com/complexes/15080184/topics/transportation" target="_blank" rel="noopener noreferrer">원문</a>
+<br>본문 열람. 카우전·피자 등; 동일 작성자 중복은 독립 의견으로 세지 않음.</span>
+</li>
+<li id="src-12">
+<span>
+<b>호갱노노 | 평촌래미안푸르지오 입주 두 달 경험 / 쩍</b> | E<br>상대표기 6달 전, 절대 작성일 미확인 | <a href="https://hogangnono.com/community/apts-7183846" target="_blank" rel="noopener noreferrer">원문</a>
+<br>검색 본문만 확인. 통학·병원·하천 경험.</span>
+</li>
+<li id="src-13">
+<span>
+<b>호갱노노 | 평촌래미안푸르지오 범계역 보행 / Soig</b> | E<br>상대표기 4년 전, 절대 작성일 미확인 | <a href="https://hogangnono.com/community/apts-4034319" target="_blank" rel="noopener noreferrer">원문</a>
+<br>검색 본문 확인. 출발·도착점이 제한된 개인 측정.</span>
+</li>
+<li id="src-14">
+<span>
+<b>당근부동산 | 평촌래미안푸르지오 후기 모음 / 겨울나라 등</b> | E<br>겨울나라 2026-07-12, 나머지 개별일 미확인 | <a href="https://realty.daangn.com/complexes/15080184/reviews/529883" target="_blank" rel="noopener noreferrer">원문</a>
+<br>검색 공개 본문. 엘리베이터 불편 경험.</span>
+</li>
+<li id="src-15">
+<span>
+<b>당근부동산 | 비산롯데캐슬 단지 정보 및 공개 후기</b> | D/E<br>2026-06~07 및 상대일 표기, 2026-10-15 열람 | <a href="https://realty.daangn.com/complexes/15080182/reviews/556381" target="_blank" rel="noopener noreferrer">원문</a>
+<br>본문 열람. 마미·스카이·몽실이·비봉산폭격기 등.</span>
+</li>
+<li id="src-16">
+<span>
+<b>호갱노노 | 비산롯데캐슬 장기 거주 후기</b> | E<br>상대 작성일 미확인 | <a href="https://hogangnono.com/community/apts/apts-3121781" target="_blank" rel="noopener noreferrer">원문</a>
+<br>검색 본문. 주차 긍정과 층간소음 불만.</span>
+</li>
+<li id="src-17">
+<span>
+<b>국가철도공단 | 일반철도 사업현황: 월곶~판교</b> | A 원문 / 열람 제한<br>공정률 2026-06 기준, 2026-10-15 검색 | <a href="https://www.kr.or.kr/sub/info.do?m=05010302" target="_blank" rel="noopener noreferrer">원문</a>
+<br>공식 도메인 검색 색인에 사업기간 2015~2030, 노반공사 계속, 18.0% 표시. 직접 열람 시간 초과.</span>
+</li>
+<li id="src-18">
+<span>
+<b>김이도 | 삼성래미안 실거래 목록</b> | B 가공 / 참고<br>자료 정리 2026-08-02 | <a href="https://kimyido.com/apt/gyeonggi/anyang-dongan/bisandong/samseongraemian" target="_blank" rel="noopener noreferrer">원문</a>
+<br>본문 열람. 국토부 원문 미대조. 신고명 삼성래미안.</span>
+</li>
+<li id="src-19">
+<span>
+<b>아파트봉 | 평촌엘프라우드 실거래 목록</b> | B 가공 / 참고<br>2026-08-10 계약 표본 | <a href="https://www.aptbong.com/apt/danji/136906" target="_blank" rel="noopener noreferrer">원문</a>
+<br>검색 색인 확인; 직접 열람 실패. 아파트 인사이트와 금액·층 일치.</span>
+</li>
+<li id="src-20">
+<span>
+<b>아파트 인사이트 | 평촌엘프라우드 실거래 목록</b> | B 가공 / 참고<br>2026-08-10 계약 표본 | <a href="https://www.apt-insights.com/apt/41173/cmt4iyr4s006i04jsdscgb4d1" target="_blank" rel="noopener noreferrer">원문</a>
+<br>검색 공개 본문 확인.</span>
+</li>
+<li id="src-21">
+<span>
+<b>김이도 | 평촌래미안푸르지오 실거래 목록</b> | B 가공 / 참고<br>자료 정리 2026-08-02 | <a href="https://kimyido.com/apt/gyeonggi/anyang-dongan/bisandong/pyeongchonraemianpureujio" target="_blank" rel="noopener noreferrer">원문</a>
+<br>본문 열람. 국토부 원문 미대조.</span>
+</li>
+<li id="src-22">
+<span>
+<b>김이도 | 비산롯데캐슬 전용 82㎡대 거래</b> | B 가공 / 참고<br>자료 정리 2026-08-02 | <a href="https://kimyido.com/apt/gyeonggi/anyang-dongan/bisandong/bisanrotdekaeseul/area-82" target="_blank" rel="noopener noreferrer">원문</a>
+<br>본문 열람. 국토부 원문 미대조.</span>
+</li>
+<li id="src-23">
+<span>
+<b>리치고 | 평촌래미안푸르지오 실거래·호가</b> | D / 참고<br>호가 2026-10-14, 거래 2026-08-14 | <a href="https://m.richgo.ai/realty/danji/a1ntBnQ" target="_blank" rel="noopener noreferrer">원문</a>
+<br>본문 열람. 입주 시점과 사용승인일의 표기 차이 있음.</span>
+</li>
+<li id="src-24">
+<span>
+<b>리치고 | 비산삼성래미안 가격 페이지</b> | D / 확인 필요<br>검색 2026-10-14 / 본문 2026-09-27 | <a href="https://m.richgo.ai/realty/danji/a7pxYbl?priceType=jeonse&amp;pyeongType=32" target="_blank" rel="noopener noreferrer">원문</a>
+<br>검색과 본문 시점·조회 결과 불일치. 최신 거래·호가 판단에서 제외.</span>
+</li>
+<li id="src-25">
+<span>
+<b>사용자 제공 | 비산동 지도 이미지</b> | 범위 참고<br>촬영일 미상, 2026-10-15 수신 | 사용자 첨부<br>파일: 42404B73-9A61-4546-8F02-51249414D42B_1_102_o.jpeg. 핀 가격 성격·기준일 미확인.</span>
+</li>
+<li id="src-26">
+<span>
+<b>국가철도공단 | 2026 사업실명제: 월곶∼판교 복선전철</b> | A<br>2026-10-15 열람 | <a href="https://www.kr.or.kr/sub/info.do?m=05010302" target="_blank" rel="noopener noreferrer">사업현황</a><br>사업기간·공정률·공사 진행은 국가철도공단 사업현황에서, 2026년 사업실명제 게시물 존재는 별도 원문에서 확인.</span>
+</li>
+<li id="src-27">
+<span>
+<b>국가철도공단 | 월곶~판교 안양운동장 지하역사 설계공모</b> | A<br>2026-10-15 열람 | <a href="https://www.kr.or.kr/boardCnts/view.do?boardID=51&amp;boardSeq=1112887&amp;page=10" target="_blank" rel="noopener noreferrer">원문</a><br>안양운동장 지하역사 대상 위치를 안양시 동안구 비산동 일원으로 명시. 출입구 위치·개통일은 이 자료로 확정하지 않음.</span>
+</li>
+<li id="src-28">
+<span>
+<b>아파트다모아 | 비산삼성래미안 관리비</b> | B/D<br>2026년 5월 표기, 2026-10-15 열람 | <a href="https://www.aptdamoa.com/apt/A43105004/contents.html" target="_blank" rel="noopener noreferrer">원문</a><br>K-apt 공개데이터를 재게시한 서비스. 총액은 부과면적 기준이며 개별 세대 고지액이 아님.</span>
+</li>
+<li id="src-29">
+<span>
+<b>아파트다모아 | 비산롯데캐슬 관리비·장기수선충당금</b> | B/D<br>2026년 7월 표기, 2026-10-15 열람 | <a href="https://www.aptdamoa.com/apt/A43182003/contents.html" target="_blank" rel="noopener noreferrer">원문</a><br>K-apt 공개데이터 재게시. 월별·부과면적 기준이므로 실제 매수 호실 비용과 다를 수 있음.</span>
+</li>
+<li id="src-30">
+<span>
+<b>아파트다모아 | 평촌래미안푸르지오 최근 매매·전세 실거래</b> | B/D<br>최근 1년 집계 및 2026-10-06 계약 표기, 2026-10-15 열람 | <a href="https://www.aptdamoa.com/real-price/27800/contents.html" target="_blank" rel="noopener noreferrer">원문</a><br>국토교통부 실거래 데이터를 가공·재게시한 서비스 표기. 원문 신고·취소 여부와 개별 계약 특약은 별도 확인 필요.</span>
+</li>
+</ol>
+</section>
+<section id="limits" class="section">
+<h2>기준일·충돌·한계</h2>
+<p class="sec-lede">
+</p>
+<div class="card">
+<h3>이번 간략 조사에서 해소한 빈칸</h3>
+<ul>
+<li><b>철도 계획의 위치·진행:</b> 안양운동장 지하역사 설계 대상은 비산동 일원으로 확인했고, 사업 전체는 2026년 6월 공정률 18.0%·2030년 사업기간으로 공단이 공개한다. 출입구·개통일은 여전히 확정값으로 쓰지 않았다.<sup><a href="#src-26">[26]</a><a href="#src-27">[27]</a></sup></li>
+<li><b>구축 유지비의 공개 단서:</b> 삼성래미안·롯데캐슬의 관리비와 장기수선충당금 월별 표본을 추가했다. 같은 월·면적·항목으로 맞춘 비교는 아니므로 ‘어느 쪽이 싸다’는 결론은 내리지 않았다.<sup><a href="#src-28">[28]</a><a href="#src-29">[29]</a></sup></li>
+<li><b>평래푸의 전세 참고선:</b> 전용 84.9㎡대 최근 1년 전세 집계와 갱신 계약 예시를 확보했다. 전세가율이나 회수 가능성을 확정할 만큼의 동일 조건 신규 계약 표본은 아직 부족하다.<sup><a href="#src-30">[30]</a></sup></li>
+<li><b>호갱노노 원문:</b> Chrome에서도 해당 커뮤니티 URL 직접 진입을 시도했으나 자동화 입력 단계에서 페이지 원문을 추가 확보하지 못했다. 기존 검색에 공개된 문장만 의견 자료로 유지했고, 이를 사실 확인으로 격상하지 않았다.</li>
+</ul>
+<h3>계약 전까지 남은 빈칸</h3>
+<ul>
+<li>후보 호실의 등기부, 건축물대장, 토지이용계획확인원, 전입세대·확정일자와 선순위 채권, 대출 가능액·취득세·중개보수 등 현금흐름은 매물 특정 후 문서로 확인해야 한다.</li>
+<li>주소별 초등 통학구역·중학교 배정, 하천·급경사지·배수·지하주차장 차수와 재해 이력은 공식 기관의 최신 주소 단위 자료를 아직 대조하지 못했다.</li>
+<li>신축의 하자 보수·보증 종료, 구축의 배관·방수·승강기·외벽 장기수선계획과 실제 공사 이력은 단지 평균 대신 후보 동·라인 자료가 필요하다.</li>
+<li>호갱노노 일부 페이지는 직접 열리지 않아 검색에 공개된 글만 참고했다. 상대 작성일은 검색 캐시와 실제 시점이 다를 수 있어 절대일로 역산하지 않았다. 후기 작성자의 거주·소유 관계도 독립 확인하지 못했다.</li>
+<li>서브 에이전트 없이 조사·작성·검수했다. HTML 태그 중첩·내부 링크·단지 카드 구조를 검사하고 Chrome에서 카드 배치와 단지 선택·전체 보기 복귀를 확인했다. 본 문서는 오늘 임장 준비용이며 계약 실사를 완료한 보고서가 아니다.</li>
+</ul>
+</div>
+</section>
+<footer class="foot">안양 비산동 온라인 임장 · 2026-10-15 · 주민 경험 중심 간략 조사<br>단일 HTML · 외부 파일·자동 네트워크 요청 없음 · 출처 링크는 선택 시 열림</footer>
+</main>
+<script>const cards=[...document.querySelectorAll('.cx')];function show(id){cards.forEach(c=>c.classList.toggle('hide',id!=='all'&&c.id!==id));document.querySelectorAll('.cx-nav a').forEach(a=>a.classList.toggle('on',a.dataset.cx===id));}document.querySelectorAll('.cx-nav a').forEach(a=>a.addEventListener('click',()=>show(a.dataset.cx)));function hashShow(){const id=location.hash.slice(1);if(cards.some(c=>c.id===id))show(id)}window.addEventListener('hashchange',hashShow);hashShow();document.querySelectorAll('[data-save]').forEach(el=>{const key='bisan-20261015-'+el.dataset.save;try{const v=localStorage.getItem(key);if(v!==null){if(el.type==='checkbox')el.checked=v==='true';else el.value=v}}catch(e){}el.addEventListener('input',()=>{try{localStorage.setItem(key,el.type==='checkbox'?el.checked:el.value)}catch(e){}})});</script>
+</body>
+</html>
