@@ -16,6 +16,13 @@ class ReportParser(HTMLParser):
         self.chip_ids = []
         self.ids = set()
         self.anchors = []
+        self.osm_maps = 0
+        self.map_views = 0
+        self.saw_osm_attribution = False
+
+    def handle_data(self, data):
+        if 'OpenStreetMap contributors' in data:
+            self.saw_osm_attribution = True
 
     def error(self, message):
         self.errors.append(f'line {self.getpos()[0]}: {message}')
@@ -35,6 +42,10 @@ class ReportParser(HTMLParser):
             self.card_ids.append(card_id)
         if 'cx-kpis' in classes and (not parent or 'cx-body' not in parent[1]):
             self.error('.cx-kpis must be directly inside .cx-body')
+        if tag == 'svg' and 'osm-map' in classes:
+            self.osm_maps += 1
+        if 'map-view' in classes:
+            self.map_views += 1
         if tag == 'a' and 'data-cx' in attrs:
             self.chip_ids.append(attrs['data-cx'])
         if 'id' in attrs:
@@ -64,6 +75,11 @@ class ReportParser(HTMLParser):
             self.error('complex filter chips and cards do not match')
         for anchor in set(self.anchors) - self.ids:
             self.error(f'missing anchor target: {anchor}')
+        if self.osm_maps:
+            if not self.saw_osm_attribution:
+                self.error('OpenStreetMap map present but attribution text is missing')
+            if self.map_views < self.osm_maps:
+                self.error('every svg.osm-map must sit inside a .map-view container')
         return self.errors
 
 
@@ -76,7 +92,7 @@ def main():
     if errors:
         print('\n'.join(errors))
         raise SystemExit(1)
-    print(f'PASS: balanced tags, {len(parser.card_ids)} complex cards, KPI boundaries, filter IDs and anchors')
+    print(f'PASS: balanced tags, {len(parser.card_ids)} complex cards, KPI boundaries, filter IDs and anchors, {parser.osm_maps} OSM maps')
 
 
 if __name__ == '__main__':
