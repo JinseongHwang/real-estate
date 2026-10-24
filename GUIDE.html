@@ -1,0 +1,319 @@
+<title>첫 임장 가이드</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 현장 답사 노트 — 데스크톱은 왼쪽 고정 목차 + 본문, 모바일은 상단 가로 스크롤 목차 + 한 단 */
+:root{
+  --paper:#f3f5f2; --surface:#ffffff; --ink:#1d2a2b; --muted:#5b6b6b;
+  --line:#d6ddd9; --accent:#0f6b5c; --accent-soft:#dcece7; --flag:#b5541c; --flag-soft:#f6e4d8;
+  --display:"Black Han Sans","IBM Plex Sans KR","Apple SD Gothic Neo",sans-serif;
+  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#131a1a; --surface:#1b2424; --ink:#e3ebe8; --muted:#9aaba7;
+  --line:#2c3a39; --accent:#5cc4ac; --accent-soft:#1d3631; --flag:#e8925e; --flag-soft:#3a2619; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#131a1a; --surface:#1b2424; --ink:#e3ebe8; --muted:#9aaba7;
+  --line:#2c3a39; --accent:#5cc4ac; --accent-soft:#1d3631; --flag:#e8925e; --flag-soft:#3a2619; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+.wrap{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:56px;padding-block:48px 80px}
+header.hero{grid-column:1/-1;display:grid;gap:14px;padding-bottom:28px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(34px,6vw,58px);line-height:1.15;margin:0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.lede{max-width:62ch;margin:0;color:var(--muted);font-size:17px}
+
+nav.toc{position:sticky;top:calc(24px + env(safe-area-inset-top,0px));align-self:start}
+nav.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+nav.toc a{display:flex;gap:10px;padding:6px 10px;border-radius:6px;color:var(--ink);text-decoration:none;font-size:14px}
+nav.toc a:hover{background:var(--accent-soft)}
+nav.toc a.on{background:var(--accent-soft);color:var(--accent);font-weight:700}
+nav.toc .n{font-family:var(--mono);color:var(--muted);min-width:1.6em}
+
+main{min-width:0;display:grid;gap:64px}
+section{display:grid;gap:16px;scroll-margin-top:24px}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(24px,3.4vw,32px);line-height:1.3;margin:0;text-wrap:balance;display:flex;gap:14px;align-items:baseline}
+h2 .n{font-family:var(--mono);font-size:14px;color:var(--accent);border:1.5px solid var(--accent);border-radius:999px;padding:0 9px;line-height:1.7;flex-shrink:0;transform:translateY(-4px)}
+h3{font-size:14px;letter-spacing:.06em;margin:8px 0 0;color:var(--muted);font-weight:700}
+p{margin:0;max-width:66ch}
+ul,ol.steps{margin:0;padding-left:1.25em;display:grid;gap:8px;max-width:66ch}
+li::marker{color:var(--accent)}
+strong{font-weight:700}
+.src{font-size:13px;color:var(--muted)}
+
+.ask{background:var(--flag-soft);border-radius:10px;padding:16px 20px;display:grid;gap:4px;max-width:66ch}
+.ask .lab{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--flag)}
+.ask p{font-weight:500}
+
+.route{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;counter-reset:r;margin-top:4px}
+.route div{position:relative;padding:28px 12px 0 0;font-size:14px;line-height:1.55;min-width:0}
+.route div::before{content:"";position:absolute;top:9px;left:0;right:0;height:2px;background:var(--accent)}
+.route div::after{counter-increment:r;content:counter(r);position:absolute;top:0;left:0;width:20px;height:20px;border-radius:50%;background:var(--surface);border:2px solid var(--accent);font-family:var(--mono);font-size:11px;display:grid;place-items:center;color:var(--accent)}
+.route div:last-child::before{right:auto;width:20px}
+
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:600px;font-size:14px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.06em;color:var(--muted);font-weight:700}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:700;white-space:nowrap}
+
+.qlist{list-style:none;padding:0;counter-reset:q;display:grid;gap:10px;max-width:66ch}
+.qlist li{counter-increment:q;display:grid;grid-template-columns:2em minmax(0,1fr);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+.qlist li::before{content:"Q" counter(q);font-family:var(--mono);font-size:13px;color:var(--accent);padding-top:2px}
+
+.skip li{color:var(--muted)}
+.skip li strong{color:var(--ink)}
+
+.check{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:grid;gap:4px;max-width:66ch}
+.check-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.count{font-family:var(--mono);font-size:14px;color:var(--accent);font-variant-numeric:tabular-nums}
+.check label{display:flex;gap:12px;align-items:flex-start;padding:8px 6px;border-radius:6px;cursor:pointer}
+.check label:hover{background:var(--accent-soft)}
+.check input{width:20px;height:20px;margin-top:4px;accent-color:var(--accent);flex-shrink:0}
+.check input:checked+span{color:var(--muted);text-decoration:line-through}
+button.reset{font:inherit;font-size:13px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 12px;cursor:pointer}
+button.reset:hover{border-color:var(--accent);color:var(--accent)}
+
+.sources ul{font-size:14px}
+footer{grid-column:1/-1;border-top:1px solid var(--line);padding-top:20px;font-size:13px;color:var(--muted)}
+
+@media (max-width:820px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:28px;padding-block:28px 56px}
+  nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+  nav.toc::-webkit-scrollbar{display:none}
+  nav.toc ol{display:flex;gap:6px;width:max-content}
+  nav.toc a{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+  section{scroll-margin-top:64px}
+  main{gap:48px}
+  .route{grid-template-columns:minmax(0,1fr);gap:14px}
+  .route div{padding:0 0 0 34px}
+  .route div::before{top:22px;bottom:-14px;left:9px;right:auto;width:2px;height:auto}
+  .route div:last-child::before{display:none}
+}
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">아파트 매수 · 첫 임장 · 2026.10</div>
+    <h1>이 아파트는 <em>왜 이 가격</em>일까</h1>
+    <p class="lede">임장의 목표는 그 이유를 몸으로 납득하고 오는 거예요. 그래서 가격에 실제로 반영되는 요소만 다뤄요. 신규 아파트 구매자가 가장 중시한 건 입지(교통·생활편의·교육환경)였고, 수도권은 교통 편리성이 1순위였어요.</p>
+  </header>
+
+  <nav class="toc" aria-label="목차">
+    <ol>
+      <li><a href="#prep"><span class="n">00</span>임장 전 준비</a></li>
+      <li><a href="#transit"><span class="n">01</span>교통</a></li>
+      <li><a href="#school"><span class="n">02</span>학군·학원가</a></li>
+      <li><a href="#env"><span class="n">03</span>인프라·환경</a></li>
+      <li><a href="#complex"><span class="n">04</span>단지 자체</a></li>
+      <li><a href="#future"><span class="n">05</span>미래 가치</a></li>
+      <li><a href="#agent"><span class="n">06</span>중개사무소</a></li>
+      <li><a href="#skip"><span class="n">07</span>안 봐도 되는 것</a></li>
+      <li><a href="#check"><span class="n">✓</span>당일 체크리스트</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section id="prep">
+      <h2><span class="n">00</span>임장 전 준비와 당일 동선</h2>
+      <p>현장보다 집에서 하는 숙제가 더 중요해요. 비교 대상 없이 가면 아무것도 안 보여요.</p>
+      <h3>집에서 먼저 하는 숙제</h3>
+      <ol class="steps">
+        <li>호갱노노·아실·네이버부동산에서 후보 단지의 최근 실거래가, 세대수, 입주연도, 평형을 정리해요. 호가가 아니라 실거래가 기준이에요.</li>
+        <li>가격이 비슷한 단지 2~3개와 <strong>가격이 확 다른 인근 단지 1~2개</strong>를 같이 묶어요. 임장은 "A와 B가 왜 1억 차이 날까"를 확인하러 가는 거예요.</li>
+        <li>지도에서 가장 가까운 역, 배정 초등학교, 학원가, 대형마트 위치를 미리 찍어둬요.</li>
+        <li>각 단지에 대해 "내 가설"을 한 줄씩 써가요. 예: "B가 비싼 건 역 5분 + 초품아 때문일 것".</li>
+      </ol>
+      <h3>당일 동선</h3>
+      <div class="route">
+        <div>역에서 출발해 단지까지 직접 걸어가요</div>
+        <div>단지 안을 한 바퀴 돌아요</div>
+        <div>비교 단지로 걸어서 이동해요</div>
+        <div>상권·학원가를 지나 중개사무소 2곳 이상 방문</div>
+      </div>
+      <p class="src">가능하면 평일 저녁 출퇴근 시간대에 한 번 더 와보세요. 주말 낮과는 전혀 다른 동네일 수 있어요.</p>
+    </section>
+
+    <section id="transit">
+      <h2><span class="n">01</span>교통 — 가격에 가장 크게 반영되는 요소</h2>
+      <p>같은 "역 10분 이내" 단지 안에서도 역 거리에 따라 2억 원 차이가 난 사례가 있을 만큼, 교통은 분 단위로 가격에 반영돼요. <a class="src" href="https://v.daum.net/v/Fi7CUmrRhd" target="_blank" rel="noopener">다음 뉴스</a></p>
+      <h3>현장에서 볼 것</h3>
+      <ul>
+        <li><strong>실제 도보 시간</strong>: 지도 앱의 "도보 7분"이 아니라 단지 정문·내가 볼 동 현관에서 개찰구까지 직접 재요. 횡단보도 대기, 오르막, 지하 깊이가 다 포함돼요.</li>
+        <li><strong>역까지 가는 길의 질</strong>: 대로변으로 편하게 가는지, 어두운 골목·육교·굴다리를 지나는지 봐요. "역세권인데 싼 단지"의 흔한 이유예요.</li>
+        <li><strong>노선 가치</strong>: 강남·여의도·광화문 같은 업무지구까지 몇 정거장, 몇 분인지가 핵심이에요. 역이 가까워도 노선이 약하면 가격이 덜 붙어요.</li>
+        <li><strong>출퇴근 시간 체감</strong>: 평일 아침 플랫폼 혼잡도, 버스 배차, 단지 앞 도로 정체를 확인해요.</li>
+      </ul>
+      <div class="ask"><span class="lab">가격 질문</span><p>이 단지와 역에서 더 먼 옆 단지의 가격 차이가, 내가 걸어본 도보 시간 차이만큼 납득되는가?</p></div>
+      <p class="src">서울·수도권에서는 역 거리뿐 아니라 강남까지의 시간적·물리적 거리 자체를 먼저 보는 경우가 많아요. <a href="https://weolbu.com/community/3220952" target="_blank" rel="noopener">월부 커뮤니티</a></p>
+    </section>
+
+    <section id="school">
+      <h2><span class="n">02</span>학군·학원가 — 지역마다 힘이 다른 요소</h2>
+      <p>학군은 강한 곳에선 강하고, 약한 곳에선 거의 반영이 안 돼요. 올림픽파크포레온은 같은 단지 안에서 배정 초등학교가 갈리면서 약 3억 원 차이가 났지만, 홍제 생활권에서는 초등학교 배정에 따른 차이가 뚜렷하지 않았다는 분석도 있어요. 현장에서는 "이 동네에서 학군이 가격을 움직이는가"를 확인해요. <a class="src" href="https://v.daum.net/v/Fi7CUmrRhd" target="_blank" rel="noopener">다음 뉴스</a> · <a class="src" href="https://weolbu.com/s/Qz2VCeDaog" target="_blank" rel="noopener">월부</a></p>
+      <h3>현장에서 볼 것</h3>
+      <ul>
+        <li><strong>초품아 여부와 등굣길</strong>: 단지 안이나 바로 옆에 초등학교가 있는지, 아이가 큰길을 건너지 않고 갈 수 있는지 걸어봐요.</li>
+        <li><strong>배정 학교</strong>: 같은 단지라도 동마다 배정이 갈리는지 중개사에게 꼭 물어요.</li>
+        <li><strong>학원가 규모와 거리</strong>: 한 건물에 몰린 수준인지, 블록 단위로 이어지는지 봐요. 밤 9~10시 학원 버스와 픽업 차량 행렬이 있다면 학군 수요가 실제로 있다는 신호예요.</li>
+        <li><strong>주민 구성</strong>: 오후 놀이터·단지 안 아이들, 유모차 비율로 학령기 가족이 주 수요층인지 알 수 있어요.</li>
+      </ul>
+      <div class="ask"><span class="lab">가격 질문</span><p>학교 배정만 다른 두 단지(또는 동)의 가격 차이가 있는가?</p></div>
+    </section>
+
+    <section id="env">
+      <h2><span class="n">03</span>생활 인프라·환경 — 좋은 것보다 나쁜 것이 없는지</h2>
+      <p>선호시설이 많은 것보다 비선호시설이 없는 게 더 중요해요. 좋은 시설은 여러 단지가 같이 누리지만, 기피시설은 특정 단지만 깎아요. <a class="src" href="https://weolbu.com/community/3220952" target="_blank" rel="noopener">월부 커뮤니티</a></p>
+      <h3>현장에서 볼 것</h3>
+      <ul>
+        <li><strong>기피시설</strong>: 고압선·변전소, 유흥가·모텔촌, 공장, 고가도로·철로 소음, 대로변 소음과 매연, 쓰레기 처리시설. 단지 경계를 한 바퀴 돌며 귀와 코로 확인해요.</li>
+        <li><strong>동네의 균질성</strong>: 주변이 아파트 단지로 정돈돼 있는지, 노후 빌라·상가가 섞여 있는지 봐요. 정돈된 택지일수록 가격이 잘 붙어요.</li>
+        <li><strong>생활 상권</strong>: 대형마트, 병원(특히 소아과), 프랜차이즈 카페·학원이 걸어서 닿는지 봐요. 대형마트·스타벅스 입점은 그 상권에 구매력이 있다는 신호예요.</li>
+        <li><strong>공원·하천·조망</strong>: 걸어서 가는 큰 공원이나 하천변이 있는지, 조망이 열린 동이 어디인지 봐요. 한강 조망 여부만으로 같은 단지 안에서 10억 원 안팎 차이가 난 사례도 있어요.</li>
+      </ul>
+      <div class="ask"><span class="lab">가격 질문</span><p>이 단지만 유독 싼 이유가 담장 밖에 있는가?</p></div>
+    </section>
+
+    <section id="complex">
+      <h2><span class="n">04</span>단지 자체 — 입지가 비슷할 때 가격을 가르는 요소</h2>
+      <p>교통이 비슷하면 그다음은 연식, 브랜드, 세대수가 가격 차이를 만들어요. 역세권·브랜드·대단지를 갖춘 단지는 하락기에 방어력이 좋고 상승기에 시세를 주도하는 경향이 있어요. <a class="src" href="https://weolbu.com/community/3220377" target="_blank" rel="noopener">월부 커뮤니티</a> · <a class="src" href="https://www.smarttoday.co.kr/ko-kr/articles/103104" target="_blank" rel="noopener">스마트투데이</a></p>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>요소</th><th>현장에서 확인할 것</th><th>가격과의 관계</th></tr></thead>
+          <tbody>
+            <tr><td>연식</td><td>외벽 도색, 엘리베이터, 지하주차장 연결 여부</td><td>신축일수록 비싸지만 입지 차이를 다 넘지는 못해요</td></tr>
+            <tr><td>세대수·브랜드</td><td>단지 규모감, 관리 상태, 커뮤니티 시설</td><td>1,000세대 이상 대단지는 거래가 많아 가격이 안정적이에요</td></tr>
+            <tr><td>경사·평지</td><td>정문에서 안쪽 동까지 걸어서 오르막 체감</td><td>언덕 위 동은 같은 단지라도 싸요</td></tr>
+            <tr><td>주차</td><td>저녁 8시 이후 이중주차·지상주차 정도</td><td>구축 가격이 눌리는 대표 이유예요</td></tr>
+            <tr><td>동·층·향</td><td>역·학교와 가까운 동, 남향, 조망, 저층 사생활</td><td>같은 단지 안 가격 차이의 대부분이에요</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>꼭 해볼 것</strong>: 단지 안에서 "로열동"과 "비선호동"을 직접 골라보고, 실거래가에서 실제로 그 차이가 나는지 대조해요. 감을 키우는 가장 빠른 방법이에요.</p>
+      <div class="ask"><span class="lab">가격 질문</span><p>입지가 같은 옆 단지와의 가격 차이를 연식·규모·경사로 설명할 수 있는가?</p></div>
+    </section>
+
+    <section id="future">
+      <h2><span class="n">05</span>미래 가치 — 지금 가격에 이미 들어간 기대</h2>
+      <p>현재 가격에는 앞으로의 기대가 이미 섞여 있어요. "호재가 있다"가 아니라 "그 호재가 가격에 얼마나 반영됐고, 얼마나 확실한가"를 봐야 해요.</p>
+      <h3>현장에서 볼 것</h3>
+      <ul>
+        <li><strong>공사 현장</strong>: 신규 역·도로 공사가 실제로 진행 중인지 펜스와 공정 안내판을 확인해요. 계획만 있는 호재와 착공한 호재는 무게가 달라요.</li>
+        <li><strong>주변 공급 물량</strong>: 근처에 타워크레인이 많다면 1~3년 뒤 입주 물량이 쏟아질 수 있어요. 입주장에는 전세가와 매매가가 같이 눌려요.</li>
+        <li><strong>재건축·리모델링 단지</strong>: 오래된 단지가 이상하게 비싸다면 정비사업 기대가 반영된 거예요. 현수막, 조합 사무실, 추진 단계를 확인해요.</li>
+        <li><strong>주변 신축 시세</strong>: 바로 옆 신축 가격이 구축 가격의 천장 역할을 하기도 해요.</li>
+      </ul>
+      <div class="ask"><span class="lab">가격 질문</span><p>이 가격은 현재 가치인가, 기대 가치인가?</p></div>
+    </section>
+
+    <section id="agent">
+      <h2><span class="n">06</span>중개사무소 — 가격의 이유를 직접 묻는 곳</h2>
+      <p>현장에서 세운 가설을 확인받는 자리예요. 두 단지가 왜 차이 나는지는 중개사에게 그대로 묻는 게 가장 빨라요. 최소 2곳 이상 방문해서 말이 같은지 교차 확인해요.</p>
+      <p><strong>들어가기 전</strong>: 매수 의사와 예산, 원하는 평형·시기를 솔직하게 말하면 대화의 질이 달라져요. 매수 의사 없는 "임장크루" 방문으로 중개사 피로도가 높아졌다는 보도도 있어서, 실수요자라는 걸 먼저 밝히는 게 좋아요. <a class="src" href="https://www.ytn.co.kr/_ln/0102_202505060608057276" target="_blank" rel="noopener">YTN</a></p>
+      <ol class="qlist">
+        <li>이 단지랑 옆 ○○단지가 왜 이 정도 차이 나요?</li>
+        <li>이 단지에서 제일 비싼 동·라인과 제일 싼 동은 어디고, 이유가 뭐예요?</li>
+        <li>요즘 어떤 분들이 사러 오세요? (신혼, 학령기 가족, 투자자 등)</li>
+        <li>최근 실거래가랑 지금 호가 차이는 어때요? 급매가 나오나요?</li>
+        <li>이 동네 사람들이 제일 불편해하는 게 뭐예요? (주차, 소음, 언덕)</li>
+        <li>동마다 초등학교 배정이 갈리나요?</li>
+        <li>주변 입주 예정 물량이나 정비사업은 어떤 단계예요?</li>
+      </ol>
+      <p><strong>흘려들을 것</strong>: "여기 무조건 올라요", "지금 아니면 못 사요" 같은 말은 근거가 아니에요. 구체적인 거래 사례와 이유만 메모해요.</p>
+    </section>
+
+    <section id="skip">
+      <h2><span class="n">07</span>안 봐도 되는 것</h2>
+      <p>단지 시세를 설명하지 않는 것들은 첫 임장에서 건너뛰어도 돼요.</p>
+      <ul class="skip">
+        <li><strong>매물 집 내부 인테리어, 가구, 도배</strong>: 개별 집값엔 영향이 있지만 단지 시세를 설명하진 않아요. 계약 직전에 보면 돼요.</li>
+        <li><strong>조경 디테일, 분수대, 조형물</strong>: 관리 상태 정도만 보면 충분해요.</li>
+        <li><strong>방음 성능</strong>: 구매자들이 크게 고려하지 않는 요소로 나타났어요. 단, 대로변·철로 소음은 03에서 봐요. <a href="https://koreascience.or.kr/article/CFKO201826857077023.pdf" target="_blank" rel="noopener">관련 논문</a></li>
+        <li><strong>커뮤니티 프로그램, 단지명 변경 소문</strong> 같은 소문성 정보.</li>
+      </ul>
+    </section>
+
+    <section id="check">
+      <h2><span class="n">✓</span>당일 체크리스트</h2>
+      <div class="check" id="checklist">
+        <div class="check-head"><span class="count" id="count">0 / 11</span><button class="reset" id="reset" type="button">모두 해제</button></div>
+      </div>
+      <p class="src">체크 상태는 이 기기의 브라우저에만 저장돼요.</p>
+    </section>
+
+    <section class="sources" id="sources">
+      <h2>출처</h2>
+      <ul>
+        <li><a href="https://scholar.kyobobook.co.kr/article/detail/4010025061410" target="_blank" rel="noopener">아파트 분양가 결정 변수 분석 (교보 스콜라)</a></li>
+        <li><a href="https://v.daum.net/v/Fi7CUmrRhd" target="_blank" rel="noopener">같은 단지인데 14억 차이 (다음 뉴스)</a></li>
+        <li><a href="https://www.smarttoday.co.kr/ko-kr/articles/103104" target="_blank" rel="noopener">역세권·브랜드·대단지 (스마트투데이)</a></li>
+        <li><a href="https://weolbu.com/s/Qz2VCeDaog" target="_blank" rel="noopener">교통·학군·환경을 가격으로 확인하기 (월부)</a></li>
+        <li><a href="https://weolbu.com/community/3220377" target="_blank" rel="noopener">같은 역세권인데 1억 차이 나는 이유 (월부)</a></li>
+        <li><a href="https://weolbu.com/community/3220952" target="_blank" rel="noopener">입지기반 매물 선정 기준 (월부)</a></li>
+        <li><a href="https://koreascience.or.kr/article/CFKO201826857077023.pdf" target="_blank" rel="noopener">아파트 구매 고려 항목별 평가 (한국과학기술정보)</a></li>
+        <li><a href="https://www.ytn.co.kr/_ln/0102_202505060608057276" target="_blank" rel="noopener">임장크루와 중개사 피로도 (YTN)</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>2026년 10월 24일 기준으로 정리했어요. 실거래가와 정책은 방문 전에 다시 확인하세요.</footer>
+</div>
+
+<script>
+(function(){
+  var items=[
+    "후보·비교 단지 실거래가 표를 휴대폰에 저장했다",
+    "역 개찰구에서 단지 동 현관까지 도보 시간을 직접 쟀다",
+    "역까지 가는 길(오르막, 골목, 횡단보도)을 걸어봤다",
+    "배정 초등학교까지 등굣길을 걸어봤다",
+    "학원가 규모와 위치를 확인했다",
+    "단지 경계를 돌며 기피시설·소음을 확인했다",
+    "단지 안 경사와 로열동·비선호동을 골라봤다",
+    "저녁 시간 주차 상황을 봤다(가능하면)",
+    "주변 공사 현장과 입주 예정 물량을 확인했다",
+    "중개사무소 2곳 이상에서 \"왜 이 가격인가\"를 물었다",
+    "집에 와서 처음 세운 가설이 맞았는지 한 줄씩 정리했다"
+  ];
+  var KEY="imjang-check-v1", saved={};
+  try{saved=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){saved={}}
+  var box=document.getElementById("checklist"), count=document.getElementById("count");
+  items.forEach(function(t,i){
+    var l=document.createElement("label"), c=document.createElement("input"), s=document.createElement("span");
+    c.type="checkbox"; c.id="chk-"+i; c.checked=!!saved[i]; s.textContent=t;
+    c.addEventListener("change",function(){saved[i]=c.checked; save(); update();});
+    l.appendChild(c); l.appendChild(s); box.appendChild(l);
+  });
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(saved))}catch(e){}}
+  function update(){var n=box.querySelectorAll("input:checked").length; count.textContent=n+" / "+items.length;}
+  document.getElementById("reset").addEventListener("click",function(){
+    box.querySelectorAll("input").forEach(function(c){c.checked=false}); saved={}; save(); update();
+  });
+  update();
+
+  var links=[].slice.call(document.querySelectorAll("nav.toc a"));
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){
+        links.forEach(function(a){
+          var on=a.getAttribute("href")==="#"+e.target.id; a.classList.toggle("on",on);
+          if(on && window.matchMedia("(max-width:820px)").matches){ try{a.scrollIntoView({inline:"center",block:"nearest"})}catch(x){} }
+        });
+      }});
+    },{rootMargin:"-30% 0px -60% 0px"});
+    document.querySelectorAll("main section[id]").forEach(function(s){io.observe(s)});
+  }
+})();
+</script>
